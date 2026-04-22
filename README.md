@@ -11,3 +11,7 @@ Este repositório contém o frontend do Projeto 3 da disciplina de Programação
 - Miqueias Ayron
 - Pedro Pereira
 - Victor Costa
+
+### Instalação de dependências 
+
+npm install react-router-dom axios recharts
