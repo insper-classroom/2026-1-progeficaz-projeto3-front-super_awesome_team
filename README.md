@@ -14,4 +14,4 @@ Este repositório contém o frontend do Projeto 3 da disciplina de Programação
 
 ### Instalação de dependências 
 
-npm install react-router-dom axios recharts
+npm install react-router-dom axios recharts react-icons
