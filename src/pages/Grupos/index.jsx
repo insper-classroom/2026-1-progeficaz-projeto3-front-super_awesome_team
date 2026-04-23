@@ -1,5 +1,6 @@
 // Página de listagem de grupos do usuário
 import { useState } from 'react'
+import styles from './Grupos.module.css'
 
 export function Grupos() {
 
@@ -28,7 +29,7 @@ export function Grupos() {
     }
 
     return (
-        <div>
+        <div className={styles.pagina}>
             <h1>Meus Grupos</h1>
 
             <button onClick={() => setModalAberto(true)}>Criar grupo</button>
@@ -39,7 +40,7 @@ export function Grupos() {
 
             {/* modal de criar grupo — aparece quando modalAberto for true */}
             {modalAberto && (
-                <div>
+                <div className={styles.modal}>
                 <h2>Novo grupo</h2>
 
                 {/* campo nome do grupo */}
@@ -67,7 +68,7 @@ export function Grupos() {
                   ))}
                 </ul>
 
-                <button>Criar</button>
+                <button className={styles.botaoCriar}>Criar</button>
                 <button onClick={() => fecharModal()}>Fechar</button>
                 </div>
             )}
