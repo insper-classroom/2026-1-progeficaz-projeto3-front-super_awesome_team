@@ -3,6 +3,7 @@
 }
 
 .content {
-  flex: 1;
-  padding: 20px;
+  margin-left: 80px;
+  padding: 40px;
+  width: 100%;
 }

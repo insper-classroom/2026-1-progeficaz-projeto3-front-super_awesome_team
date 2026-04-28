@@ -1,23 +1,24 @@
 import { useState } from "react";
-import Card from "../../components/Card";
+import Card from "../../components/GrupoCard";
 import styles from "./Grupos.module.css";
+import Button from "../../components/Button";
 
 export default function Grupos() {
   const [grupos, setGrupos] = useState([
     {
-      nome: "Casa & casamento",
+      nome: "Casa",
       valor: "R$ 1200",
-      desc: "Despesas da casa",
+      desc: "Contas",
       img: "/casa.jpg"
     },
     {
-      nome: "Viagem Europa",
+      nome: "Viagem",
       valor: "R$ 3000",
-      desc: "Viagem internacional",
+      desc: "Viagem para os EUA",
       img: "/viagem.jpg"
     },
     {
-      nome: "Mercado",
+      nome: "Compras",
       valor: "R$ 800",
       desc: "Compras do mês",
       img: "/mercado.jpg"
@@ -53,9 +54,9 @@ export default function Grupos() {
           <p>Organize suas despesas em grupo</p>
         </div>
 
-        <button onClick={adicionarGrupo}>
+        <Button onClick={adicionarGrupo}>
           + Criar grupo
-        </button>
+        </Button>
       </div>
 
       <div className={styles.grid}>
