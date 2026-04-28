@@ -1,6 +1,7 @@
 // Página com dados pessoais do usuário
 import styles from './Perfil.module.css'
-import { useState } from "react"
+import { useState, useRef } from "react"
+import { CiEdit } from 'react-icons/ci'
 
 export function Perfil() {
 
@@ -9,6 +10,9 @@ export function Perfil() {
   const [nascimento, setNascimento] = useState('')
   const [senha, setSenha] = useState('••••••••')
   const email = 'usuario@gmail.com'
+  const [foto, setFoto] = useState(null) // armazena a URL da foto escolhida
+  const inputFoto = useRef(null) // referência ao input de arquivo escondido
+
 
   // renderiza o campo nome — input se editando, texto se não
   function renderizaNome() {
@@ -33,6 +37,13 @@ export function Perfil() {
     return <p>{senha}</p>
   }
 
+  function aoEscolherFoto(e) {
+    const arquivo = e.target.files[0]
+    if (arquivo) {
+      setFoto(URL.createObjectURL(arquivo)) // cria URL temporária para preview
+    }
+  }
+
   // renderiza o botão — salvar se editando, editar se não
   function renderizaBotao() {
     if (editando) {
@@ -42,7 +53,26 @@ export function Perfil() {
   }
     return (
       <div className={styles.pagina}>
-        <div className={styles.avatar}>👤</div>
+        {/* container da foto com lápis por cima */}
+        <div className={styles.avatarContainer}>
+
+          {/* mostra foto escolhida ou foto padrão */}
+          <img src={foto || '/imagem_padrao_perfil.png'} className={styles.avatar} />
+
+          {/* lápis clicável que abre o seletor de arquivo */}
+          <div className={styles.editarFoto} onClick={() => inputFoto.current.click()}>
+            <CiEdit />
+          </div>
+
+          {/* input escondido */}
+          <input
+            type="file"
+            accept="image/*"
+            ref={inputFoto}
+            style={{ display: 'none' }}
+            onChange={aoEscolherFoto}
+          />
+        </div>
 
         <p className={styles.label}>Nome:</p>
         {renderizaNome()}
