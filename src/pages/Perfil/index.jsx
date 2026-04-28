@@ -1,5 +1,5 @@
 // Página com dados pessoais do usuário
-
+import styles from './Perfil.module.css'
 import { useState } from "react"
 
 export function Perfil() {
@@ -41,10 +41,10 @@ export function Perfil() {
     return <button onClick={() => setEditando(true)}>Editar</button>
   }
     return (
-      <div>
-        <div>👤</div>
+      <div className={styles.pagina}>
+        <div className={styles.avatar}>👤</div>
 
-        <p>Nome:</p>
+        <p className={styles.label}>Nome:</p>
         {renderizaNome()}
 
         <p>Data de nascimento</p>
