@@ -5,18 +5,21 @@ import { DetalhesGrupo } from '../pages/DetalhesGrupo'
 import { Pessoal } from '../pages/Pessoal'
 import { Perfil } from '../pages/Perfil'
 import { LayoutPrincipal } from '../layouts/LayoutPrincipal'
+import { UserProvider } from '../contexts/UserContext'
 
 export function AppRoutes() {
   return (
     <BrowserRouter>
+      <UserProvider>
         <LayoutPrincipal>
-            <Routes>
-                <Route path="/grupos" element={< Grupos />} />
-                <Route path="/grupos/:id" element={< DetalhesGrupo />} />
-                <Route path="/pessoal" element={< Pessoal />} />
-                <Route path="/perfil" element={< Perfil />} />
-            </Routes>
+          <Routes>
+            <Route path="/grupos" element={< Grupos />} />
+            <Route path="/grupos/:id" element={< DetalhesGrupo />} />
+            <Route path="/pessoal" element={< Pessoal />} />
+            <Route path="/perfil" element={< Perfil />} />
+          </Routes>
         </LayoutPrincipal>
+      </UserProvider>
     </BrowserRouter>
   )
 }

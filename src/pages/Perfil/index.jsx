@@ -2,6 +2,7 @@
 import styles from './Perfil.module.css'
 import { useState, useRef } from "react"
 import { CiEdit } from 'react-icons/ci'
+import { useUser } from '../../contexts/UserContext'
 
 export function Perfil() {
 
@@ -10,7 +11,7 @@ export function Perfil() {
   const [nascimento, setNascimento] = useState('')
   const [senha, setSenha] = useState('••••••••')
   const email = 'usuario@gmail.com'
-  const [foto, setFoto] = useState(null) // armazena a URL da foto escolhida
+  const { foto, setFoto } = useUser() // foto de perfil compartilhada via contexto
   const inputFoto = useRef(null) // referência ao input de arquivo escondido
 
 
