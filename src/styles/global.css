@@ -1,6 +1,14 @@
 /* Design global e reset padrão */
 * {
   box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
-}
+}  

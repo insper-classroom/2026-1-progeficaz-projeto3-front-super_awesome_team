@@ -1,0 +1,23 @@
+.tabs {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0;
+}
+
+.tabs button {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 10px;
+  background: #e5e7eb;
+  cursor: pointer;
+}
+
+.tabs button:hover {
+  background: #4f46e5;
+  color: white;
+}
+
+.abaAtiva {
+  background: #4f46e5;
+  color: white;
+}

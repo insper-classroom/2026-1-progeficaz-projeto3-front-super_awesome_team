@@ -8,12 +8,12 @@ export function Sidebar() {
     const { foto } = useUser()
     return (
         <nav className={styles.sidebar}>
-            <div>Logo</div>
+            <div className={styles.logo}>Logo</div>
 
-            <div className={styles.links}> 
+            <div className={styles.links}>
                 {/* Links principais*/}
-                <Link to="/grupos"> <CiGrid41/> </Link>
-                <Link to="/pessoal"> <CiStop1/> </Link>
+                <Link to="/grupos"> <CiGrid41/> <span>Grupos</span> </Link>
+                <Link to="/pessoal"> <CiStop1/> <span>Pessoal</span> </Link>
             </div>
 
             <div className={styles.spacer} />
