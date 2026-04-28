@@ -4,7 +4,6 @@ import { useParams } from 'react-router-dom'
 import { VisaoGeral } from './abas/VisaoGeral'
 import { Despesas } from './abas/Despesas'
 import { Metas } from './abas/Metas'
-import styles from './DetalhesGrupo.module.css'
 
 export function DetalhesGrupo() {
 
@@ -23,18 +22,18 @@ export function DetalhesGrupo() {
 
   // retorna o estilo certo para cada aba
   function classeAba(nomeAba) {
-    if (abaAtiva === nomeAba) return styles.abaAtiva
-    return styles.aba
+    if (abaAtiva === nomeAba) return ''
+    return ''
   }
 
   return (
-    <div className={styles.pagina}>
+    <div>
 
       {/* header com nome do grupo */}
-      <h1 className={styles.nomeGrupo}>Nome do Grupo</h1>
+      <h1>Nome do Grupo</h1>
 
       {/* navegação entre abas */}
-      <div className={styles.abas}>
+      <div>
         <button className={classeAba('visaoGeral')} onClick={() => setAbaAtiva('visaoGeral')}>
           Visão Geral
         </button>
@@ -49,7 +48,7 @@ export function DetalhesGrupo() {
       </div>
 
       {/* conteúdo da aba ativa */}
-      <div className={styles.conteudo}>
+      <div>
         {renderizaAba()}
       </div>
 
