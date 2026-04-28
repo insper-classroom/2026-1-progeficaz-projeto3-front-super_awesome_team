@@ -1,4 +1,10 @@
-// Página com dados pessoais do usuário
-export function Perfil() {
-  return <div>Perfil</div>
+export default function Perfil() {
+  return (
+    <div>
+      <h1>Perfil</h1>
+
+      <p>Nome: João</p>
+      <p>Email: joao@email.com</p>
+    </div>
+  );
 }

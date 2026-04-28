@@ -1,0 +1,58 @@
+.card {
+  width: 100%;
+  height: 180px;
+  border-radius: 20px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* imagem */
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* overlay estilo app */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,0.7),
+    rgba(0,0,0,0.2),
+    transparent
+  );
+}
+
+/* conteúdo */
+.content {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  color: white;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.percent {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+.value {
+  font-size: 28px;
+  font-weight: bold;
+  margin-top: 5px;
+}
+
+.subtitle {
+  font-size: 14px;
+  opacity: 0.8;
+}

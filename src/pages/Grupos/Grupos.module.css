@@ -1,24 +1,12 @@
-/* Estilos básicos da página de grupos */
-.pagina {
-  padding: 24px;
-}
-
-.botaoCriar {
-  margin-top: 8px;
-  padding: 8px 16px;
-  cursor: pointer;
-}
-
-/* Modal sobreposto ao conteúdo */
-.modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: white;
-  padding: 24px;
-  border: 1px solid #ccc;
+.header {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
 }

@@ -1,4 +1,8 @@
-/* Estilo do layout principal */
-.main {
-  margin-left: 100px;
+.container {
+  display: flex;
+}
+
+.content {
+  flex: 1;
+  padding: 20px;
 }

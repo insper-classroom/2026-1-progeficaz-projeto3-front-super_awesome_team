@@ -1,58 +1,38 @@
-// Página detalhada do grupo (dashboard compartilhado entre membros)
-import { useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { VisaoGeral } from './abas/VisaoGeral'
-import { Despesas } from './abas/Despesas'
-import { Metas } from './abas/Metas'
-import styles from './DetalhesGrupo.module.css'
+import { useState } from "react";
 
-export function DetalhesGrupo() {
+export default function DetalhesGrupo() {
+  const [despesas, setDespesas] = useState([
+    { nome: "Pizza", valor: 120 },
+    { nome: "Mercado", valor: 300 }
+  ]);
 
-  // pega o id do grupo pela URL (ex: /grupos/123)
-  const { id } = useParams()
+  function adicionarDespesa() {
+    const nome = prompt("Nome da despesa:");
+    const valor = prompt("Valor:");
 
-  // controla qual aba esta visivel
-  const [abaAtiva, setAbaAtiva] = useState('visaoGeral')
+    if (!nome || !valor) return;
 
-  // renderiza o conteudo conforme a aba selecionada
-  function renderizaAba() {
-    if (abaAtiva === 'visaoGeral') return <VisaoGeral />
-    if (abaAtiva === 'despesas') return <Despesas />
-    if (abaAtiva === 'metas') return <Metas />
-  }
-
-  // retorna o estilo certo para cada aba
-  function classeAba(nomeAba) {
-    if (abaAtiva === nomeAba) return styles.abaAtiva
-    return styles.aba
+    setDespesas([
+      ...despesas,
+      { nome, valor: Number(valor) }
+    ]);
   }
 
   return (
-    <div className={styles.pagina}>
+    <div>
+      <h1>Despesas do grupo</h1>
 
-      {/* header com nome do grupo */}
-      <h1 className={styles.nomeGrupo}>Nome do Grupo</h1>
+      <button onClick={adicionarDespesa}>
+        + Nova despesa
+      </button>
 
-      {/* navegação entre abas */}
-      <div className={styles.abas}>
-        <button className={classeAba('visaoGeral')} onClick={() => setAbaAtiva('visaoGeral')}>
-          Visão Geral
-        </button>
-
-        <button className={classeAba('despesas')} onClick={() => setAbaAtiva('despesas')}>
-          Despesas
-        </button>
-
-        <button className={classeAba('metas')} onClick={() => setAbaAtiva('metas')}>
-          Metas
-        </button>
-      </div>
-
-      {/* conteúdo da aba ativa */}
-      <div className={styles.conteudo}>
-        {renderizaAba()}
-      </div>
-
+      <ul>
+        {despesas.map((d, i) => (
+          <li key={i}>
+            {d.nome} - R$ {d.valor}
+          </li>
+        ))}
+      </ul>
     </div>
-  )
+  );
 }

@@ -1,95 +1,74 @@
-// Página de listagem de grupos do usuário
-import { useState } from 'react'
-import styles from './Grupos.module.css'
-import { useNavigate } from 'react-router-dom'
+import { useState } from "react";
+import Card from "../../components/Card";
+import styles from "./Grupos.module.css";
 
-export function Grupos() {
+export default function Grupos() {
+  const [grupos, setGrupos] = useState([
+    {
+      nome: "Casa & casamento",
+      valor: "R$ 1200",
+      desc: "Despesas da casa",
+      img: "/casa.jpg"
+    },
+    {
+      nome: "Viagem Europa",
+      valor: "R$ 3000",
+      desc: "Viagem internacional",
+      img: "/viagem.jpg"
+    },
+    {
+      nome: "Mercado",
+      valor: "R$ 800",
+      desc: "Compras do mês",
+      img: "/mercado.jpg"
+    },
+    {
+      nome: "Estudos",
+      valor: "R$ 500",
+      desc: "Cursos e materiais",
+      img: "/estudo.jpg"
+    }
+  ]);
 
-    const navigate = useNavigate() // hook para navegar entre páginas
-    const [grupos, setGrupos] = useState([]) // lista de grupos criados pelo usuario
-    const [modalAberto, setModalAberto] = useState(false) // controla a visibilidade do modal
-    const [nomeGrupo, setNomeGrupo] = useState('') // nome digitado para o novo grupo
-    const [emailMembro, setEmailMembro ] = useState('') // e-mail digitado para adicionar membro
-    const [membros, setMembros] = useState([]) // lista de e-mails dos membros adicionados
+  function adicionarGrupo() {
+    const nome = prompt("Nome do grupo:");
+    if (!nome) return;
 
-    // adiciona e-mail à lista, bloqueando duplicados
-    function adicionarMembro() {
-      if (!membros.includes(emailMembro)) { 
-        setMembros([...membros, emailMembro]);
-        setEmailMembro('') // limpa o campo após adicionar
-        console.log('E-mail adicionado');
-      } else {
-        console.log('Este membro já foi adicionado a lista');
+    setGrupos([
+      ...grupos,
+      {
+        nome,
+        valor: "R$ 0",
+        desc: "Novo grupo",
+        img: "/casa.jpg"
       }
+    ]);
+  }
 
-    }
-
-    // fecha o modal e limpa os campos do formulário
-    function fecharModal() {
-      setModalAberto(false);
-      setNomeGrupo('');
-      setMembros([])
-    }
-
-    // cria grupo
-    function criarGrupo() {
-      if (!nomeGrupo) return 
-      const novoGrupo = { id: Date.now(), nome: nomeGrupo, membros }
-      //adiciona o novo grupoa lista e fecha modal
-      setGrupos([...grupos, novoGrupo])
-      fecharModal()
-    }
-
-    return (
-        <div className={styles.pagina}>
-            <h1>Meus Grupos</h1>
-
-            <button onClick={() => setModalAberto(true)}>Criar grupo</button>
-            {/* lista de grupos criados — cada card navega para o dashboard do grupo*/}
-            
-            <div>
-                {grupos.map((grupo) => (
-                    <div key={grupo.id} onClick={() => navigate(`/grupos/${grupo.id}`)}>
-                      {grupo.nome}
-                    </div>
-                  ))}
-            </div>
-            
-            {/* modal de criar grupo — aparece quando modalAberto for true */}
-            {modalAberto && (
-                <div className={styles.modal}>
-                <h2>Novo grupo</h2>
-
-                {/* campo nome do grupo */}
-                <input 
-                  type="text"
-                  placeholder="Nome do grupo"
-                  value={nomeGrupo}
-                  onChange={(e) => setNomeGrupo(e.target.value)} 
-                />
-
-                {/* campo adicionar membro por e-mail */}
-                <input 
-                  type="email"
-                  placeholder="E-mail do membro"
-                  value={emailMembro}
-                  onChange={(e) => setEmailMembro(e.target.value)} // 'e' é o evento, 'e.target.value' é o texto digitado
-                />
-                <button onClick={() => adicionarMembro()}>Adicionar membro</button>
-
-                {/* lista de membros adicionados */}
-                <ul>
-                  {/* .map percorre a lista de membros e renderiza um <li> para cada e-mail */}
-                  {membros.map((email, index) => (
-                    <li key={index}>{email}</li>
-                  ))}
-                </ul>
-
-                <button className={styles.botaoCriar} onClick={criarGrupo}>Criar</button>
-                <button onClick={() => fecharModal()}>Fechar</button>
-                </div>
-            )}
-
+  return (
+    <div>
+      <div className={styles.header}>
+        <div>
+          <h1>Grupos</h1>
+          <p>Organize suas despesas em grupo</p>
         </div>
-    )
+
+        <button onClick={adicionarGrupo}>
+          + Criar grupo
+        </button>
+      </div>
+
+      <div className={styles.grid}>
+        {grupos.map((g, i) => (
+          <Card
+            key={i}
+            title={g.nome}
+            value={g.valor}
+            subtitle={g.desc}
+            image={g.img}
+          />
+        ))}
+      </div>
+    </div>
+  );
 }

@@ -1,14 +1,11 @@
-// Layout base: envolve todas as paginas com o sidebar
-// {children} representa o conteúdo de cada página
-import { Sidebar } from '../../components/Sidebar'
-import styles from './LayoutPrincipal.module.css'
+import Sidebar from "../../components/Sidebar";
+import styles from "./LayoutPrincipal.module.css";
 
-export function LayoutPrincipal({children}) {
-    return (
-        <div> 
-            <Sidebar />
-            {/* Conteúdo da página atual aparece aqui */}
-            <main className={styles.main}>{children}</main>
-        </div>
-    )
+export default function LayoutPrincipal({ children }) {
+  return (
+    <div className={styles.container}>
+      <Sidebar />
+      <div className={styles.content}>{children}</div>
+    </div>
+  );
 }

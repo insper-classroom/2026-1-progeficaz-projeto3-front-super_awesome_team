@@ -1,8 +1,7 @@
-// Ponto de entrada da aplicação — conecta as rotas ao React
-import { AppRoutes } from './routes'
+import AppRoutes from "./routes";
 
 function App() {
-  return <AppRoutes />
+  return <AppRoutes />;
 }
 
-export default App
+export default App;
