@@ -1,0 +1,45 @@
+/* Estilos mínimos da página de perfil */
+
+.pagina {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.avatar {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background-color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  object-fit: cover;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.avatarContainer {
+  position: relative;
+  width: 150px;
+  height: 150px;
+}
+
+.editarFoto {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background: white;
+  border-radius: 50%;
+  padding: 4px;
+  cursor: pointer;
+}
+
+
