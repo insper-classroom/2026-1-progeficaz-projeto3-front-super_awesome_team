@@ -75,19 +75,22 @@ export function Grupos() {
             
             {/* modal de criar grupo — aparece quando modalAberto for true */}
             {modalAberto && (
+                <div className={styles.overlay}>
                 <div className={styles.modal}>
-                <h2>Novo grupo</h2>
+                <h2 className={styles.modalTitle}>Novo grupo</h2>
 
                 {/* campo nome do grupo */}
-                <input 
+                <input
+                  className={styles.input}
                   type="text"
                   placeholder="Nome do grupo"
                   value={nomeGrupo}
-                  onChange={(e) => setNomeGrupo(e.target.value)} 
+                  onChange={(e) => setNomeGrupo(e.target.value)}
                 />
 
                 {/* campo adicionar membro por e-mail */}
-                <input 
+                <input
+                  className={styles.input}
                   type="email"
                   placeholder="E-mail do membro"
                   value={emailMembro}
@@ -117,8 +120,11 @@ export function Grupos() {
                   ))}
                 </div>
 
-                <button className={styles.botaoCriar} onClick={criarGrupo}>Criar</button>
-                <button onClick={() => fecharModal()}>Fechar</button>
+                <div className={styles.modalActions}>
+                  <button className={styles.secondary} onClick={fecharModal}>Fechar</button>
+                  <button className={styles.primary} onClick={criarGrupo}>Criar</button>
+                </div>
+                </div>
                 </div>
             )}
 
