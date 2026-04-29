@@ -15,3 +15,12 @@ Este repositório contém o frontend do Projeto 3 da disciplina de Programação
 ### Instalação de dependências 
 
 npm install react-router-dom axios recharts react-icons
+
+### Como rodar o projeto
+
+```bash
+npm install
+npm run dev
+```
+
+O projeto estará disponível em `http://localhost:5173`

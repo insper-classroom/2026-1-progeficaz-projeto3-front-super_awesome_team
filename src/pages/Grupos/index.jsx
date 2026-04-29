@@ -1,5 +1,5 @@
 // Página de listagem de grupos do usuário
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import styles from './Grupos.module.css'
 import { useNavigate } from 'react-router-dom'
 import GrupoCard from '../../components/GrupoCard'
@@ -14,24 +14,30 @@ export function Grupos() {
     const [emailMembro, setEmailMembro ] = useState('') // e-mail digitado para adicionar membro
     const [membros, setMembros] = useState([]) // lista de e-mails dos membros adicionados
     const [imgSelecionada, setImgSelecionada] = useState('/casa.jpg') // imagem escolhida para o grupo
+    const [imgUpload, setImgUpload] = useState(null) // url temporária da imagem enviada pelo usuário
+    const inputUploadRef = useRef(null) // referência ao input de arquivo oculto
 
     const imagens = [
       { src: '/casa.jpg', label: 'Casa' },
-      { src: '/viagem.jpg', label: 'Viagem' },
       { src: '/mercado.jpg', label: 'Mercado' },
       { src: '/estudo.jpg', label: 'Estudos' },
     ]
 
     // adiciona e-mail à lista, bloqueando duplicados
     function adicionarMembro() {
-      if (!membros.includes(emailMembro)) { 
-        setMembros([...membros, emailMembro]);
-        setEmailMembro('') // limpa o campo após adicionar
-        console.log('E-mail adicionado');
-      } else {
-        console.log('Este membro já foi adicionado a lista');
+      if (emailMembro && !membros.includes(emailMembro)) {
+        setMembros([...membros, emailMembro])
+        setEmailMembro('')
       }
+    }
 
+    // converte o arquivo enviado em url temporária e seleciona como imagem do grupo
+    function handleUpload(e) {
+      const arquivo = e.target.files[0]
+      if (!arquivo) return
+      const url = URL.createObjectURL(arquivo)
+      setImgUpload(url)
+      setImgSelecionada(url)
     }
 
     // fecha o modal e limpa os campos do formulário
@@ -40,6 +46,7 @@ export function Grupos() {
       setNomeGrupo('')
       setMembros([])
       setImgSelecionada('/casa.jpg')
+      setImgUpload(null)
     }
 
     // cria grupo
@@ -75,29 +82,31 @@ export function Grupos() {
             
             {/* modal de criar grupo — aparece quando modalAberto for true */}
             {modalAberto && (
+                <div className={styles.overlay}>
                 <div className={styles.modal}>
-                <h2>Novo grupo</h2>
+                <h2 className={styles.modalTitle}>Novo grupo</h2>
 
                 {/* campo nome do grupo */}
-                <input 
+                <input
+                  className={styles.input}
                   type="text"
                   placeholder="Nome do grupo"
                   value={nomeGrupo}
-                  onChange={(e) => setNomeGrupo(e.target.value)} 
+                  onChange={(e) => setNomeGrupo(e.target.value)}
                 />
 
                 {/* campo adicionar membro por e-mail */}
-                <input 
+                <input
+                  className={styles.input}
                   type="email"
                   placeholder="E-mail do membro"
                   value={emailMembro}
-                  onChange={(e) => setEmailMembro(e.target.value)} // 'e' é o evento, 'e.target.value' é o texto digitado
+                  onChange={(e) => setEmailMembro(e.target.value)}
                 />
                 <button onClick={() => adicionarMembro()}>Adicionar membro</button>
 
                 {/* lista de membros adicionados */}
                 <ul>
-                  {/* .map percorre a lista de membros e renderiza um <li> para cada e-mail */}
                   {membros.map((email, index) => (
                     <li key={index}>{email}</li>
                   ))}
@@ -115,10 +124,21 @@ export function Grupos() {
                       onClick={() => setImgSelecionada(img.src)}
                     />
                   ))}
+                  {/* card de upload — abre seletor de arquivo ao clicar */}
+                  <div
+                    className={imgSelecionada === imgUpload && imgUpload ? styles.uploadCardSelecionado : styles.uploadCard}
+                    onClick={() => inputUploadRef.current.click()}
+                  >
+                    {imgUpload ? <img src={imgUpload} alt="Imagem enviada" className={styles.uploadPrevia} /> : <span>+</span>}
+                  </div>
+                  <input ref={inputUploadRef} type="file" accept="image/*" onChange={handleUpload} className={styles.uploadInput} />
                 </div>
 
-                <button className={styles.botaoCriar} onClick={criarGrupo}>Criar</button>
-                <button onClick={() => fecharModal()}>Fechar</button>
+                <div className={styles.modalActions}>
+                  <button className={styles.secondary} onClick={fecharModal}>Fechar</button>
+                  <button className={styles.primary} onClick={criarGrupo}>Criar</button>
+                </div>
+                </div>
                 </div>
             )}
 
