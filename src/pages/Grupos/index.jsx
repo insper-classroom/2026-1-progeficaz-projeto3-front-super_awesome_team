@@ -2,6 +2,8 @@
 import { useState } from 'react'
 import styles from './Grupos.module.css'
 import { useNavigate } from 'react-router-dom'
+import GrupoCard from '../../components/GrupoCard'
+import Button from '../../components/Button'
 
 export function Grupos() {
 
@@ -11,6 +13,14 @@ export function Grupos() {
     const [nomeGrupo, setNomeGrupo] = useState('') // nome digitado para o novo grupo
     const [emailMembro, setEmailMembro ] = useState('') // e-mail digitado para adicionar membro
     const [membros, setMembros] = useState([]) // lista de e-mails dos membros adicionados
+    const [imgSelecionada, setImgSelecionada] = useState('/casa.jpg') // imagem escolhida para o grupo
+
+    const imagens = [
+      { src: '/casa.jpg', label: 'Casa' },
+      { src: '/viagem.jpg', label: 'Viagem' },
+      { src: '/mercado.jpg', label: 'Mercado' },
+      { src: '/estudo.jpg', label: 'Estudos' },
+    ]
 
     // adiciona e-mail à lista, bloqueando duplicados
     function adicionarMembro() {
@@ -26,32 +36,40 @@ export function Grupos() {
 
     // fecha o modal e limpa os campos do formulário
     function fecharModal() {
-      setModalAberto(false);
-      setNomeGrupo('');
+      setModalAberto(false)
+      setNomeGrupo('')
       setMembros([])
+      setImgSelecionada('/casa.jpg')
     }
 
     // cria grupo
     function criarGrupo() {
-      if (!nomeGrupo) return 
-      const novoGrupo = { id: Date.now(), nome: nomeGrupo, membros }
-      //adiciona o novo grupoa lista e fecha modal
+      if (!nomeGrupo) return
+      const novoGrupo = { id: Date.now(), nome: nomeGrupo, membros, img: imgSelecionada, desc: 'Novo grupo', valor: 'R$ 0' }
       setGrupos([...grupos, novoGrupo])
       fecharModal()
     }
 
     return (
         <div className={styles.pagina}>
-            <h1>Meus Grupos</h1>
-
-            <button onClick={() => setModalAberto(true)}>Criar grupo</button>
+            <div className={styles.header}>
+                <div>
+                    <h1>Meus Grupos</h1>
+                    <p>Organize suas despesas em grupo</p>
+                </div>
+                <Button onClick={() => setModalAberto(true)}>Criar grupo</Button>
+            </div>
             {/* lista de grupos criados — cada card navega para o dashboard do grupo*/}
-            
-            <div>
+
+            <div className={styles.grid}>
                 {grupos.map((grupo) => (
-                    <div key={grupo.id} onClick={() => navigate(`/grupos/${grupo.id}`)}>
-                      {grupo.nome}
-                    </div>
+                    <GrupoCard
+                      key={grupo.id}
+                      title={grupo.nome}
+                      subtitle={grupo.desc}
+                      image={grupo.img}
+                      onClick={() => navigate(`/grupos/${grupo.id}`)}
+                    />
                   ))}
             </div>
             
@@ -84,6 +102,20 @@ export function Grupos() {
                     <li key={index}>{email}</li>
                   ))}
                 </ul>
+
+                {/* seleção de imagem */}
+                <p>Escolha uma imagem:</p>
+                <div className={styles.imagensGrid}>
+                  {imagens.map((img) => (
+                    <img
+                      key={img.src}
+                      src={img.src}
+                      alt={img.label}
+                      className={imgSelecionada === img.src ? styles.imgSelecionada : styles.imgOpcao}
+                      onClick={() => setImgSelecionada(img.src)}
+                    />
+                  ))}
+                </div>
 
                 <button className={styles.botaoCriar} onClick={criarGrupo}>Criar</button>
                 <button onClick={() => fecharModal()}>Fechar</button>

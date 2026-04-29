@@ -5,7 +5,7 @@
   left: 0;
   width: 60px;
   height: 100vh;
-  background-color: #f0f0f0;
+  background-color: #1e293b;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -23,5 +23,35 @@
 
 .spacer {
   flex: 1;
+}
+
+.logo {
+  color: white;
+}
+
+/* label aparece ao passar o mouse no ícone */
+.links a {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: white;
+}
+
+.links a svg {
+  font-size: 26px;
+}
+
+.links a span {
+  opacity: 0;
+  font-size: 12px;
+  position: absolute;
+  bottom: -20px;
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+.links a:hover span {
+  opacity: 1;
 }
 
