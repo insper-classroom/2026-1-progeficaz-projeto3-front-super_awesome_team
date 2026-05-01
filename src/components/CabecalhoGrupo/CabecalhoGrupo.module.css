@@ -28,6 +28,12 @@
   font-weight: 700;
 }
 
+.mesAno {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
 .linhaMembros {
   display: flex;
   align-items: center;

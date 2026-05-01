@@ -1,4 +1,5 @@
 /* Estilo do layout principal */
 .main {
-  margin-left: 100px;
+  margin-left: 60px; /* igual à largura da sidebar */
+  overflow-x: hidden;
 }

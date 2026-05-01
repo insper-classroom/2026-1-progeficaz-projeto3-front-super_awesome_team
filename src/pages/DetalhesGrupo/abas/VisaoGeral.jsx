@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useVisaoGeral } from '../../../hooks/useVisaoGeral'
 import CardsResumo from '../../../components/CardsResumo'
 import GraficoGastos from '../../../components/GraficoGastos'
+import InsightCard from '../../../components/InsightCard'
 import styles from './VisaoGeral.module.css'
 
 // Opções de período disponíveis no filtro
@@ -50,10 +51,24 @@ export function VisaoGeral({ grupoId }) {
         totalAtual={data.totalAtual}
         totalAnterior={data.totalAnterior}
         voceDeVe={data.voceDeVe}
+        periodo={periodo}
       />
 
-      {/* Gráfico de linha: evolução dos gastos no período */}
-      <GraficoGastos evolucao={data.evolucao} />
+      {/* Insight e gráfico lado a lado */}
+      <div className={styles.linhaAnalise}>
+        <InsightCard
+          totalAtual={data.totalAtual}
+          totalAnterior={data.totalAnterior}
+          categorias={data.categorias}
+          periodo={periodo}
+        />
+        <GraficoGastos
+          evolucao={data.evolucao}
+          totalAtual={data.totalAtual}
+          totalAnterior={data.totalAnterior}
+          periodo={periodo}
+        />
+      </div>
 
     </div>
   )

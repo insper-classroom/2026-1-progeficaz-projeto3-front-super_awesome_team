@@ -35,3 +35,17 @@
   border-color: var(--primary);
   color: #fff;
 }
+
+/* Insight e gráfico lado a lado, cada um ocupando metade */
+.linhaAnalise {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+  min-height: 360px;
+  margin-bottom: 24px;
+}
+
+.linhaAnalise > * {
+  flex: 1;
+  min-width: 0; /* evita overflow nos filhos flex */
+}
