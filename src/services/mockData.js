@@ -62,15 +62,19 @@ const evolucao = {
 }
 
 const totaisPorPeriodo = {
-  '7d':  { atual: 312,    anterior: 407,   voceDeVe: 60  },
-  '30d': { atual: 1860,   anterior: 2251,  voceDeVe: 120 },
-  '3m':  { atual: 6211,   anterior: 6331,  voceDeVe: 310 },
-  '6m':  { atual: 12941,  anterior: 11960, voceDeVe: 540 },
-  '1a':  { atual: 24191,  anterior: 22590, voceDeVe: 980 },
+  '7d':  { atual: 312,    anterior: 407   },
+  '30d': { atual: 1860,   anterior: 2251  },
+  '3m':  { atual: 6211,   anterior: 6331  },
+  '6m':  { atual: 12941,  anterior: 11960 },
+  '1a':  { atual: 24191,  anterior: 22590 },
 }
 
+// Saldo fixo — representa o que o usuário deve ao grupo no mês atual.
+// Não muda com o filtro de período (é uma dívida presente, não histórica).
+const voceDeVeAtual = 120
+
 export function getMockVisaoGeral(grupoId, periodo = '30d') {
-  const { atual, anterior, voceDeVe } = totaisPorPeriodo[periodo]
+  const { atual, anterior } = totaisPorPeriodo[periodo]
   return {
     grupo: {
       id: grupoId,
@@ -79,7 +83,7 @@ export function getMockVisaoGeral(grupoId, periodo = '30d') {
     },
     totalAtual: atual,
     totalAnterior: anterior,
-    voceDeVe,
+    voceDeVe: voceDeVeAtual,
     categorias,
     categoriasPrev,
     evolucao: evolucao[periodo],

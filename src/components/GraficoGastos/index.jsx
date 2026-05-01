@@ -1,10 +1,19 @@
 // Gráfico de linha com evolução dos gastos: período atual vs anterior.
-// Recebe o objeto `evolucao` do hook useVisaoGeral.
+// Recebe evolucao, totalAtual, totalAnterior e periodo para montar o cabeçalho.
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
 import styles from './GraficoGastos.module.css'
 
 function formatarMoeda(valor) {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 })
+}
+
+// Textos do cabeçalho conforme o período selecionado
+const textoPorPeriodo = {
+  '7d':  { atual: 'esta semana',    anterior: 'semana anterior'    },
+  '30d': { atual: 'este mês',       anterior: 'mês anterior'       },
+  '3m':  { atual: 'no trimestre',   anterior: 'trimestre anterior' },
+  '6m':  { atual: 'no semestre',    anterior: 'semestre anterior'  },
+  '1a':  { atual: 'este ano',       anterior: 'ano anterior'       },
 }
 
 // Transforma os arrays do mock em objetos que o Recharts entende
@@ -27,13 +36,16 @@ function calcularTicks(totalPontos, totalLabels) {
   )
 }
 
-export default function GraficoGastos({ evolucao }) {
+export default function GraficoGastos({ evolucao, totalAtual, totalAnterior, periodo }) {
   if (!evolucao) return null
 
   const dados = prepararDados(evolucao)
   const ticks = calcularTicks(evolucao.curr.length, evolucao.labels.length)
+  const textos = textoPorPeriodo[periodo] ?? textoPorPeriodo['30d']
 
-  // retorna o label correto para cada índice do eixo X
+  const variacaoPct = ((totalAtual - totalAnterior) / totalAnterior) * 100
+  const gastouMenos = variacaoPct < 0
+
   function formatarEixoX(idx) {
     const pos = ticks.indexOf(idx)
     return pos >= 0 ? evolucao.labels[pos] : ''
@@ -41,11 +53,22 @@ export default function GraficoGastos({ evolucao }) {
 
   return (
     <div className={styles.container}>
+
+      {/* Cabeçalho informativo: label, valor total e badge de variação */}
       <div className={styles.cabecalho}>
-        <span className={styles.titulo}>Evolução dos gastos</span>
-        <div className={styles.legenda}>
-          <span className={styles.legendaAtual}>— Atual</span>
-          <span className={styles.legendaAnterior}>--- Anterior</span>
+        <span className={styles.rotulo}>Ritmo de gastos</span>
+        <div className={styles.resumo}>
+          <span className={styles.valorTotal}>{formatarMoeda(totalAtual)}</span>
+          <span className={styles.periodoAtual}>{textos.atual}</span>
+        </div>
+        <div className={styles.variacao}>
+          {/* Badge colorido com a variação percentual */}
+          <span className={`${styles.badge} ${gastouMenos ? styles.badgePositivo : styles.badgeNegativo}`}>
+            ● {gastouMenos ? '' : '+'}{variacaoPct.toFixed(1)}%
+          </span>
+          <span className={styles.variacaoDesc}>
+            vs {formatarMoeda(totalAnterior)} {textos.anterior}
+          </span>
         </div>
       </div>
 
@@ -90,6 +113,13 @@ export default function GraficoGastos({ evolucao }) {
           <Line type="monotone" dataKey="anterior" stroke="var(--text-muted)" strokeWidth={1.5} dot={false} strokeDasharray="4 4" />
         </LineChart>
       </ResponsiveContainer>
+
+      {/* Legenda das linhas */}
+      <div className={styles.legenda}>
+        <span className={styles.legendaAtual}>— {textos.atual.charAt(0).toUpperCase() + textos.atual.slice(1)}</span>
+        <span className={styles.legendaAnterior}>--- {textos.anterior.charAt(0).toUpperCase() + textos.anterior.slice(1)}</span>
+      </div>
+
     </div>
   )
 }
