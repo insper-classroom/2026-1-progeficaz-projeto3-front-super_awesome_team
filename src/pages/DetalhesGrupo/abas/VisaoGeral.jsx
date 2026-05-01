@@ -4,25 +4,21 @@ import { useVisaoGeral } from '../../../hooks/useVisaoGeral'
 import CardsResumo from '../../../components/CardsResumo'
 import GraficoGastos from '../../../components/GraficoGastos'
 import InsightCard from '../../../components/InsightCard'
+import CarouselMetas from '../../../components/CarouselMetas'
 import styles from './VisaoGeral.module.css'
 
-// Opções de período disponíveis no filtro
 const periodos = [
-  { valor: '7d',  rotulo: '7 dias' },
-  { valor: '30d', rotulo: '30 dias' },
-  { valor: '3m',  rotulo: '3 meses' },
-  { valor: '6m',  rotulo: '6 meses' },
-  { valor: '1a',  rotulo: '1 ano' },
+  { valor: '7d',  rotulo: '7d'  },
+  { valor: '30d', rotulo: 'Mês' },
+  { valor: '3m',  rotulo: '3m'  },
+  { valor: '6m',  rotulo: '6m'  },
+  { valor: '1a',  rotulo: '1a'  },
 ]
 
-export function VisaoGeral({ grupoId }) {
-  // período selecionado no filtro (padrão: 30 dias)
+export function VisaoGeral({ grupoId, onVerMetas }) {
   const [periodo, setPeriodo] = useState('30d')
-
-  // busca os dados do grupo conforme o período
   const { data, loading } = useVisaoGeral(grupoId, periodo)
 
-  // estilo do botão de período (ativo ou não)
   function classePeriodo(valor) {
     if (periodo === valor) return `${styles.btnPeriodo} ${styles.btnPeriodoAtivo}`
     return styles.btnPeriodo
@@ -33,26 +29,32 @@ export function VisaoGeral({ grupoId }) {
   return (
     <div className={styles.container}>
 
-      {/* Filtro de período */}
-      <div className={styles.filtroPeriodo}>
-        {periodos.map((p) => (
-          <button
-            key={p.valor}
-            className={classePeriodo(p.valor)}
-            onClick={() => setPeriodo(p.valor)}
-          >
-            {p.rotulo}
-          </button>
-        ))}
-      </div>
-
-      {/* Cards de resumo: total, variação e saldo */}
+      {/* Cards de resumo: total gasto e saldo */}
       <CardsResumo
         totalAtual={data.totalAtual}
         totalAnterior={data.totalAnterior}
         voceDeVe={data.voceDeVe}
         periodo={periodo}
       />
+
+      {/* Carrossel de metas do grupo */}
+      <CarouselMetas metas={data.metas} onVerMetas={onVerMetas} />
+
+      {/* Cabeçalho da seção de análise com filtro de período na direita */}
+      <div className={styles.cabecalhoAnalise}>
+        <span className={styles.tituloSecao}>Análise</span>
+        <div className={styles.filtroPeriodo}>
+          {periodos.map((p) => (
+            <button
+              key={p.valor}
+              className={classePeriodo(p.valor)}
+              onClick={() => setPeriodo(p.valor)}
+            >
+              {p.rotulo}
+            </button>
+          ))}
+        </div>
+      </div>
 
       {/* Insight e gráfico lado a lado */}
       <div className={styles.linhaAnalise}>
