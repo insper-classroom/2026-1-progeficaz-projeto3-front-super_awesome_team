@@ -3,6 +3,15 @@
   box-sizing: border-box;
 }
 
+/* Variáveis de design — usar em todos os componentes para manter consistência */
+:root {
+  --primary: #4f46e5;        /* cor principal (botões, destaques) */
+  --surface: #f3f4f6;        /* fundo de cards e painéis */
+  --border: #e5e7eb;         /* bordas e separadores */
+  --text: #111827;           /* texto principal */
+  --text-muted: #6b7280;     /* texto secundário e labels */
+}
+
 html, body, #root {
   height: 100%;
 }

@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useVisaoGeral } from '../../../hooks/useVisaoGeral'
 import CardsResumo from '../../../components/CardsResumo'
+import GraficoGastos from '../../../components/GraficoGastos'
 import styles from './VisaoGeral.module.css'
 
 // Opções de período disponíveis no filtro
@@ -50,6 +51,9 @@ export function VisaoGeral({ grupoId }) {
         totalAnterior={data.totalAnterior}
         voceDeVe={data.voceDeVe}
       />
+
+      {/* Gráfico de linha: evolução dos gastos no período */}
+      <GraficoGastos evolucao={data.evolucao} />
 
     </div>
   )

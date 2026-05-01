@@ -1,0 +1,32 @@
+.container {
+  background: var(--surface);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 24px;
+}
+
+.cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.titulo {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.legenda {
+  display: flex;
+  gap: 12px;
+  font-size: 12px;
+}
+
+.legendaAtual {
+  color: var(--primary);
+}
+
+.legendaAnterior {
+  color: var(--text-muted);
+}
