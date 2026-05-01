@@ -5,13 +5,13 @@
 
 /* Variáveis de design — paleta do mockup (tema claro) */
 :root {
-  --primary:      #047857;   /* verde escuro — botões, destaques, aba ativa */
+  --primary:      #3d6e00;   /* verde escuro — botões, destaques, aba ativa */
   --bg:           #f5f5f7;   /* fundo geral da página */
   --surface:      #ffffff;   /* fundo de cards e painéis */
   --border:       #e4e4ef;   /* bordas e separadores */
   --text:         #1a1a2e;   /* texto principal */
   --text-muted:   #8e8ea0;   /* texto secundário e labels */
-  --positive:     #047857;   /* variação positiva (gastou menos) */
+  --positive:     #3d6e00;   /* variação positiva (gastou menos) */
   --negative:     #dc2626;   /* variação negativa (gastou mais, saldo devedor) */
 }
 
