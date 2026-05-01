@@ -18,7 +18,13 @@ export default function CabecalhoGrupo({ grupo }) {
       </button>
 
       <div className={styles.linhaTopo}>
-        <div className={styles.nomeGrupo}>{grupo.nome}</div>
+        <div>
+          <div className={styles.nomeGrupo}>{grupo.nome}</div>
+          {/* Mês e ano atual como referência do período exibido */}
+          <div className={styles.mesAno}>
+            {new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' }).replace(' de ', ' ')}
+          </div>
+        </div>
 
         <div className={styles.linhaMembros}>
           {/* row-reverse para empilhar os avatares da direita pra esquerda */}

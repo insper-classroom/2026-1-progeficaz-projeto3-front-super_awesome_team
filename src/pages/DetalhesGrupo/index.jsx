@@ -33,7 +33,7 @@ export function DetalhesGrupo() {
   }
 
   return (
-    <div>
+    <div className={styles.pagina}>
 
       {/* cabeçalho com nome do grupo, botão voltar e avatares dos membros */}
       <CabecalhoGrupo grupo={data?.grupo} />
