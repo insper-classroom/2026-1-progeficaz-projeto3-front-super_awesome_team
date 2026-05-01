@@ -3,13 +3,16 @@
   box-sizing: border-box;
 }
 
-/* Variáveis de design — usar em todos os componentes para manter consistência */
+/* Variáveis de design — paleta do mockup (tema claro) */
 :root {
-  --primary: #4f46e5;        /* cor principal (botões, destaques) */
-  --surface: #f3f4f6;        /* fundo de cards e painéis */
-  --border: #e5e7eb;         /* bordas e separadores */
-  --text: #111827;           /* texto principal */
-  --text-muted: #6b7280;     /* texto secundário e labels */
+  --primary:      #047857;   /* verde escuro — botões, destaques, aba ativa */
+  --bg:           #f5f5f7;   /* fundo geral da página */
+  --surface:      #ffffff;   /* fundo de cards e painéis */
+  --border:       #e4e4ef;   /* bordas e separadores */
+  --text:         #1a1a2e;   /* texto principal */
+  --text-muted:   #8e8ea0;   /* texto secundário e labels */
+  --positive:     #047857;   /* variação positiva (gastou menos) */
+  --negative:     #dc2626;   /* variação negativa (gastou mais, saldo devedor) */
 }
 
 html, body, #root {
@@ -20,4 +23,5 @@ body {
   font-family: 'Roboto', sans-serif;
   margin: 0;
   padding: 0;
+  background: var(--bg);
 }  

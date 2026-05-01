@@ -1,23 +1,32 @@
+.pagina {
+  padding: 24px 40px;
+}
+
 .tabs {
   display: flex;
-  gap: 10px;
-  margin: 20px 0;
+  gap: 8px;
+  margin: 16px 0;
 }
 
 .tabs button {
-  padding: 10px 16px;
-  border: none;
-  border-radius: 10px;
-  background: #e5e7eb;
+  padding: 8px 20px;
+  border: 1.5px solid var(--border);
+  border-radius: 20px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 14px;
   cursor: pointer;
+  transition: all 0.15s;
 }
 
 .tabs button:hover {
-  background: #4f46e5;
-  color: white;
+  border-color: var(--text-muted);
+  color: var(--text);
 }
 
+/* Aba ativa: borda e texto na cor primária, fundo transparente */
 .abaAtiva {
-  background: #4f46e5;
-  color: white;
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+  font-weight: 600;
 }
