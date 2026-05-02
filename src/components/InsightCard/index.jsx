@@ -66,6 +66,14 @@ export default function InsightCard({ totalAtual, totalAnterior, categorias, per
 
   const { frase, topicos } = gerarTextoInsight(variacaoPct, maiorCategoria?.nome ?? '')
 
+  // Classe de cor e seta da variação calculados antes do JSX
+  let classeVariacao = styles.positivo
+  let seta = '↓'
+  if (!gastouMenos) {
+    classeVariacao = styles.negativo
+    seta = '↑'
+  }
+
   return (
     <div className={styles.card}>
       <div>
@@ -89,8 +97,8 @@ export default function InsightCard({ totalAtual, totalAnterior, categorias, per
 
         <div className={styles.mini}>
           <div className={styles.miniLabel}>Vs. período anterior</div>
-          <div className={`${styles.miniValor} ${gastouMenos ? styles.positivo : styles.negativo}`}>
-            {gastouMenos ? '↓' : '↑'} {Math.abs(variacaoPct).toFixed(1)}%
+          <div className={`${styles.miniValor} ${classeVariacao}`}>
+            {seta} {Math.abs(variacaoPct).toFixed(1)}%
           </div>
         </div>
 
