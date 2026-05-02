@@ -14,7 +14,7 @@
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background-color: #ccc;
+  background-color: var(--border);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -36,7 +36,8 @@
   position: absolute;
   bottom: 0;
   right: 0;
-  background: white;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 50%;
   padding: 4px;
   cursor: pointer;

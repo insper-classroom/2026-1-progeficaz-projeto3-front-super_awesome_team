@@ -61,12 +61,12 @@
 
 .badgePositivo {
   color: var(--positive);
-  background: color-mix(in srgb, var(--positive) 16%, white);
+  background: color-mix(in srgb, var(--positive) 16%, transparent);
 }
 
 .badgeNegativo {
   color: var(--negative);
-  background: color-mix(in srgb, var(--negative) 12%, white);
+  background: color-mix(in srgb, var(--negative) 12%, transparent);
 }
 
 .variacaoDesc {

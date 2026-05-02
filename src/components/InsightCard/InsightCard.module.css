@@ -37,7 +37,7 @@
 }
 
 .mini {
-  background: white;
+  background: var(--bg);
   border-radius: 10px;
   padding: 12px 14px;
   border: 1px solid var(--border);

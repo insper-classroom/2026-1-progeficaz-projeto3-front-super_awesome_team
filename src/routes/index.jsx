@@ -6,10 +6,12 @@ import { Pessoal } from '../pages/Pessoal'
 import { Perfil } from '../pages/Perfil'
 import { LayoutPrincipal } from '../layouts/LayoutPrincipal'
 import { UserProvider } from '../contexts/UserContext'
+import { ThemeProvider } from '../contexts/ThemeContext'
 
 export function AppRoutes() {
   return (
     <BrowserRouter>
+      <ThemeProvider>
       <UserProvider>
         <LayoutPrincipal>
           <Routes>
@@ -20,6 +22,7 @@ export function AppRoutes() {
           </Routes>
         </LayoutPrincipal>
       </UserProvider>
+      </ThemeProvider>
     </BrowserRouter>
   )
 }
