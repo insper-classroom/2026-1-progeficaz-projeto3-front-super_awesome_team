@@ -65,7 +65,7 @@
 .negativo { color: var(--negative); }
 
 /* Bolinha colorida da categoria */
-.dot {
+.ponto {
   display: inline-block;
   width: 8px;
   height: 8px;

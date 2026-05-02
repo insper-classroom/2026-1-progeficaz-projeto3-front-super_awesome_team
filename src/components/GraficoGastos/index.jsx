@@ -36,6 +36,10 @@ function calcularTicks(totalPontos, totalLabels) {
   )
 }
 
+function capitalizar(texto) {
+  return texto.charAt(0).toUpperCase() + texto.slice(1)
+}
+
 export default function GraficoGastos({ evolucao, totalAtual, totalAnterior, periodo }) {
   if (!evolucao) return null
 
@@ -64,7 +68,8 @@ export default function GraficoGastos({ evolucao, totalAtual, totalAnterior, per
         <div className={styles.variacao}>
           {/* Badge colorido com a variação percentual */}
           <span className={`${styles.badge} ${gastouMenos ? styles.badgePositivo : styles.badgeNegativo}`}>
-            ● {gastouMenos ? '' : '+'}{variacaoPct.toFixed(1)}%
+            <span className={styles.badgeDot} />
+            {gastouMenos ? '' : '+'}{variacaoPct.toFixed(1)}%
           </span>
           <span className={styles.variacaoDesc}>
             vs {formatarMoeda(totalAnterior)} {textos.anterior}
@@ -106,18 +111,21 @@ export default function GraficoGastos({ evolucao, totalAtual, totalAnterior, per
             }}
           />
 
-          {/* Linha do período atual — destaque */}
-          <Line type="monotone" dataKey="atual" stroke="var(--primary)" strokeWidth={2} dot={false} />
-
-          {/* Linha do período anterior — tracejada e mais discreta */}
-          <Line type="monotone" dataKey="anterior" stroke="var(--text-muted)" strokeWidth={1.5} dot={false} strokeDasharray="4 4" />
+          <Line type="monotone" dataKey="atual" stroke="var(--primary)" strokeWidth={3} dot={false} />
+          <Line type="monotone" dataKey="anterior" stroke="var(--text-muted)" strokeWidth={2.2} dot={false} strokeDasharray="6 5" />
         </LineChart>
       </ResponsiveContainer>
 
       {/* Legenda das linhas */}
       <div className={styles.legenda}>
-        <span className={styles.legendaAtual}>— {textos.atual.charAt(0).toUpperCase() + textos.atual.slice(1)}</span>
-        <span className={styles.legendaAnterior}>--- {textos.anterior.charAt(0).toUpperCase() + textos.anterior.slice(1)}</span>
+        <span className={styles.legendaItem}>
+          <span className={styles.legendaLinhaAtual} />
+          {capitalizar(textos.atual)}
+        </span>
+        <span className={styles.legendaItem}>
+          <span className={styles.legendaLinhaAnterior} />
+          {capitalizar(textos.anterior)}
+        </span>
       </div>
 
     </div>
