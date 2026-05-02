@@ -21,10 +21,66 @@ const categoriasPrev = [
 ]
 
 const metas = [
-  { id: '1', nome: 'Viagem de Férias',     emoji: '✈️', prazo: 'dez. de 2026', alcancado: 2500,  total: 5000  },
-  { id: '2', nome: 'Reserva de Emergência',emoji: '🛡️', prazo: 'jun. de 2027', alcancado: 7200,  total: 10000 },
-  { id: '3', nome: 'Reforma da Cozinha',   emoji: '🏠', prazo: 'mar. de 2027', alcancado: 1200,  total: 8000  },
-  { id: '4', nome: 'Notebook Novo',        emoji: '💻', prazo: 'ago. de 2026', alcancado: 1200,  total: 3000  },
+  {
+    id: '1',
+    nome: 'Entrada do Apê',
+    emoji: '🏠',
+    prazo: 'jun. 2026',       // texto exibido na tela
+    prazoData: '2026-06',     // formato AAAA-MM usado para calcular dias restantes
+    alcancado: 8600,
+    total: 10000,
+    situacao: 'noRitmo',      // 'noRitmo' = barra verde | 'atencao' = barra laranja
+    tipo: 'grupo',            // 'grupo' = todos participam | 'pessoal' = só um membro
+    membrosIds: ['1', '2'],   // IDs dos membros que participam desta meta
+  },
+  {
+    id: '2',
+    nome: 'Viagem de Férias',
+    emoji: '✈️',
+    prazo: 'dez. 2026',
+    prazoData: '2026-12',
+    alcancado: 2500,
+    total: 5000,
+    situacao: 'atencao',
+    tipo: 'grupo',
+    membrosIds: ['1', '2'],
+  },
+  {
+    id: '3',
+    nome: 'Reserva de Emergência',
+    emoji: '🛡️',
+    prazo: 'jun. 2027',
+    prazoData: '2027-06',
+    alcancado: 7200,
+    total: 10000,
+    situacao: 'noRitmo',
+    tipo: 'pessoal',
+    membrosIds: ['1'],
+  },
+  {
+    id: '4',
+    nome: 'Móveis da Sala',
+    emoji: '🪑',
+    prazo: 'set. 2026',
+    prazoData: '2026-09',
+    alcancado: 980,
+    total: 3000,
+    situacao: 'atencao',
+    tipo: 'pessoal',
+    membrosIds: ['2'],
+  },
+  {
+    id: '5',
+    nome: 'Reforma da Cozinha',
+    emoji: '🔨',
+    prazo: 'mar. 2027',
+    prazoData: '2027-03',
+    alcancado: 1200,
+    total: 8000,
+    situacao: 'noRitmo',
+    tipo: 'grupo',
+    membrosIds: ['1', '2'],
+  },
 ]
 
 // Evolução de gastos: valores cumulativos (7d, 30d) ou totais mensais (3m, 6m, 1a)
