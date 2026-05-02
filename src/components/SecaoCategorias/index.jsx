@@ -1,5 +1,6 @@
-// Card de categorias: donut + legenda à esquerda, tabela comparativa à direita.
-// Hover no slice do donut mostra nome + porcentagem via tooltip customizado.
+// Card de categorias: donut à esquerda, tabela comparativa à direita.
+// Comparação sempre vs mês anterior — não varia com o filtro de período.
+// Hover do donut mostra nome + porcentagem.
 import { PieChart, Pie, Cell, Tooltip } from 'recharts'
 import styles from './SecaoCategorias.module.css'
 
@@ -47,7 +48,6 @@ export default function SecaoCategorias({ categorias, categoriasPrev, onVerMais 
             </Pie>
             <Tooltip content={<TooltipDonut />} />
           </PieChart>
-
         </div>
 
         {/* Lado direito: tabela comparativa */}
@@ -70,6 +70,17 @@ export default function SecaoCategorias({ categorias, categoriasPrev, onVerMais 
           {categorias.map((cat, i) => {
             const prev = categoriasPrev[i]
             const caiu = prev.variacaoPct < 0
+
+            // Cor da barra e classe do badge calculados antes do JSX
+            let corBarra = 'var(--negative)'
+            let classeBadge = styles.badgeCima
+            let setaBadge = '↗'
+            if (caiu) {
+              corBarra = 'var(--positive)'
+              classeBadge = styles.badgeBaixo
+              setaBadge = '↘'
+            }
+
             return (
               <div key={cat.nome} className={styles.linha}>
                 <div className={styles.linhaNome}>
@@ -82,16 +93,13 @@ export default function SecaoCategorias({ categorias, categoriasPrev, onVerMais 
                     {/* largura proporcional ao % do total de gastos */}
                     <div
                       className={styles.barraPreenchimento}
-                      style={{
-                        width: `${cat.pct}%`,
-                        background: caiu ? 'var(--positive)' : 'var(--negative)',
-                      }}
+                      style={{ width: `${cat.pct}%`, background: corBarra }}
                     />
                   </div>
                 </div>
                 <div>
-                  <span className={`${styles.badge} ${caiu ? styles.badgeBaixo : styles.badgeCima}`}>
-                    {caiu ? '↘' : '↗'} {Math.abs(prev.variacaoPct)}%
+                  <span className={`${styles.badge} ${classeBadge}`}>
+                    {setaBadge} {Math.abs(prev.variacaoPct)}%
                   </span>
                 </div>
                 <div className={styles.linhaAnterior}>{formatarMoeda(prev.valor)}</div>

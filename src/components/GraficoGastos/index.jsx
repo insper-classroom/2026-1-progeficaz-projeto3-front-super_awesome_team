@@ -40,19 +40,35 @@ function capitalizar(texto) {
   return texto.charAt(0).toUpperCase() + texto.slice(1)
 }
 
+// Retorna o nome legível da série para o tooltip
+function nomeDaSerie(chave) {
+  if (chave === 'atual') return 'Atual'
+  return 'Anterior'
+}
+
 export default function GraficoGastos({ evolucao, totalAtual, totalAnterior, periodo }) {
   if (!evolucao) return null
 
   const dados = prepararDados(evolucao)
   const ticks = calcularTicks(evolucao.curr.length, evolucao.labels.length)
+  // ?? significa: se o período não existir no mapa, usa '30d' como padrão
   const textos = textoPorPeriodo[periodo] ?? textoPorPeriodo['30d']
 
   const variacaoPct = ((totalAtual - totalAnterior) / totalAnterior) * 100
   const gastouMenos = variacaoPct < 0
 
+  // Classe e sinal do badge calculados antes do JSX
+  let classeBadge = styles.badgePositivo
+  let sinal = ''
+  if (!gastouMenos) {
+    classeBadge = styles.badgeNegativo
+    sinal = '+'
+  }
+
   function formatarEixoX(idx) {
     const pos = ticks.indexOf(idx)
-    return pos >= 0 ? evolucao.labels[pos] : ''
+    if (pos >= 0) return evolucao.labels[pos]
+    return ''
   }
 
   return (
@@ -67,9 +83,9 @@ export default function GraficoGastos({ evolucao, totalAtual, totalAnterior, per
         </div>
         <div className={styles.variacao}>
           {/* Badge colorido com a variação percentual */}
-          <span className={`${styles.badge} ${gastouMenos ? styles.badgePositivo : styles.badgeNegativo}`}>
+          <span className={`${styles.badge} ${classeBadge}`}>
             <span className={styles.badgeDot} />
-            {gastouMenos ? '' : '+'}{variacaoPct.toFixed(1)}%
+            {sinal}{variacaoPct.toFixed(1)}%
           </span>
           <span className={styles.variacaoDesc}>
             vs {formatarMoeda(totalAnterior)} {textos.anterior}
@@ -101,7 +117,7 @@ export default function GraficoGastos({ evolucao, totalAtual, totalAnterior, per
           />
 
           <Tooltip
-            formatter={(valor, chave) => [formatarMoeda(valor), chave === 'atual' ? 'Atual' : 'Anterior']}
+            formatter={(valor, chave) => [formatarMoeda(valor), nomeDaSerie(chave)]}
             labelFormatter={(idx) => formatarEixoX(idx) || `Ponto ${idx + 1}`}
             contentStyle={{
               background: 'var(--surface)',

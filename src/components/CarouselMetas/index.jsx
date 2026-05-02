@@ -1,4 +1,4 @@
-// Carrossel de metas do grupo: 3 cards visíveis, setas prev/next, barra de progresso.
+// Carrossel de metas do grupo: 3 cards visíveis, setas anterior/próximo, barra de progresso.
 // Aceita onVerMetas para navegar para a aba de Metas ao clicar em "ver metas ↗".
 import { useState, useRef, useLayoutEffect } from 'react'
 import styles from './CarouselMetas.module.css'
@@ -33,6 +33,12 @@ export default function CarouselMetas({ metas = [], onVerMetas }) {
   const podeProximo = metas.length > VISIVEIS && indice < metas.length - VISIVEIS
   const deslocamento = indice * (larguraCartao + ESPACO)
 
+  // Estilo da trilha calculado antes do JSX
+  let estilo = {}
+  if (larguraCartao) {
+    estilo = { width: larguraCartao }
+  }
+
   return (
     <div className={styles.secao}>
 
@@ -59,11 +65,8 @@ export default function CarouselMetas({ metas = [], onVerMetas }) {
             {metas.map((meta) => {
               const pct = Math.round((meta.alcancado / meta.total) * 100)
               return (
-                <div
-                  key={meta.id}
-                  className={styles.cartao}
-                  style={larguraCartao ? { width: larguraCartao } : undefined}
-                >
+                <div key={meta.id} className={styles.cartao} style={estilo}>
+
                   {/* Topo: emoji, nome, prazo e link da meta */}
                   <div className={styles.cartaoTopo}>
                     <div className={styles.icone}>{meta.emoji}</div>
@@ -95,6 +98,7 @@ export default function CarouselMetas({ metas = [], onVerMetas }) {
                       <div className={styles.valoresNumero}>{formatarMoeda(meta.total)}</div>
                     </div>
                   </div>
+
                 </div>
               )
             })}

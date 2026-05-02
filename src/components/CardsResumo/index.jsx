@@ -22,6 +22,14 @@ export default function CardsResumo({ totalAtual, totalAnterior, voceDeVe, perio
   // Negativo = gastou menos que antes (bom), positivo = gastou mais (ruim)
   const gastouMenos = variacaoPct < 0
 
+  // Classe de cor e sinal calculados antes do JSX
+  let classeVariacao = styles.positivo
+  let sinal = ''
+  if (!gastouMenos) {
+    classeVariacao = styles.negativo
+    sinal = '+'
+  }
+
   return (
     <div className={styles.container}>
 
@@ -35,8 +43,8 @@ export default function CardsResumo({ totalAtual, totalAnterior, voceDeVe, perio
       {/* Card 2: variação em relação ao período anterior */}
       <div className={styles.card}>
         <span className={styles.rotulo}>Variação</span>
-        <span className={`${styles.valor} ${gastouMenos ? styles.positivo : styles.negativo}`}>
-          {gastouMenos ? '' : '+'}{variacaoPct}%
+        <span className={`${styles.valor} ${classeVariacao}`}>
+          {sinal}{variacaoPct}%
         </span>
         <span className={styles.detalhe}>vs período anterior</span>
       </div>
