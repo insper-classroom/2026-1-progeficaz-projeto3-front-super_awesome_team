@@ -1,0 +1,178 @@
+.secao {
+  margin-bottom: 24px;
+}
+
+.tituloSecao {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+/* Card dividido: donut+legenda à esquerda, tabela à direita */
+.cartaoSplit {
+  background: var(--surface);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* LADO ESQUERDO */
+.ladoPizza {
+  padding: 28px 24px 28px 28px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  align-self: stretch;
+}
+
+/* LADO DIREITO */
+.ladoTabela {
+  padding: 20px 24px;
+  flex: 1;
+  min-width: 0;
+}
+
+.cabecalhoTabela {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.tituloTabela {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.verMais {
+  font-size: 11px;
+  color: var(--primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Grid de 5 colunas — compartilhado entre cabeçalho e linhas */
+.rotulosColunas,
+.linha {
+  display: grid;
+  grid-template-columns: 1fr 70px 1fr 80px 70px;
+  align-items: center;
+}
+
+.rotulosColunas {
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.linha {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  color: var(--text);
+}
+
+.linha:last-child {
+  border-bottom: none;
+}
+
+.linhaNome {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.linhaPonto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.linhaValor {
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Barra proporcional ao % de gasto */
+.barraWrap {
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.barraTrilha {
+  flex: 1;
+  height: 5px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.barraPreenchimento {
+  height: 100%;
+  border-radius: 99px;
+}
+
+/* Badge de variação */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.badgeBaixo {
+  background: color-mix(in srgb, var(--positive) 15%, transparent);
+  color: var(--positive);
+}
+
+.badgeCima {
+  background: color-mix(in srgb, var(--negative) 15%, transparent);
+  color: var(--negative);
+}
+
+.linhaAnterior {
+  text-align: right;
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Tooltip do donut */
+.tooltip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 12px;
+  color: var(--text);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  white-space: nowrap;
+}
+
+.tooltipPonto {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}

@@ -5,6 +5,7 @@ import CardsResumo from '../../../components/CardsResumo'
 import GraficoGastos from '../../../components/GraficoGastos'
 import InsightCard from '../../../components/InsightCard'
 import CarouselMetas from '../../../components/CarouselMetas'
+import SecaoCategorias from '../../../components/SecaoCategorias'
 import styles from './VisaoGeral.module.css'
 
 const periodos = [
@@ -15,7 +16,7 @@ const periodos = [
   { valor: '1a',  rotulo: '1a'  },
 ]
 
-export function VisaoGeral({ grupoId, onVerMetas }) {
+export function VisaoGeral({ grupoId, onVerMetas, onVerDespesas }) {
   const [periodo, setPeriodo] = useState('30d')
   const { data, loading } = useVisaoGeral(grupoId, periodo)
 
@@ -71,6 +72,13 @@ export function VisaoGeral({ grupoId, onVerMetas }) {
           periodo={periodo}
         />
       </div>
+
+      {/* Card de categorias: donut + tabela comparativa, hover no donut mostra % */}
+      <SecaoCategorias
+        categorias={data.categorias}
+        categoriasPrev={data.categoriasPrev}
+        onVerMais={onVerDespesas}
+      />
 
     </div>
   )
