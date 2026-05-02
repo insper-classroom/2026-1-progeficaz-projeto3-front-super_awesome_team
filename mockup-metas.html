@@ -401,6 +401,10 @@
       font-weight: 800;
     }
 
+    .mega-progress.warning .progress-pct {
+      color: var(--warning);
+    }
+
     .progress-track {
       height: 9px;
       background: var(--border);
@@ -413,6 +417,10 @@
       width: var(--w);
       border-radius: 99px;
       background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 60%, white));
+    }
+
+    .progress-fill.warning {
+      background: linear-gradient(90deg, var(--warning), color-mix(in srgb, var(--warning) 60%, white));
     }
 
     .goal-values {
@@ -535,6 +543,15 @@
 
     .goals-carousel-wrap {
       position: relative;
+      display: flex;
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .goals-scroll-area {
+      flex: 1;
+      min-width: 0;
+      position: relative;
       padding: 0 20px;
     }
 
@@ -554,7 +571,7 @@
       border-radius: 14px;
       padding: 18px 20px;
       cursor: pointer;
-      flex: 0 0 calc((100% - 32px) / 3);
+      flex: 0 0 calc((100% - 16px) / 2);
       transition: border-color 0.15s, transform 0.15s;
     }
 
@@ -600,6 +617,113 @@
       background: color-mix(in srgb, var(--primary) 5%, var(--surface));
     }
 
+    .goal-card-new {
+      flex: 0 0 calc((100% - 16px) / 3);
+      min-width: 0;
+      background: var(--surface);
+      border-radius: 14px;
+      padding: 18px 20px;
+      border: 1.5px dashed var(--border);
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-align: center;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .goal-card-new:hover {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 5%, var(--surface));
+    }
+
+    .edit-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .edit-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 8%, transparent);
+    }
+
+    .goal-amounts {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .goal-amounts-label {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 2px;
+    }
+
+    .goal-amounts-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .goal-card-btn {
+      width: 100%;
+      margin-top: 12px;
+      padding: 8px 14px;
+      border-radius: 99px;
+      border: 1px solid color-mix(in srgb, var(--text) 30%, transparent);
+      background: transparent;
+      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    .goal-card-btn:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 8%, transparent);
+    }
+
+    .goal-card-new-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      border: 1.5px dashed var(--primary);
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      line-height: 1;
+    }
+
+    .goal-card-new-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .goal-card-new-hint {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
     .goal-card-head {
       display: flex;
       justify-content: space-between;
@@ -612,8 +736,8 @@
       width: 42px;
       height: 42px;
       border-radius: 10px;
-      background: color-mix(in srgb, var(--accent) 14%, transparent);
-      color: var(--accent);
+      background: color-mix(in srgb, var(--text) 8%, transparent);
+      color: var(--text-muted);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -656,6 +780,19 @@
       color: #fff;
       font-size: 9px;
       font-weight: 800;
+    }
+
+    .owner-dots {
+      display: flex;
+      align-items: center;
+    }
+
+    .owner-dots .owner-dot {
+      border: 2px solid var(--surface);
+    }
+
+    .owner-dots .owner-dot + .owner-dot {
+      margin-left: -6px;
     }
 
     .split-grid {
@@ -712,6 +849,11 @@
       padding: 3px 10px;
       border-radius: 99px;
       margin-top: 4px;
+    }
+
+    .line-badge.negative {
+      background: color-mix(in srgb, var(--negative) 12%, transparent);
+      color: var(--negative);
     }
 
     .line-badge-dot {
@@ -879,6 +1021,15 @@
         grid-template-columns: 1fr;
       }
 
+      .goals-carousel-wrap {
+        flex-direction: column;
+      }
+
+      .goal-card-new {
+        flex: none;
+        width: 100%;
+      }
+
       .goal-card {
         flex-basis: 100%;
       }
@@ -953,28 +1104,36 @@
     <section class="goals-section">
       <div class="section-row">
         <div class="section-title">Metas ativas</div>
-        <div class="goal-filter">
-          <button class="ghost-btn active">Todas</button>
-          <button class="ghost-btn">Compartilhadas</button>
-          <button class="ghost-btn">Pessoais</button>
-        </div>
       </div>
 
       <div class="goals-carousel-wrap">
-        <button class="goal-arrow goal-arrow-prev" id="goal-prev" aria-label="Metas anteriores">&#8249;</button>
-        <div class="goals-carousel">
+        <article class="goal-card-new" title="Criar nova meta">
+          <div class="goal-card-new-icon">+</div>
+          <div class="goal-card-new-label">Nova meta</div>
+          <div class="goal-card-new-hint">Defina um objetivo e acompanhe o progresso em grupo</div>
+        </article>
+        <div class="goals-scroll-area">
+          <button class="goal-arrow goal-arrow-prev" id="goal-prev" aria-label="Metas anteriores">&#8249;</button>
+          <div class="goals-carousel">
           <div class="goals-track" id="goals-track">
             <article class="goal-card active" data-goal="ape" style="--accent: var(--cat-1)">
               <div class="goal-card-head">
-                <div class="goal-icon">
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-8.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                  </svg>
+                <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
+                  <div class="goal-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M4 11.5 12 5l8 6.5V20a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1v-8.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div style="min-width:0">
+                    <div class="goal-card-name">Entrada do ap&ecirc;</div>
+                    <div class="goal-deadline">jun. 2026</div>
+                  </div>
                 </div>
-                <span class="goal-status">no ritmo</span>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <div class="owner-dots"><span class="owner-dot" style="background:#ff2d87">B</span><span class="owner-dot" style="background:#7c2fff">J</span></div>
+                  <button class="edit-btn" title="Editar meta"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9.5 2.5 11.5 4.5M2 12l2.5-.5 7-7L9.5 2.5 2.5 9.5 2 12Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                </div>
               </div>
-              <div class="goal-card-name">Entrada do ap&ecirc;</div>
-              <div class="goal-deadline">R$ 8.600 de R$ 10.000 &middot; jun. 2026</div>
               <div class="mega-progress" style="margin: 14px 0 0">
                 <div class="progress-header">
                   <span class="progress-label">Progresso</span>
@@ -982,42 +1141,64 @@
                 </div>
                 <div class="progress-track"><div class="progress-fill" style="--w: 86%"></div></div>
               </div>
-              <div class="goal-owner"><span class="owner-dot" style="background:#ff2d87">B</span><span class="owner-dot" style="background:#7c2fff">J</span> meta do grupo</div>
+              <div class="goal-amounts">
+                <div><div class="goal-amounts-label">Alcan&ccedil;ado</div><div class="goal-amounts-value">R$ 8.600</div></div>
+                <div style="text-align:right"><div class="goal-amounts-label">Meta total</div><div class="goal-amounts-value">R$ 10.000</div></div>
+              </div>
+              <button class="goal-card-btn">Registrar aporte</button>
             </article>
 
             <article class="goal-card" data-goal="viagem" style="--accent: var(--cat-2)">
               <div class="goal-card-head">
-                <div class="goal-icon">
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M3 13.5 21 6l-5.2 13-3.4-5.4L6.9 17 3 13.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                  </svg>
+                <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
+                  <div class="goal-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M3 13.5 21 6l-5.2 13-3.4-5.4L6.9 17 3 13.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div style="min-width:0">
+                    <div class="goal-card-name">Viagem de f&eacute;rias</div>
+                    <div class="goal-deadline">dez. 2026</div>
+                  </div>
                 </div>
-                <span class="goal-status warning">aten&ccedil;&atilde;o</span>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <div class="owner-dots"><span class="owner-dot" style="background:#ff2d87">B</span><span class="owner-dot" style="background:#7c2fff">J</span></div>
+                  <button class="edit-btn" title="Editar meta"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9.5 2.5 11.5 4.5M2 12l2.5-.5 7-7L9.5 2.5 2.5 9.5 2 12Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                </div>
               </div>
-              <div class="goal-card-name">Viagem de f&eacute;rias</div>
-              <div class="goal-deadline">R$ 2.500 de R$ 5.000 &middot; dez. 2026</div>
-              <div class="mega-progress" style="margin: 14px 0 0">
+              <div class="mega-progress warning" style="margin: 14px 0 0">
                 <div class="progress-header">
                   <span class="progress-label">Progresso</span>
                   <span class="progress-pct">50%</span>
                 </div>
-                <div class="progress-track"><div class="progress-fill" style="--w: 50%"></div></div>
+                <div class="progress-track"><div class="progress-fill warning" style="--w: 50%"></div></div>
               </div>
-              <div class="goal-owner"><span class="owner-dot" style="background:#ff2d87">B</span><span class="owner-dot" style="background:#7c2fff">J</span> meta do grupo</div>
+              <div class="goal-amounts">
+                <div><div class="goal-amounts-label">Alcan&ccedil;ado</div><div class="goal-amounts-value">R$ 2.500</div></div>
+                <div style="text-align:right"><div class="goal-amounts-label">Meta total</div><div class="goal-amounts-value">R$ 5.000</div></div>
+              </div>
+              <button class="goal-card-btn">Registrar aporte</button>
             </article>
 
             <article class="goal-card" data-goal="reserva" style="--accent: var(--cat-3)">
               <div class="goal-card-head">
-                <div class="goal-icon">
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M12 3 19 6v5.3c0 4.2-2.7 7.9-7 9.7-4.3-1.8-7-5.5-7-9.7V6l7-3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                    <path d="M9 12.2 11.1 14.3 15.4 9.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
+                <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
+                  <div class="goal-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M12 3 19 6v5.3c0 4.2-2.7 7.9-7 9.7-4.3-1.8-7-5.5-7-9.7V6l7-3Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                      <path d="M9 12.2 11.1 14.3 15.4 9.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <div style="min-width:0">
+                    <div class="goal-card-name">Reserva de emerg&ecirc;ncia</div>
+                    <div class="goal-deadline">jun. 2027</div>
+                  </div>
                 </div>
-                <span class="goal-status">saud&aacute;vel</span>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <div class="owner-dots"><span class="owner-dot" style="background:#ff2d87">B</span></div>
+                  <button class="edit-btn" title="Editar meta"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9.5 2.5 11.5 4.5M2 12l2.5-.5 7-7L9.5 2.5 2.5 9.5 2 12Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                </div>
               </div>
-              <div class="goal-card-name">Reserva de emerg&ecirc;ncia</div>
-              <div class="goal-deadline">R$ 7.200 de R$ 10.000 &middot; jun. 2027</div>
               <div class="mega-progress" style="margin: 14px 0 0">
                 <div class="progress-header">
                   <span class="progress-label">Progresso</span>
@@ -1025,43 +1206,65 @@
                 </div>
                 <div class="progress-track"><div class="progress-fill" style="--w: 72%"></div></div>
               </div>
-              <div class="goal-owner"><span class="owner-dot" style="background:#ff2d87">B</span> meta pessoal</div>
+              <div class="goal-amounts">
+                <div><div class="goal-amounts-label">Alcan&ccedil;ado</div><div class="goal-amounts-value">R$ 7.200</div></div>
+                <div style="text-align:right"><div class="goal-amounts-label">Meta total</div><div class="goal-amounts-value">R$ 10.000</div></div>
+              </div>
+              <button class="goal-card-btn">Registrar aporte</button>
             </article>
 
             <article class="goal-card" data-goal="moveis" style="--accent: var(--cat-4)">
               <div class="goal-card-head">
-                <div class="goal-icon">
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M5 12h14a2 2 0 0 1 2 2v5H3v-5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                    <path d="M7 12V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4M6 19v2M18 19v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                  </svg>
+                <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
+                  <div class="goal-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M5 12h14a2 2 0 0 1 2 2v5H3v-5a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                      <path d="M7 12V8a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4M6 19v2M18 19v2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <div style="min-width:0">
+                    <div class="goal-card-name">M&oacute;veis da sala</div>
+                    <div class="goal-deadline">set. 2026</div>
+                  </div>
                 </div>
-                <span class="goal-status warning">rascunho</span>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <div class="owner-dots"><span class="owner-dot" style="background:#7c2fff">J</span></div>
+                  <button class="edit-btn" title="Editar meta"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9.5 2.5 11.5 4.5M2 12l2.5-.5 7-7L9.5 2.5 2.5 9.5 2 12Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                </div>
               </div>
-              <div class="goal-card-name">M&oacute;veis da sala</div>
-              <div class="goal-deadline">R$ 980 de R$ 3.000 &middot; set. 2026</div>
-              <div class="mega-progress" style="margin: 14px 0 0">
+              <div class="mega-progress warning" style="margin: 14px 0 0">
                 <div class="progress-header">
                   <span class="progress-label">Progresso</span>
                   <span class="progress-pct">33%</span>
                 </div>
-                <div class="progress-track"><div class="progress-fill" style="--w: 33%"></div></div>
+                <div class="progress-track"><div class="progress-fill warning" style="--w: 33%"></div></div>
               </div>
-              <div class="goal-owner"><span class="owner-dot" style="background:#7c2fff">J</span> meta pessoal</div>
+              <div class="goal-amounts">
+                <div><div class="goal-amounts-label">Alcan&ccedil;ado</div><div class="goal-amounts-value">R$ 980</div></div>
+                <div style="text-align:right"><div class="goal-amounts-label">Meta total</div><div class="goal-amounts-value">R$ 3.000</div></div>
+              </div>
+              <button class="goal-card-btn">Registrar aporte</button>
             </article>
 
             <article class="goal-card" data-goal="reforma" style="--accent: var(--cat-2)">
               <div class="goal-card-head">
-                <div class="goal-icon">
-                  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                    <path d="M14.5 4.5 19.5 9.5M13 6l5 5-8.5 8.5H4.5V14.5L13 6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-                    <path d="M4.5 19.5 2.8 21.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-                  </svg>
+                <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1">
+                  <div class="goal-icon">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                      <path d="M14.5 4.5 19.5 9.5M13 6l5 5-8.5 8.5H4.5V14.5L13 6Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+                      <path d="M4.5 19.5 2.8 21.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <div style="min-width:0">
+                    <div class="goal-card-name">Reforma da cozinha</div>
+                    <div class="goal-deadline">mar. 2027</div>
+                  </div>
                 </div>
-                <span class="goal-status">planejando</span>
+                <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+                  <div class="owner-dots"><span class="owner-dot" style="background:#ff2d87">B</span><span class="owner-dot" style="background:#7c2fff">J</span></div>
+                  <button class="edit-btn" title="Editar meta"><svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9.5 2.5 11.5 4.5M2 12l2.5-.5 7-7L9.5 2.5 2.5 9.5 2 12Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+                </div>
               </div>
-              <div class="goal-card-name">Reforma da cozinha</div>
-              <div class="goal-deadline">R$ 1.200 de R$ 8.000 &middot; mar. 2027</div>
               <div class="mega-progress" style="margin: 14px 0 0">
                 <div class="progress-header">
                   <span class="progress-label">Progresso</span>
@@ -1069,11 +1272,16 @@
                 </div>
                 <div class="progress-track"><div class="progress-fill" style="--w: 15%"></div></div>
               </div>
-              <div class="goal-owner"><span class="owner-dot" style="background:#ff2d87">B</span><span class="owner-dot" style="background:#7c2fff">J</span> meta do grupo</div>
+              <div class="goal-amounts">
+                <div><div class="goal-amounts-label">Alcan&ccedil;ado</div><div class="goal-amounts-value">R$ 1.200</div></div>
+                <div style="text-align:right"><div class="goal-amounts-label">Meta total</div><div class="goal-amounts-value">R$ 8.000</div></div>
+              </div>
+              <button class="goal-card-btn">Registrar aporte</button>
             </article>
           </div>
         </div>
-        <button class="goal-arrow goal-arrow-next" id="goal-next" aria-label="Proximas metas">&#8250;</button>
+          <button class="goal-arrow goal-arrow-next" id="goal-next" aria-label="Proximas metas">&#8250;</button>
+        </div>
       </div>
     </section>
 
@@ -1086,10 +1294,11 @@
               <h1 class="goal-title" id="spot-title">Entrada do ap&ecirc;</h1>
               <p class="goal-desc" id="spot-desc">Ritmo atual cobre 86% do valor previsto. Falta alinhar um aporte extra de R$ 680 para chegar no prazo com folga.</p>
             </div>
-            <span class="goal-status" id="spot-status">no ritmo</span>
+            <button class="edit-btn" title="Editar meta"><svg width="13" height="13" viewBox="0 0 14 14" fill="none" aria-hidden="true"><path d="M9.5 2.5 11.5 4.5M2 12l2.5-.5 7-7L9.5 2.5 2.5 9.5 2 12Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <span class="goal-status" id="spot-status" style="display:none">no ritmo</span>
           </div>
 
-          <div class="mega-progress">
+          <div class="mega-progress" id="spot-progress">
             <div class="progress-header">
               <span class="progress-label">Progresso</span>
               <span class="progress-pct" id="spot-pct">86%</span>
@@ -1151,10 +1360,18 @@
         <div class="line-header">
           <div>
             <div class="line-label">Evolu&ccedil;&atilde;o dos aportes</div>
-            <div class="line-value">R$ 3.180</div>
-            <div class="line-sub">guardados nos &uacute;ltimos 6 meses</div>
+            <div class="line-value" id="chart-total">R$ 3.180</div>
+            <div class="line-sub" id="chart-sub">guardados nos &uacute;ltimos 6 meses</div>
           </div>
-          <span class="line-badge"><span class="line-badge-dot"></span>+18% vs per&iacute;odo anterior</span>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+            <div class="goal-filter" id="chart-period-filter">
+              <button class="ghost-btn" data-period="7d">7 dias</button>
+              <button class="ghost-btn" data-period="1m">1 m&ecirc;s</button>
+              <button class="ghost-btn" data-period="3m">3 meses</button>
+              <button class="ghost-btn active" data-period="6m">6 meses</button>
+            </div>
+            <span class="line-badge" id="chart-badge"><span class="line-badge-dot"></span>+18% vs per&iacute;odo anterior</span>
+          </div>
         </div>
 
         <svg viewBox="0 0 430 170" role="img" aria-label="Grafico de evolucao dos aportes">
@@ -1164,24 +1381,26 @@
               <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/>
             </linearGradient>
           </defs>
-          <line x1="34" y1="28" x2="410" y2="28" stroke="var(--grid-line)" stroke-width="1"/>
-          <line x1="34" y1="70" x2="410" y2="70" stroke="var(--grid-line)" stroke-width="1"/>
-          <line x1="34" y1="112" x2="410" y2="112" stroke="var(--grid-line)" stroke-width="1"/>
-          <text x="0" y="31" font-size="9" fill="#6b6b85">R$ 900</text>
-          <text x="0" y="73" font-size="9" fill="#6b6b85">R$ 600</text>
-          <text x="0" y="115" font-size="9" fill="#6b6b85">R$ 300</text>
-          <path d="M34,122 C65,116 65,95 96,92 C127,89 127,102 158,96 C189,90 189,65 220,70 C251,75 251,58 282,54 C313,50 313,42 344,40 C375,38 379,32 410,30" fill="none" stroke="#6b6b85" stroke-width="1.7" stroke-dasharray="5,5" stroke-linecap="round"/>
-          <path d="M34,130 C65,126 65,104 96,99 C127,94 127,82 158,88 C189,94 189,68 220,62 C251,56 251,52 282,49 C313,46 313,30 344,34 C375,38 379,24 410,22 L410,145 L34,145 Z" fill="url(#areaGrad)"/>
-          <path d="M34,130 C65,126 65,104 96,99 C127,94 127,82 158,88 C189,94 189,68 220,62 C251,56 251,52 282,49 C313,46 313,30 344,34 C375,38 379,24 410,22" fill="none" stroke="var(--primary)" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="410" cy="22" r="8" fill="color-mix(in srgb, var(--primary) 20%, transparent)"/>
-          <circle cx="410" cy="22" r="4" fill="var(--primary)"/>
-          <text x="34" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Nov</text>
-          <text x="96" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Dez</text>
-          <text x="158" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Jan</text>
-          <text x="220" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Fev</text>
-          <text x="282" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Mar</text>
-          <text x="344" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Abr</text>
-          <text x="410" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Mai</text>
+          <line x1="0" y1="28" x2="430" y2="28" stroke="var(--grid-line)" stroke-width="1"/>
+          <line x1="0" y1="70" x2="430" y2="70" stroke="var(--grid-line)" stroke-width="1"/>
+          <line x1="0" y1="112" x2="430" y2="112" stroke="var(--grid-line)" stroke-width="1"/>
+          <text id="chart-y3" x="4" y="26" font-size="9" fill="#6b6b85">R$ 900</text>
+          <text id="chart-y2" x="4" y="68" font-size="9" fill="#6b6b85">R$ 600</text>
+          <text id="chart-y1" x="4" y="110" font-size="9" fill="#6b6b85">R$ 300</text>
+          <text x="4" y="143" font-size="9" fill="#6b6b85">R$0</text>
+          <path id="chart-target" d="M34,122 C65,116 65,95 96,92 C127,89 127,102 158,96 C189,90 189,65 220,70 C251,75 251,58 282,54 C313,50 313,42 344,40 C375,38 379,32 410,30" fill="none" stroke="#6b6b85" stroke-width="1.7" stroke-dasharray="5,5" stroke-linecap="round"/>
+          <path id="chart-area" d="M34,130 C65,126 65,104 96,99 C127,94 127,82 158,88 C189,94 189,68 220,62 C251,56 251,52 282,49 C313,46 313,30 344,34 C375,38 379,24 410,22 L410,145 L34,145 Z" fill="url(#areaGrad)"/>
+          <path id="chart-stroke" d="M34,130 C65,126 65,104 96,99 C127,94 127,82 158,88 C189,94 189,68 220,62 C251,56 251,52 282,49 C313,46 313,30 344,34 C375,38 379,24 410,22" fill="none" stroke="var(--primary)" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle id="chart-dot-outer" cx="410" cy="22" r="8" fill="color-mix(in srgb, var(--primary) 20%, transparent)"/>
+          <circle id="chart-dot-inner" cx="410" cy="22" r="4" fill="var(--primary)"/>
+          <g id="chart-x-labels">
+            <text x="34" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Dez</text>
+            <text x="109.2" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Jan</text>
+            <text x="184.4" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Fev</text>
+            <text x="259.6" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Mar</text>
+            <text x="334.8" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Abr</text>
+            <text x="410" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">Mai</text>
+          </g>
         </svg>
 
         <div class="legend-row">
@@ -1287,7 +1506,7 @@
             ['Diferen&ccedil;a', '+R$ 180']
           ],
           primary: 'Ajustar aporte',
-          secondary: 'Ver simula&ccedil;&atilde;o'
+          secondary: 'Ajustar divis&atilde;o'
         }
       },
       reserva: {
@@ -1311,8 +1530,233 @@
           primary: 'Registrar aporte',
           secondary: 'Editar recorr&ecirc;ncia'
         }
+      },
+      moveis: {
+        kicker: 'Meta em rascunho',
+        title: 'M&oacute;veis da sala',
+        desc: 'Meta rec&eacute;m criada, ainda poucos aportes registrados. Defina um valor mensal para come&ccedil;ar a acompanhar o progresso.',
+        status: 'rascunho',
+        tone: 'warning',
+        pct: '33%',
+        saved: 'R$ 980',
+        target: 'R$ 3.000',
+        monthly: 'R$ 250/m&ecirc;s',
+        next: {
+          title: 'M&oacute;veis da sala',
+          tag: 'rascunho',
+          rows: [
+            ['Valor guardado', 'R$ 980'],
+            ['Faltam', 'R$ 2.020'],
+            ['Prazo', 'set. 2026']
+          ],
+          primary: 'Registrar aporte',
+          secondary: 'Ajustar divis&atilde;o'
+        }
+      },
+      reforma: {
+        kicker: 'Meta planejando',
+        title: 'Reforma da cozinha',
+        desc: 'Fase inicial de planejamento. Ainda &eacute; cedo para avaliar o ritmo — comece definindo um aporte mensal fixo.',
+        status: 'planejando',
+        tone: '',
+        pct: '15%',
+        saved: 'R$ 1.200',
+        target: 'R$ 8.000',
+        monthly: 'R$ 400/m&ecirc;s',
+        next: {
+          title: 'Reforma da cozinha',
+          tag: 'planejando',
+          rows: [
+            ['Valor guardado', 'R$ 1.200'],
+            ['Faltam', 'R$ 6.800'],
+            ['Prazo', 'mar. 2027']
+          ],
+          primary: 'Registrar aporte',
+          secondary: 'Ajustar divis&atilde;o'
+        }
       }
     };
+
+    const CHART_PERIODS = {
+      '7d': { label: '7 dias', labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'S&aacute;b', 'Dom'] },
+      '1m': { label: '1 m&ecirc;s', labels: ['1', '10', '20', '30'] },
+      '3m': { label: '3 meses', labels: ['Mar', 'Abr', 'Mai'] },
+      '6m': { label: '6 meses', labels: ['Dez', 'Jan', 'Fev', 'Mar', 'Abr', 'Mai'] }
+    };
+
+    const GOAL_CHART_SERIES = {
+      ape: {
+        '7d': {
+          values: [120, 0, 180, 0, 250, 0, 400],
+          target: [135, 135, 135, 135, 135, 135, 135],
+          previousTotal: 800
+        },
+        '1m': {
+          values: [350, 500, 700, 680],
+          target: [560, 560, 560, 560],
+          previousTotal: 1950
+        },
+        '3m': {
+          values: [640, 820, 950],
+          target: [680, 760, 840],
+          previousTotal: 2150
+        },
+        '6m': {
+          values: [320, 460, 520, 610, 520, 750],
+          target: [500, 520, 560, 590, 620, 650],
+          previousTotal: 2700
+        }
+      },
+      viagem: {
+        '7d': {
+          values: [0, 80, 0, 120, 0, 0, 120],
+          target: [70, 70, 70, 70, 70, 70, 70],
+          previousTotal: 380
+        },
+        '1m': {
+          values: [180, 120, 0, 320],
+          target: [125, 125, 125, 125],
+          previousTotal: 700
+        },
+        '3m': {
+          values: [480, 700, 620],
+          target: [520, 540, 560],
+          previousTotal: 1900
+        },
+        '6m': {
+          values: [220, 300, 260, 360, 320, 460],
+          target: [360, 390, 420, 450, 480, 500],
+          previousTotal: 2020
+        }
+      },
+      reserva: {
+        '7d': {
+          values: [0, 0, 200, 0, 0, 200, 200],
+          target: [85, 85, 85, 85, 85, 85, 85],
+          previousTotal: 520
+        },
+        '1m': {
+          values: [600, 0, 600, 600],
+          target: [450, 450, 450, 450],
+          previousTotal: 1500
+        },
+        '3m': {
+          values: [600, 600, 600],
+          target: [560, 580, 600],
+          previousTotal: 1650
+        },
+        '6m': {
+          values: [400, 480, 520, 420, 500, 440],
+          target: [420, 440, 460, 480, 500, 520],
+          previousTotal: 2460
+        }
+      },
+      moveis: {
+        '7d': {
+          values: [0, 0, 0, 120, 0, 0, 130],
+          target: [35, 35, 35, 35, 35, 35, 35],
+          previousTotal: 180
+        },
+        '1m': {
+          values: [0, 200, 280, 250],
+          target: [180, 180, 180, 180],
+          previousTotal: 520
+        },
+        '3m': {
+          values: [0, 320, 660],
+          target: [220, 250, 280],
+          previousTotal: 700
+        },
+        '6m': {
+          values: [0, 0, 160, 220, 260, 340],
+          target: [120, 150, 180, 210, 240, 270],
+          previousTotal: 700
+        }
+      },
+      reforma: {
+        '7d': {
+          values: [0, 0, 0, 0, 100, 0, 0],
+          target: [55, 55, 55, 55, 55, 55, 55],
+          previousTotal: 90
+        },
+        '1m': {
+          values: [0, 100, 200, 100],
+          target: [100, 100, 100, 100],
+          previousTotal: 350
+        },
+        '3m': {
+          values: [220, 380, 400],
+          target: [280, 320, 360],
+          previousTotal: 920
+        },
+        '6m': {
+          values: [120, 160, 180, 220, 240, 280],
+          target: [180, 210, 240, 270, 300, 330],
+          previousTotal: 1110
+        }
+      }
+    };
+
+    const CHART_BOUNDS = {
+      left: 0,
+      right: 430,
+      top: 22,
+      bottom: 145,
+      max: 1000
+    };
+
+    let activeGoal = 'ape';
+    let activePeriod = '6m';
+
+    function formatCurrency(value) {
+      return `R$ ${Math.round(value).toLocaleString('pt-BR')}`;
+    }
+
+    function sumValues(values) {
+      return values.reduce((total, value) => total + value, 0);
+    }
+
+    function cumulativos(valores) {
+      let acc = 0;
+      return valores.map(v => { acc += v; return acc; });
+    }
+
+    function formatarMilhar(valor) {
+      if (valor >= 1000) return 'R$' + (valor / 1000).toFixed(1) + 'k';
+      return 'R$' + Math.round(valor);
+    }
+
+    function chartPoints(values) {
+      const xStep = values.length > 1 ? (CHART_BOUNDS.right - CHART_BOUNDS.left) / (values.length - 1) : 0;
+      return values.map((value, index) => {
+        const normalized = Math.min(value, CHART_BOUNDS.max) / CHART_BOUNDS.max;
+        return {
+          x: CHART_BOUNDS.left + (xStep * index),
+          y: CHART_BOUNDS.bottom - (normalized * (CHART_BOUNDS.bottom - CHART_BOUNDS.top))
+        };
+      });
+    }
+
+    function buildLinePath(points) {
+      return points.map((point, index) => {
+        const command = index === 0 ? 'M' : 'L';
+        return `${command}${point.x.toFixed(1)},${point.y.toFixed(1)}`;
+      }).join(' ');
+    }
+
+    function buildAreaPath(points, linePath) {
+      const first = points[0];
+      const last = points[points.length - 1];
+      return `${linePath} L${last.x.toFixed(1)},${CHART_BOUNDS.bottom} L${first.x.toFixed(1)},${CHART_BOUNDS.bottom} Z`;
+    }
+
+    function renderChartLabels(labels) {
+      const xStep = labels.length > 1 ? (CHART_BOUNDS.right - CHART_BOUNDS.left) / (labels.length - 1) : 0;
+      document.getElementById('chart-x-labels').innerHTML = labels.map((label, index) => {
+        const x = CHART_BOUNDS.left + (xStep * index);
+        return `<text x="${x.toFixed(1)}" y="163" font-size="9" fill="#6b6b85" text-anchor="middle">${label}</text>`;
+      }).join('');
+    }
 
     function renderNextAction(goal) {
       document.getElementById('next-name').innerHTML = goal.next.title;
@@ -1327,25 +1771,110 @@
       document.getElementById('next-secondary').innerHTML = goal.next.secondary;
     }
 
+    function renderChart(goalKey) {
+      const period = CHART_PERIODS[activePeriod];
+      const series = GOAL_CHART_SERIES[goalKey][activePeriod];
+
+      const cumValues = [0, ...cumulativos(series.values)];
+      const cumTarget = [0, ...cumulativos(series.target)];
+      const dataMax = Math.max(...cumValues, ...cumTarget);
+      CHART_BOUNDS.max = dataMax * 1.1;
+
+      const points = chartPoints(cumValues);
+      const targetPoints = chartPoints(cumTarget);
+      const stroke = buildLinePath(points);
+      const targetLine = buildLinePath(targetPoints);
+      const total = sumValues(series.values);
+      const variation = ((total - series.previousTotal) / series.previousTotal) * 100;
+      const isPositive = variation >= 0;
+      const lastPoint = points[points.length - 1];
+
+      document.getElementById('chart-total').innerHTML = formatCurrency(total);
+      document.getElementById('chart-sub').innerHTML = `guardados nos &uacute;ltimos ${period.label}`;
+
+      const badge = document.getElementById('chart-badge');
+      badge.innerHTML = `<span class="line-badge-dot"></span>${isPositive ? '+' : ''}${variation.toFixed(0)}% vs per&iacute;odo anterior`;
+      badge.className = isPositive ? 'line-badge' : 'line-badge negative';
+
+      document.getElementById('chart-target').setAttribute('d', targetLine);
+      document.getElementById('chart-area').setAttribute('d', buildAreaPath(points, stroke));
+      document.getElementById('chart-stroke').setAttribute('d', stroke);
+      document.getElementById('chart-dot-outer').setAttribute('cx', lastPoint.x.toFixed(1));
+      document.getElementById('chart-dot-outer').setAttribute('cy', lastPoint.y.toFixed(1));
+      document.getElementById('chart-dot-inner').setAttribute('cx', lastPoint.x.toFixed(1));
+      document.getElementById('chart-dot-inner').setAttribute('cy', lastPoint.y.toFixed(1));
+      renderChartLabels(['', ...period.labels]);
+
+      const step = CHART_BOUNDS.max / 3;
+      document.getElementById('chart-y1').textContent = formatarMilhar(step);
+      document.getElementById('chart-y2').textContent = formatarMilhar(step * 2);
+      document.getElementById('chart-y3').textContent = formatarMilhar(step * 3);
+    }
+
     document.querySelectorAll('.goal-card').forEach((card) => {
       card.addEventListener('click', () => {
         document.querySelectorAll('.goal-card').forEach((item) => item.classList.remove('active'));
         card.classList.add('active');
 
-        const goal = GOALS[card.dataset.goal];
+        activeGoal = card.dataset.goal;
+        const goal = GOALS[activeGoal];
         document.getElementById('spot-kicker').innerHTML = goal.kicker;
         document.getElementById('spot-title').innerHTML = goal.title;
         document.getElementById('spot-desc').innerHTML = goal.desc;
         document.getElementById('spot-status').innerHTML = goal.status;
         document.getElementById('spot-status').className = `goal-status ${goal.tone}`;
         document.getElementById('spot-pct').textContent = goal.pct;
-        document.getElementById('spot-bar').style.setProperty('--w', goal.pct);
+        const spotBar = document.getElementById('spot-bar');
+        spotBar.style.setProperty('--w', goal.pct);
+        spotBar.classList.toggle('warning', goal.tone === 'warning');
+        document.getElementById('spot-progress').classList.toggle('warning', goal.tone === 'warning');
         document.getElementById('spot-saved').textContent = goal.saved;
         document.getElementById('spot-target').textContent = goal.target;
         document.getElementById('spot-monthly').innerHTML = goal.monthly;
         renderNextAction(goal);
+        renderChart(activeGoal);
       });
     });
+
+    document.querySelectorAll('#chart-period-filter .ghost-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#chart-period-filter .ghost-btn').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        activePeriod = btn.dataset.period;
+        renderChart(activeGoal);
+      });
+    });
+
+    renderChart(activeGoal);
+
+    // Carousel navigation (2 cards visible at a time)
+    let carouselOffset = 0;
+    const cardsPerView = 2;
+
+    function updateCarousel() {
+      const track = document.getElementById('goals-track');
+      const cards = track.querySelectorAll('.goal-card');
+      const maxOffset = Math.max(0, cards.length - cardsPerView);
+      carouselOffset = Math.max(0, Math.min(carouselOffset, maxOffset));
+      if (cards.length > 0) {
+        const cardW = cards[0].offsetWidth;
+        track.style.transform = `translateX(-${carouselOffset * (cardW + 16)}px)`;
+      }
+      document.getElementById('goal-prev').disabled = carouselOffset === 0;
+      document.getElementById('goal-next').disabled = carouselOffset >= maxOffset;
+    }
+
+    document.getElementById('goal-prev').addEventListener('click', () => {
+      carouselOffset--;
+      updateCarousel();
+    });
+
+    document.getElementById('goal-next').addEventListener('click', () => {
+      carouselOffset++;
+      updateCarousel();
+    });
+
+    updateCarousel();
 
     function toggleTheme() {
       const html = document.documentElement;
