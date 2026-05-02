@@ -99,7 +99,7 @@ export default function InsightCard({ totalAtual, totalAnterior, categorias, per
           <div className={styles.miniValor}>
             {/* Bolinha colorida representando a categoria */}
             {maiorCategoria && (
-              <span className={styles.dot} style={{ background: maiorCategoria.cor }} />
+              <span className={styles.ponto} style={{ background: maiorCategoria.cor }} />
             )}
             {maiorCategoria?.nome}
           </div>
