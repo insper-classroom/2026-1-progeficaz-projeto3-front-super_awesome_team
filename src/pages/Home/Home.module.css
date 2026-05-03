@@ -1,0 +1,156 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.page {
+  position: relative;
+  min-height: 100vh;
+  background: #000;
+  color: #fff;
+  animation: fadeIn 0.3s ease-in;
+}
+
+/* left e width em vw preservam proporções do Figma em qualquer viewport */
+.bgLogo {
+  position: absolute;
+  left: -27.5vw;
+  top: 52px;
+  width: 97vw;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.navWrapper {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  padding-top: 28px;
+}
+
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 0 20px;
+  height: 62px;
+  width: min(680px, 80vw);
+  backdrop-filter: blur(3.5px);
+  -webkit-backdrop-filter: blur(3.5px);
+  background: rgba(0, 0, 0, 0.8);
+  border: 0.5px solid #fff;
+  border-radius: 57px;
+}
+
+.navLogo {
+  height: 38px;
+  width: auto;
+  flex-shrink: 0;
+}
+
+.navLinks {
+  display: flex;
+  gap: 28px;
+  flex: 1;
+  justify-content: center;
+}
+
+.navLink {
+  color: #bababa;
+  font-size: 15px;
+  text-decoration: none;
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.navLink:hover {
+  color: #fff;
+}
+
+.btnEntrar {
+  background: #d9d9d9;
+  border: none;
+  border-radius: 28px;
+  height: 38px;
+  padding: 0 22px;
+  font-size: 15px;
+  font-family: "Roboto", sans-serif;
+  font-weight: 400;
+  cursor: pointer;
+  color: #000;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.btnEntrar:hover {
+  background: #72e840;
+}
+
+.heroSection {
+  position: relative;
+  z-index: 10;
+  padding-top: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding-bottom: 60px;
+}
+
+.heroTitle {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: clamp(26px, 3.6vw, 52px);
+  color: #fff;
+  max-width: 520px;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.heroSpacer {
+  height: clamp(120px, 20vw, 280px);
+}
+
+.heroSubtitle {
+  font-family: "Inter", sans-serif;
+  font-weight: 200;
+  font-size: clamp(13px, 1.4vw, 20px);
+  color: #fff;
+  max-width: 680px;
+  margin: 0;
+}
+
+.btnComece {
+  margin-top: 22px;
+  background: #000;
+  border: 2px solid #fff;
+  border-radius: 32px;
+  height: 48px;
+  padding: 0 24px;
+  font-size: 17px;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+
+.btnComece:hover {
+  background: rgba(114, 232, 64, 0.18);
+  border-color: #72e840;
+  color: #72e840;
+}
