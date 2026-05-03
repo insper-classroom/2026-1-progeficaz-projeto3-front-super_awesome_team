@@ -1,55 +1,260 @@
 .card {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-
   width: 100%;
-  max-width: 600px;
-  
-  margin-top: 15px;
-
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  max-width: 520px;
+  border: none;
+  background: white;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+  cursor: pointer;
+  text-align: left;
+  margin-top: 20px;
 }
 
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
+}
 
-  font-size: 26px;
+.infoPrincipal {
+  display: flex;
+  flex-direction: column;
+}
+
+.nome {
+  margin: 0;
+  font-size: 18px;
   font-weight: 700;
+  color: #1e293b;
 }
 
-.membros {
-  margin-top: 15px;
+.total {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1f7a63;
 }
 
-.membro {
+.membrosResumo {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  width: 760px;
+  max-width: 92%;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.modalHeader {
   display: flex;
   justify-content: space-between;
-  padding: 5px 0;
+  align-items: center;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.modalSubtitle {
+  margin: 6px 0 0;
   font-size: 14px;
+  color: #64748b;
+}
+
+.closeBtn {
+  border: none;
+  background: #f1f5f9;
+  color: #334155;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.modalGrid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+.chartCard,
+.detailCard {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.chartBox {
+  position: relative;
+  width: 100%;
+  height: 220px;
+}
+
+.chartCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.chartLabel {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.chartValue {
+  font-size: 28px;
+  font-weight: 800;
+  color: #1f7a63;
+}
+
+.detailTitle {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.memberList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.memberRow {
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.memberTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.memberInfo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.memberInfo strong {
+  display: block;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.memberInfo p {
+  margin: 2px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.avatarMini {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: white;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badgePago,
+.badgePendente {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badgePago {
+  color: #1f7a63;
+  background: rgba(31, 122, 99, 0.12);
+}
+
+.badgePendente {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+}
+
+.progressBar {
+  display: flex;
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 10px 0 8px;
+  background: #e2e8f0;
+}
+
+.progressPago,
+.progressPendente {
+  height: 100%;
+}
+
+.memberAmounts {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 12px;
+  color: #64748b;
 }
 
 .actions {
   display: flex;
   gap: 10px;
-  margin-top: 15px;
+  margin-top: 16px;
 }
 
-.primaryBtn {
-  background: #4f46e5;
-  color: white;
-  padding: 8px 14px;
-  border-radius: 8px;
-  border: none;
-  cursor: pointer;
-}
-
-.secondaryBtn {
-  background: #e5e7eb;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
+@media (max-width: 900px) {
+  .modalGrid {
+    grid-template-columns: 1fr;
+  }
 }

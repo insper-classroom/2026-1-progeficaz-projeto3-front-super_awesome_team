@@ -1,8 +1,14 @@
 import { useEffect, useState } from "react";
 import styles from "./DespesaForm.module.css";
+import Button from "../Button";
 
 function criarMembroVazio(indice = 1) {
-  return { nome: `Membro ${indice}`, valor: "", percentual: "" };
+  return {
+    nome: `Membro ${indice}`,
+    valor: "",
+    percentual: "",
+    pago: false,
+  };
 }
 
 export default function DespesaForm({ onAdd, onClose, initialData }) {
@@ -21,7 +27,8 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
           ? initialData.membros.map((m, index) => ({
               nome: m.nome ?? `Membro ${index + 1}`,
               valor: m.valor ?? "",
-              percentual: m.percentual ?? ""
+              percentual: m.percentual ?? "",
+              pago: m.pago ?? false,
             }))
           : [criarMembroVazio(1)];
 
@@ -65,11 +72,15 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
     setErro("");
   }
 
+  function togglePago(i, checked) {
+    const novos = [...membros];
+    novos[i].pago = checked;
+    setMembros(novos);
+    setErro("");
+  }
+
   function adicionarMembro() {
-    setMembros([
-      ...membros,
-      criarMembroVazio(membros.length + 1)
-    ]);
+    setMembros([...membros, criarMembroVazio(membros.length + 1)]);
   }
 
   function removerMembro(index) {
@@ -87,7 +98,8 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
     const novos = membros.map((m) => ({
       ...m,
       valor: valorPorPessoa.toFixed(2),
-      percentual: (100 / membros.length).toFixed(2)
+      percentual: (100 / membros.length).toFixed(2),
+      pago: false,
     }));
 
     setMembros(novos);
@@ -119,8 +131,9 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
       membros: membros.map((m) => ({
         nome: m.nome,
         valor: Number(m.valor || 0),
-        percentual: Number(m.percentual || 0)
-      }))
+        percentual: Number(m.percentual || 0),
+        pago: Boolean(m.pago),
+      })),
     });
   }
 
@@ -155,18 +168,22 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
           <h4>Membros</h4>
 
           <div className={styles.membersActions}>
-            <button className={styles.primary} onClick={adicionarMembro}>
-              + Adicionar
-            </button>
-
-            <button className={styles.primary} onClick={dividirIgual}>
-              Dividir igualmente
-            </button>
+            <Button onClick={adicionarMembro}>+ Adicionar</Button>
+            <Button onClick={dividirIgual}>Dividir igualmente</Button>
           </div>
         </div>
 
         {membros.map((m, i) => (
           <div key={i} className={styles.memberRow}>
+            <label className={styles.pagoCheckbox}>
+              <input
+                type="checkbox"
+                checked={m.pago || false}
+                onChange={(e) => togglePago(i, e.target.checked)}
+              />
+              Pago
+            </label>
+
             <div className={styles.avatar}>
               {m.nome ? m.nome.charAt(0) : "?"}
             </div>
@@ -209,6 +226,7 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
             <button
               className={styles.removeBtn}
               onClick={() => removerMembro(i)}
+              type="button"
             >
               ❌
             </button>
@@ -216,13 +234,11 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
         ))}
 
         <div className={styles.actions}>
-          <button className={styles.secondary} onClick={onClose}>
+          <Button variant="secondary" onClick={onClose}>
             Cancelar
-          </button>
+          </Button>
 
-          <button className={styles.primary} onClick={salvar}>
-            Salvar
-          </button>
+          <Button onClick={salvar}>Salvar</Button>
         </div>
       </div>
     </div>
