@@ -1,0 +1,332 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.modal {
+  background: var(--surface);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  padding: 28px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.cabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.titulo {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+}
+
+.botaoFechar {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.botaoFechar:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rotulo {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.input {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 14px;
+  color: var(--text);
+  font-family: inherit;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.inputComIconeData {
+  position: relative;
+}
+
+.inputComIconeData .input {
+  padding-right: 44px;
+}
+
+.inputData[type="month"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0;
+}
+
+.iconeCalendario {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+:global([data-theme="light"]) .input {
+  color-scheme: light;
+}
+
+:global([data-theme="dark"]) .input {
+  color-scheme: dark;
+}
+
+.inputComPrefixo {
+  display: flex;
+  align-items: center;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 14px;
+  transition: border-color 0.15s;
+}
+
+.inputComPrefixo:focus-within {
+  border-color: var(--primary);
+}
+
+.prefixo {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.inputSemBorda {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 11px 0;
+  font-size: 14px;
+  color: var(--text);
+  font-family: inherit;
+  min-width: 0;
+}
+
+.inputSemBorda:focus {
+  outline: none;
+}
+
+.campoCalculado {
+  min-height: 43px;
+  background: color-mix(in srgb, var(--text-muted) 6%, var(--bg));
+  border: 1px dashed color-mix(in srgb, var(--text-muted) 55%, var(--border));
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
+}
+
+/* Linha icone + nome */
+
+.linhaIconeNome {
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.grupoIcone {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.previewIcone {
+  width: 52px;
+  height: 52px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.previewIcone svg {
+  width: 26px;
+  height: 26px;
+  stroke-width: 1.8;
+}
+
+.grupoNome {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* Sugestoes de icone */
+
+.iconesSugeridos {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.botaoIcone {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.botaoIcone svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 1.8;
+}
+
+.botaoIcone:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+}
+
+.botaoIconeAtivo {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+/* Membros */
+
+.checkboxGrupo {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.avatarCheckbox {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+/* ── Rodapé ── */
+
+.rodape {
+  display: flex;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.botaoCancelar {
+  flex: 1;
+  padding: 11px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.botaoCancelar:hover {
+  border-color: var(--text-muted);
+}
+
+.botaoConfirmar {
+  flex: 1;
+  padding: 11px;
+  border-radius: 99px;
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.botaoConfirmar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

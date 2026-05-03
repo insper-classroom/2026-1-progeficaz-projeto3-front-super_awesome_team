@@ -3,8 +3,8 @@ import { Link } from 'react-router-dom'
 import { CiGrid41, CiStop1 } from 'react-icons/ci'
 import { BsSun, BsMoon } from 'react-icons/bs'
 import styles from './Sidebar.module.css'
-import { useUser } from '../../contexts/UserContext'
-import { useTema } from '../../contexts/ThemeContext'
+import { useUser } from '../../hooks/useUser'
+import { useTema } from '../../hooks/useTema'
 
 export function Sidebar() {
   const { foto } = useUser()

@@ -3,6 +3,9 @@ import { useState } from 'react'
 import { FiEdit2 } from 'react-icons/fi'
 import { useMetas } from '../../../hooks/useMetas'
 import GraficoAportes from '../../../components/GraficoAportes'
+import IconeMeta from '../../../components/IconeMeta'
+import ModalMeta from '../../../components/ModalMeta'
+import ModalAporte from '../../../components/ModalAporte'
 import styles from './Metas.module.css'
 
 const MS_POR_DIA = 1000 * 60 * 60 * 24
@@ -111,6 +114,10 @@ export function Metas({ grupoId }) {
   const [indiceCarrossel, setIndiceCarrossel] = useState(0)
   const [periodoAportes, setPeriodoAportes] = useState('6m')
 
+  // Controla qual modal está aberto e qual meta está sendo manipulada.
+  const [modalAberto, setModalAberto] = useState(null) // 'novaMeta' | 'editarMeta' | 'aporte'
+  const [metaDoModal, setMetaDoModal] = useState(null)
+
   if (loading || !data) return <div className={styles.carregando}>Carregando...</div>
 
   const { metas, membros, movimentacoes } = data
@@ -163,6 +170,36 @@ export function Metas({ grupoId }) {
     return styles.cardMeta
   }
 
+  function abrirNovaMeta() {
+    setModalAberto('novaMeta')
+    setMetaDoModal(null)
+  }
+
+  function abrirEditarMeta(meta) {
+    setModalAberto('editarMeta')
+    setMetaDoModal(meta)
+  }
+
+  function abrirAporte(meta = null) {
+    setModalAberto('aporte')
+    setMetaDoModal(meta)
+  }
+
+  function fecharModal() {
+    setModalAberto(null)
+    setMetaDoModal(null)
+  }
+
+  function handleSalvarMeta() {
+    // TODO: integrar com backend: criar ou atualizar meta e recarregar lista.
+    fecharModal()
+  }
+
+  function handleSalvarAporte() {
+    // TODO: integrar com backend: registrar aporte e recarregar metas/movimentações.
+    fecharModal()
+  }
+
   return (
     <div className={styles.container}>
 
@@ -196,7 +233,14 @@ export function Metas({ grupoId }) {
         </div>
 
         <div className={styles.areaMetas}>
-          <article className={styles.cardNovaMeta}>
+          <article
+            className={styles.cardNovaMeta}
+            onClick={abrirNovaMeta}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') abrirNovaMeta() }}
+            aria-label="Criar nova meta"
+          >
             <div className={styles.iconeNovaMeta}>+</div>
             <span className={styles.nomeNovaMeta}>Nova meta</span>
             <span className={styles.textoNovaMeta}>Defina um objetivo e acompanhe o progresso em grupo</span>
@@ -231,10 +275,12 @@ export function Metas({ grupoId }) {
                   >
                     <div className={styles.topoMeta}>
                       <div className={styles.blocoTituloMeta}>
-                        <div className={styles.iconeMeta}>{meta.emoji}</div>
+                        <div className={styles.iconeMeta}>
+                          <IconeMeta meta={meta} />
+                        </div>
                         <div className={styles.infoMeta}>
                           <span className={styles.nomeMeta}>{meta.nome}</span>
-                          <span className={styles.prazoMeta}>{meta.prazo}</span>
+                          <span className={styles.prazoMeta}>Prazo: {meta.prazo}</span>
                         </div>
                       </div>
 
@@ -255,7 +301,7 @@ export function Metas({ grupoId }) {
                         <button
                           type="button"
                           className={styles.botaoEditar}
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => { e.stopPropagation(); abrirEditarMeta(meta) }}
                           aria-label={`Editar meta ${meta.nome}`}
                         >
                           <FiEdit2 />
@@ -288,7 +334,7 @@ export function Metas({ grupoId }) {
                     <button
                       type="button"
                       className={styles.botaoAporte}
-                      onClick={(e) => e.stopPropagation()}
+                      onClick={(e) => { e.stopPropagation(); abrirAporte(meta) }}
                     >
                       Registrar aporte
                     </button>
@@ -327,6 +373,7 @@ export function Metas({ grupoId }) {
               <button
                 type="button"
                 className={styles.botaoEditarDestaque}
+                onClick={() => abrirEditarMeta(metaSelecionada)}
                 aria-label={`Editar meta ${metaSelecionada.nome}`}
               >
                 <FiEdit2 />
@@ -396,8 +443,12 @@ export function Metas({ grupoId }) {
             </div>
           </div>
 
-          <button type="button" className={styles.botaoPrimario}>Registrar aporte</button>
-          <button type="button" className={styles.botaoSecundario}>Ajustar divisão</button>
+          <button type="button" className={styles.botaoPrimario} onClick={() => abrirAporte(metaSelecionada)}>
+            Registrar aporte
+          </button>
+          <button type="button" className={styles.botaoSecundario} onClick={() => abrirEditarMeta(metaSelecionada)}>
+            Ajustar divisão
+          </button>
         </aside>
 
       </section>
@@ -450,6 +501,26 @@ export function Metas({ grupoId }) {
         </article>
 
       </section>
+
+      {/* Modais — renderizados fora do fluxo normal para sobrepor a página */}
+      {(modalAberto === 'novaMeta' || modalAberto === 'editarMeta') && (
+        <ModalMeta
+          meta={modalAberto === 'editarMeta' ? metaDoModal : null}
+          membros={membros}
+          onSalvar={handleSalvarMeta}
+          onFechar={fecharModal}
+        />
+      )}
+
+      {modalAberto === 'aporte' && (
+        <ModalAporte
+          metas={metas}
+          membros={membros}
+          metaInicial={metaDoModal}
+          onSalvar={handleSalvarAporte}
+          onFechar={fecharModal}
+        />
+      )}
 
     </div>
   )
