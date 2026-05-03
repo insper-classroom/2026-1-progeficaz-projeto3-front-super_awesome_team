@@ -245,6 +245,9 @@
   justify-content: center;
   color: var(--text);
   font-size: 13px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 
@@ -338,6 +341,9 @@
   color: var(--text);
   font-size: 13px;
   font-weight: 700;
+  font-family: inherit;
+  background: transparent;
+  cursor: pointer;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
 

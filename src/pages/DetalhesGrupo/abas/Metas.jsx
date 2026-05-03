@@ -1,3 +1,4 @@
+// Aba de metas do grupo: resumo, carrossel de metas e registro de aportes.
 import { useState } from 'react'
 import { FiEdit2 } from 'react-icons/fi'
 import styles from './Metas.module.css'
@@ -9,7 +10,8 @@ function formatarMoeda(valor) {
 }
 
 function pluralizar(quantidade, singular, plural) {
-  return quantidade === 1 ? singular : plural
+  if (quantidade === 1) return singular
+  return plural
 }
 
 function calcularPercentual(meta) {
@@ -19,10 +21,8 @@ function calcularPercentual(meta) {
 
 function obterDataPrazo(prazoData) {
   if (!prazoData) return null
-
   const [ano, mes] = prazoData.split('-').map(Number)
   if (!ano || !mes) return null
-
   return new Date(ano, mes, 0)
 }
 
@@ -30,7 +30,6 @@ function calcularDiasRestantes(dataPrazo) {
   const hoje = new Date()
   const inicioHoje = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate())
   const dias = Math.ceil((dataPrazo - inicioHoje) / MS_POR_DIA)
-
   return Math.max(0, dias)
 }
 
@@ -38,8 +37,12 @@ function calcularDiasRestantes(dataPrazo) {
 function calcularResumo(metas) {
   const totalGuardado = metas.reduce((total, meta) => total + meta.alcancado, 0)
   const progressoTotal = metas.reduce((total, meta) => total + calcularPercentual(meta), 0)
-  const progressoMedio = metas.length ? Math.round(progressoTotal / metas.length) : 0
   const metasNoRitmo = metas.filter((meta) => meta.situacao === 'noRitmo').length
+
+  let progressoMedio = 0
+  if (metas.length) {
+    progressoMedio = Math.round(progressoTotal / metas.length)
+  }
 
   const proximaMeta = metas.reduce((maisProxima, meta) => {
     const dataPrazo = obterDataPrazo(meta.prazoData)
@@ -48,13 +51,12 @@ function calcularResumo(metas) {
     return maisProxima
   }, null)
 
-  return {
-    totalGuardado,
-    progressoMedio,
-    metasNoRitmo,
-    proximaMeta,
-    diasProximoPrazo: proximaMeta ? calcularDiasRestantes(proximaMeta.dataPrazo) : 0,
+  let diasProximoPrazo = 0
+  if (proximaMeta) {
+    diasProximoPrazo = calcularDiasRestantes(proximaMeta.dataPrazo)
   }
+
+  return { totalGuardado, progressoMedio, metasNoRitmo, proximaMeta, diasProximoPrazo }
 }
 
 function buscarMembrosDaMeta(meta, membros) {
@@ -75,27 +77,54 @@ export function Metas({ metas = [], membros = [] }) {
   }
 
   const resumo = calcularResumo(metas)
-  const metaSelecionadaIdAtual = metas.some((meta) => meta.id === metaSelecionadaId) ? metaSelecionadaId : metas[0].id
+
+  // Garante que sempre há uma meta selecionada válida, mesmo se a lista mudar.
+  let metaSelecionadaIdAtual = metas[0].id
+  if (metas.some((meta) => meta.id === metaSelecionadaId)) {
+    metaSelecionadaIdAtual = metaSelecionadaId
+  }
+
   const totalVisivel = 2
   const indiceMaximo = Math.max(0, metas.length - totalVisivel)
   const podeVoltar = indiceCarrossel > 0
   const podeAvancar = indiceCarrossel < indiceMaximo
   const metasVisiveis = metas.slice(indiceCarrossel, indiceCarrossel + totalVisivel)
+
   const textoMetasAtivas = pluralizar(metas.length, 'meta ativa', 'metas ativas')
   const textoMembros = pluralizar(membros.length, 'membro', 'membros')
   const textoNoRitmo = pluralizar(resumo.metasNoRitmo, 'meta no ritmo', 'metas no ritmo')
 
+  // Nome da meta com prazo mais próximo para o card de resumo.
+  let nomeProximaMeta = 'Sem prazo definido'
+  if (resumo.proximaMeta) {
+    nomeProximaMeta = resumo.proximaMeta.nome
+  }
+
+  function classeCardMeta(meta) {
+    if (meta.id === metaSelecionadaIdAtual) return `${styles.cardMeta} ${styles.cardMetaAtivo}`
+    return styles.cardMeta
+  }
+
+  function classeProgressoValor(meta) {
+    if (meta.situacao === 'atencao') return `${styles.progressoValor} ${styles.progressoAtencao}`
+    return styles.progressoValor
+  }
+
+  function classeBarraMeta(meta) {
+    if (meta.situacao === 'atencao') return `${styles.barraPreenchida} ${styles.progressoAtencao}`
+    return styles.barraPreenchida
+  }
+
   return (
     <div className={styles.container}>
+
       {/* Cards de resumo da aba de metas */}
       <section className={styles.resumoGrid} aria-label="Resumo das metas">
 
         <article className={styles.cardResumo}>
           <span className={styles.rotulo}>Total guardado</span>
           <span className={`${styles.valor} ${styles.valorPositivo}`}>{formatarMoeda(resumo.totalGuardado)}</span>
-          <span className={styles.detalhe}>
-            em {metas.length} {textoMetasAtivas} com {membros.length} {textoMembros}
-          </span>
+          <span className={styles.detalhe}>em {metas.length} {textoMetasAtivas} com {membros.length} {textoMembros}</span>
         </article>
 
         <article className={styles.cardResumo}>
@@ -107,12 +136,12 @@ export function Metas({ metas = [], membros = [] }) {
         <article className={styles.cardResumo}>
           <span className={styles.rotulo}>Próximo prazo</span>
           <span className={`${styles.valor} ${styles.valorPrimario}`}>{resumo.diasProximoPrazo} dias</span>
-          <span className={styles.detalhe}>{resumo.proximaMeta?.nome ?? 'Sem prazo definido'}</span>
+          <span className={styles.detalhe}>{nomeProximaMeta}</span>
         </article>
 
       </section>
 
-      {/* Carrossel de metas seguindo a estrutura do mockup */}
+      {/* Carrossel de metas */}
       <section className={styles.secaoMetas}>
         <div className={styles.cabecalhoSecao}>
           <span className={styles.tituloSecao}>Metas ativas</span>
@@ -140,16 +169,17 @@ export function Metas({ metas = [], membros = [] }) {
               {metasVisiveis.map((meta) => {
                 const percentual = calcularPercentual(meta)
                 const membrosDaMeta = buscarMembrosDaMeta(meta, membros)
-                const estaSelecionada = meta.id === metaSelecionadaIdAtual
-                const classeProgresso = meta.situacao === 'atencao' ? styles.progressoAtencao : ''
 
                 return (
-                  <button
+                  // div com role="button" para permitir botões internos sem violar HTML semântico
+                  <div
                     key={meta.id}
-                    type="button"
-                    className={`${styles.cardMeta} ${estaSelecionada ? styles.cardMetaAtivo : ''}`}
+                    className={classeCardMeta(meta)}
                     onClick={() => setMetaSelecionadaId(meta.id)}
-                    aria-pressed={estaSelecionada}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setMetaSelecionadaId(meta.id) }}
+                    role="button"
+                    tabIndex={0}
+                    aria-pressed={meta.id === metaSelecionadaIdAtual}
                   >
                     <div className={styles.topoMeta}>
                       <div className={styles.blocoTituloMeta}>
@@ -173,19 +203,25 @@ export function Metas({ metas = [], membros = [] }) {
                             </span>
                           ))}
                         </div>
-                        <span className={styles.botaoEditar} aria-hidden="true">
+                        {/* stopPropagation evita selecionar a meta ao clicar em editar */}
+                        <button
+                          type="button"
+                          className={styles.botaoEditar}
+                          onClick={(e) => e.stopPropagation()}
+                          aria-label={`Editar meta ${meta.nome}`}
+                        >
                           <FiEdit2 />
-                        </span>
+                        </button>
                       </div>
                     </div>
 
                     <div className={styles.progressoMeta}>
                       <div className={styles.progressoLinha}>
                         <span className={styles.progressoRotulo}>Progresso</span>
-                        <span className={`${styles.progressoValor} ${classeProgresso}`}>{percentual}%</span>
+                        <span className={classeProgressoValor(meta)}>{percentual}%</span>
                       </div>
                       <div className={styles.barraMeta}>
-                        <div className={`${styles.barraPreenchida} ${classeProgresso}`} style={{ width: `${percentual}%` }} />
+                        <div className={classeBarraMeta(meta)} style={{ width: `${percentual}%` }} />
                       </div>
                     </div>
 
@@ -200,8 +236,15 @@ export function Metas({ metas = [], membros = [] }) {
                       </div>
                     </div>
 
-                    <span className={styles.botaoAporte}>Registrar aporte</span>
-                  </button>
+                    {/* stopPropagation evita selecionar a meta ao clicar em registrar aporte */}
+                    <button
+                      type="button"
+                      className={styles.botaoAporte}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Registrar aporte
+                    </button>
+                  </div>
                 )
               })}
             </div>
@@ -218,6 +261,7 @@ export function Metas({ metas = [], membros = [] }) {
           </div>
         </div>
       </section>
+
     </div>
   )
 }
