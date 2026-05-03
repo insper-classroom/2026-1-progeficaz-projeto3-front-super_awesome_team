@@ -25,13 +25,34 @@ const metas = [
     id: '1',
     nome: 'Entrada do Apê',
     emoji: '🏠',
-    prazo: 'jun. 2026',       // texto exibido na tela
-    prazoData: '2026-06',     // formato AAAA-MM usado para calcular dias restantes
+    prazo: 'jun. 2026',
+    prazoData: '2026-06',
     alcancado: 8600,
     total: 10000,
-    situacao: 'noRitmo',      // 'noRitmo' = barra verde | 'atencao' = barra laranja
-    tipo: 'grupo',            // 'grupo' = todos participam | 'pessoal' = só um membro
-    membrosIds: ['1', '2'],   // IDs dos membros que participam desta meta
+    situacao: 'noRitmo',
+    tipo: 'grupo',
+    membrosIds: ['1', '2'],
+    aporteIdeal: 700,
+    descricao: 'Ritmo atual cobre 86% do valor previsto. Falta alinhar um aporte extra de R$ 400 para chegar no prazo com folga.',
+    proximoAporte: {
+      valorTotal: 950,
+      porMembro: [
+        { membroId: '1', valor: 500 },
+        { membroId: '2', valor: 450 },
+      ],
+    },
+    evolucaoAportes: {
+      '7d':  { realizados: [0, 500, 0, 0, 450, 0, 0],              ritmo: [140, 140, 140, 140, 140, 140, 140],   labels: ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'] },
+      '1m':  { realizados: [500, 0, 450, 0],                        ritmo: [700, 700, 700, 700],                  labels: ['1','10','20','30'] },
+      '3m':  { realizados: [850, 920, 950],                          ritmo: [700, 700, 700],                       labels: ['Fev','Mar','Abr'] },
+      '6m':  { realizados: [620, 750, 820, 850, 920, 950],           ritmo: [700, 700, 700, 700, 700, 700],        labels: ['Nov','Dez','Jan','Fev','Mar','Abr'] },
+    },
+    estatisticasAportes: {
+      '7d':  { total: 950,  variacao: 18 },
+      '1m':  { total: 950,  variacao: 18 },
+      '3m':  { total: 2720, variacao: 12 },
+      '6m':  { total: 4910, variacao: 18 },
+    },
   },
   {
     id: '2',
@@ -44,6 +65,27 @@ const metas = [
     situacao: 'atencao',
     tipo: 'grupo',
     membrosIds: ['1', '2'],
+    aporteIdeal: 500,
+    descricao: 'A meta está no meio do caminho, mas dezembro chega rápido. Um ajuste de R$ 180 no aporte mensal deixa o plano mais confortável.',
+    proximoAporte: {
+      valorTotal: 640,
+      porMembro: [
+        { membroId: '1', valor: 320 },
+        { membroId: '2', valor: 320 },
+      ],
+    },
+    evolucaoAportes: {
+      '7d':  { realizados: [0, 320, 0, 0, 0, 0, 0],                 ritmo: [100, 100, 100, 100, 100, 100, 100],   labels: ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'] },
+      '1m':  { realizados: [320, 0, 0, 320],                         ritmo: [500, 500, 500, 500],                  labels: ['1','10','20','30'] },
+      '3m':  { realizados: [280, 320, 320],                           ritmo: [500, 500, 500],                       labels: ['Fev','Mar','Abr'] },
+      '6m':  { realizados: [350, 280, 400, 280, 320, 320],            ritmo: [500, 500, 500, 500, 500, 500],        labels: ['Nov','Dez','Jan','Fev','Mar','Abr'] },
+    },
+    estatisticasAportes: {
+      '7d':  { total: 320,  variacao: -5 },
+      '1m':  { total: 640,  variacao: -5 },
+      '3m':  { total: 920,  variacao: -8 },
+      '6m':  { total: 1950, variacao: -5 },
+    },
   },
   {
     id: '3',
@@ -56,6 +98,26 @@ const metas = [
     situacao: 'noRitmo',
     tipo: 'pessoal',
     membrosIds: ['1'],
+    aporteIdeal: 600,
+    descricao: 'Boa consistência de aportes. Mantendo R$ 600 por mês, a reserva fecha antes do prazo previsto.',
+    proximoAporte: {
+      valorTotal: 600,
+      porMembro: [
+        { membroId: '1', valor: 600 },
+      ],
+    },
+    evolucaoAportes: {
+      '7d':  { realizados: [0, 0, 600, 0, 0, 0, 0],                 ritmo: [100, 100, 100, 100, 100, 100, 100],   labels: ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'] },
+      '1m':  { realizados: [600, 0, 0, 0],                           ritmo: [600, 600, 600, 600],                  labels: ['1','10','20','30'] },
+      '3m':  { realizados: [580, 600, 620],                           ritmo: [600, 600, 600],                       labels: ['Fev','Mar','Abr'] },
+      '6m':  { realizados: [540, 560, 580, 580, 600, 620],            ritmo: [600, 600, 600, 600, 600, 600],        labels: ['Nov','Dez','Jan','Fev','Mar','Abr'] },
+    },
+    estatisticasAportes: {
+      '7d':  { total: 600,  variacao: 12 },
+      '1m':  { total: 600,  variacao: 12 },
+      '3m':  { total: 1800, variacao: 8  },
+      '6m':  { total: 3480, variacao: 12 },
+    },
   },
   {
     id: '4',
@@ -68,6 +130,26 @@ const metas = [
     situacao: 'atencao',
     tipo: 'pessoal',
     membrosIds: ['2'],
+    aporteIdeal: 350,
+    descricao: 'Meta em atenção. O ritmo atual está abaixo do necessário para atingir o objetivo até setembro.',
+    proximoAporte: {
+      valorTotal: 350,
+      porMembro: [
+        { membroId: '2', valor: 350 },
+      ],
+    },
+    evolucaoAportes: {
+      '7d':  { realizados: [0, 0, 0, 250, 0, 0, 0],                 ritmo: [80, 80, 80, 80, 80, 80, 80],         labels: ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'] },
+      '1m':  { realizados: [0, 250, 0, 0],                           ritmo: [350, 350, 350, 350],                 labels: ['1','10','20','30'] },
+      '3m':  { realizados: [200, 250, 250],                           ritmo: [350, 350, 350],                      labels: ['Fev','Mar','Abr'] },
+      '6m':  { realizados: [150, 180, 200, 200, 250, 250],            ritmo: [350, 350, 350, 350, 350, 350],       labels: ['Nov','Dez','Jan','Fev','Mar','Abr'] },
+    },
+    estatisticasAportes: {
+      '7d':  { total: 250,  variacao: 40  },
+      '1m':  { total: 250,  variacao: -15 },
+      '3m':  { total: 700,  variacao: -20 },
+      '6m':  { total: 1230, variacao: -15 },
+    },
   },
   {
     id: '5',
@@ -80,7 +162,37 @@ const metas = [
     situacao: 'noRitmo',
     tipo: 'grupo',
     membrosIds: ['1', '2'],
+    aporteIdeal: 400,
+    descricao: 'Fase inicial de planejamento. Com aportes mensais de R$ 400, a reforma estará financiada dentro do prazo.',
+    proximoAporte: {
+      valorTotal: 400,
+      porMembro: [
+        { membroId: '1', valor: 200 },
+        { membroId: '2', valor: 200 },
+      ],
+    },
+    evolucaoAportes: {
+      '7d':  { realizados: [0, 200, 0, 0, 200, 0, 0],               ritmo: [60, 60, 60, 60, 60, 60, 60],         labels: ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'] },
+      '1m':  { realizados: [200, 0, 200, 0],                         ritmo: [400, 400, 400, 400],                 labels: ['1','10','20','30'] },
+      '3m':  { realizados: [350, 400, 400],                           ritmo: [400, 400, 400],                      labels: ['Fev','Mar','Abr'] },
+      '6m':  { realizados: [200, 250, 300, 350, 400, 400],            ritmo: [400, 400, 400, 400, 400, 400],       labels: ['Nov','Dez','Jan','Fev','Mar','Abr'] },
+    },
+    estatisticasAportes: {
+      '7d':  { total: 400,  variacao: 8 },
+      '1m':  { total: 400,  variacao: 8 },
+      '3m':  { total: 1150, variacao: 15 },
+      '6m':  { total: 1900, variacao: 8  },
+    },
   },
+]
+
+// Movimentações recentes de todas as metas do grupo.
+const movimentacoes = [
+  { id: '1', membroId: '1', nomeMembro: 'Brenda', metaId: '1', nomeMeta: 'Entrada do Apê',       tipo: 'aporte',  valor: 500,  data: 'hoje'     },
+  { id: '2', membroId: '2', nomeMembro: 'João',   metaId: '3', nomeMeta: 'Reserva de Emergência', tipo: 'aporte',  valor: 600,  data: 'ontem'    },
+  { id: '3', membroId: '1', nomeMembro: 'Brenda', metaId: '2', nomeMeta: 'Viagem de Férias',      tipo: 'ajuste',  valor: null, data: '23 abr.'  },
+  { id: '4', membroId: '2', nomeMembro: 'João',   metaId: '4', nomeMeta: 'Móveis da Sala',        tipo: 'criacao', valor: null, data: '18 abr.'  },
+  { id: '5', membroId: '2', nomeMembro: 'João',   metaId: '4', nomeMeta: 'Móveis da Sala',        tipo: 'aporte',  valor: 250,  data: '15 abr.'  },
 ]
 
 // Evolução de gastos: valores cumulativos (7d, 30d) ou totais mensais (3m, 6m, 1a)
@@ -128,6 +240,15 @@ const totaisPorPeriodo = {
 // Saldo fixo — representa o que o usuário deve ao grupo no mês atual.
 // Não muda com o filtro de período (é uma dívida presente, não histórica).
 const voceDeVeAtual = 120
+
+export function getMockMetas(grupoId, periodo = '6m') {
+  return {
+    membros,
+    metas,
+    movimentacoes,
+    periodo,
+  }
+}
 
 export function getMockVisaoGeral(grupoId, periodo = '30d') {
   const { atual, anterior } = totaisPorPeriodo[periodo]

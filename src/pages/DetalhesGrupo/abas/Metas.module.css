@@ -54,8 +54,667 @@
   font-size: 14px;
 }
 
+.secaoMetas {
+  margin-bottom: 24px;
+}
+
+.cabecalhoSecao {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.tituloSecao {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.areaMetas {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) minmax(0, 2fr);
+  gap: 16px;
+  align-items: stretch;
+}
+
+.carrosselMetas {
+  position: relative;
+  padding: 0 20px;
+  min-width: 0;
+}
+
+.listaMetas {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.cardNovaMeta,
+.cardMeta {
+  min-width: 0;
+  min-height: 236px;
+  background: var(--surface);
+  border-radius: 12px;
+}
+
+.cardNovaMeta {
+  border: 1px dashed var(--border);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.iconeNovaMeta {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  border: 1px dashed var(--primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  font-size: 26px;
+}
+
+.nomeNovaMeta {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.textoNovaMeta {
+  max-width: 260px;
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.cardMeta {
+  border: 1px solid var(--border);
+  padding: 22px 26px;
+  text-align: left;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.cardMeta:hover {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+}
+
+.cardMetaAtivo {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 3%, var(--surface));
+}
+
+.topoMeta,
+.blocoTituloMeta,
+.acoesMeta {
+  display: flex;
+  align-items: flex-start;
+}
+
+.topoMeta {
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.blocoTituloMeta {
+  gap: 12px;
+  min-width: 0;
+}
+
+.iconeMeta {
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--text-muted) 18%, var(--surface));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.infoMeta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nomeMeta {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.prazoMeta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.acoesMeta {
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+.avataresMeta {
+  display: flex;
+  flex-direction: row-reverse;
+  padding-top: 5px;
+}
+
+.avatarMeta {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 700;
+  margin-left: -6px;
+}
+
+.avatarMeta:last-child {
+  margin-left: 0;
+}
+
+.botaoEditar {
+  width: 32px;
+  height: 32px;
+  border: 1px solid color-mix(in srgb, var(--text-muted) 65%, var(--border));
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  font-size: 13px;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.botaoEditar svg {
+  width: 14px;
+  height: 14px;
+}
+
+.botaoEditar:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+}
+
+.progressoMeta {
+  margin-bottom: 14px;
+}
+
+.progressoLinha {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progressoRotulo {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.progressoValor {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.progressoAtencao {
+  color: #ff9f00;
+}
+
+.barraMeta {
+  height: 8px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.barraPreenchida {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 60%, transparent));
+  border-radius: 99px;
+}
+
+.barraPreenchida.progressoAtencao {
+  background: linear-gradient(90deg, #ff9f00, color-mix(in srgb, #ff9f00 60%, transparent));
+}
+
+.valoresMeta {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.valorRotulo {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+
+.valorNumero {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.valorDireita {
+  text-align: right;
+}
+
+.botaoAporte {
+  width: 100%;
+  height: 38px;
+  border: 1px solid color-mix(in srgb, var(--text-muted) 65%, var(--border));
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.botaoAporte:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
+}
+
+.setaCarrossel {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.setaCarrossel:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.setaAnterior {
+  left: -4px;
+}
+
+.setaProxima {
+  right: -4px;
+}
+
+/* ── Destaque da meta selecionada + painel de próximo aporte ── */
+
+.destaqueGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.cardDestaque {
+  background: var(--surface);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  min-height: 300px;
+}
+
+.topoDestaque {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.kickerMeta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 8px;
+}
+
+.kickerPonto {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--primary);
+  flex-shrink: 0;
+}
+
+.tituloDestaque {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0 0 8px;
+  line-height: 1.2;
+}
+
+.descricaoDestaque {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.botaoEditarDestaque {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--text-muted) 65%, var(--border));
+  background: transparent;
+  color: var(--text);
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  padding: 0;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.botaoEditarDestaque:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  color: var(--primary);
+}
+
+.botaoEditarDestaque svg {
+  width: 15px;
+  height: 15px;
+}
+
+.miniMetricas {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.miniMetrica {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 13px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.miniRotulo {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.miniValor {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.valorAtencao {
+  color: #ff9f00;
+}
+
+/* ── Painel de próximo aporte ── */
+
+.painelAporte {
+  background: var(--surface);
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cabecalhoPainel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cardProximoAporte {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px;
+  flex: 1;
+}
+
+.cabecalhoProximoAporte {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.nomeProximoAporte {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.tagAporte {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 99px;
+  color: #ff9f00;
+  background: color-mix(in srgb, #ff9f00 12%, transparent);
+  border: 1px solid color-mix(in srgb, #ff9f00 30%, transparent);
+  white-space: nowrap;
+}
+
+.linhasAporte {
+  display: flex;
+  flex-direction: column;
+}
+
+.linhaAporte {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  font-size: 12px;
+  color: var(--text-muted);
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+}
+
+.linhaAporte strong {
+  color: var(--text);
+  font-size: 13px;
+}
+
+.botaoPrimario {
+  width: 100%;
+  padding: 11px;
+  border-radius: 99px;
+  border: 1px solid var(--primary);
+  background: var(--primary);
+  color: var(--bg);
+  font-size: 13px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.botaoSecundario {
+  width: 100%;
+  padding: 11px;
+  border-radius: 99px;
+  border: 1px solid color-mix(in srgb, var(--text-muted) 65%, var(--border));
+  background: transparent;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+
+.botaoSecundario:hover {
+  border-color: var(--text);
+}
+
+/* ── Gráfico + movimentações lado a lado ── */
+
+.splitGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: start;
+}
+
+.cardMovimentacoes {
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 20px;
+}
+
+.listaMovimentacoes {
+  overflow: hidden;
+}
+
+.itemMovimentacao {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.itemMovimentacao:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.avatarMovimentacao {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.infoMovimentacao {
+  flex: 1;
+  min-width: 0;
+}
+
+.tituloMovimentacao {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.metaMovimentacao {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  margin-top: 2px;
+}
+
+.valorMovimentacao {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--positive);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 @media (max-width: 760px) {
   .resumoGrid {
     flex-direction: column;
+  }
+
+  .areaMetas,
+  .destaqueGrid,
+  .splitGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .listaMetas,
+  .miniMetricas {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 761px) and (max-width: 1120px) {
+  .areaMetas,
+  .destaqueGrid,
+  .splitGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .listaMetas {
+    grid-template-columns: 1fr;
   }
 }
