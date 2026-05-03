@@ -1,95 +1,269 @@
-// Página com dados pessoais do usuário
+// Pagina de perfil: exibe dados do usuario, edicao basica e acao de sair da conta.
+import { useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { FiCamera, FiEdit2, FiLock, FiLogOut, FiSave, FiX } from 'react-icons/fi'
 import styles from './Perfil.module.css'
-import { useState, useRef } from "react"
-import { CiEdit } from 'react-icons/ci'
 import { useUser } from '../../hooks/useUser'
 
+function obterTextoNascimento(nascimento) {
+  if (nascimento) return nascimento
+  return 'Nao informado'
+}
+
 export function Perfil() {
+  const navigate = useNavigate()
+  const { foto, setFoto } = useUser()
+  const inputFoto = useRef(null)
 
-  const [editando, setEditando] = useState(false) // controla modo de edicao
-  const [nome, setNome] = useState('Nome do usuário') // dados mockados por enquanto
+  const [editando, setEditando] = useState(false)
+  const [alterandoSenha, setAlterandoSenha] = useState(false)
+  const [nome, setNome] = useState('Nome do usuario')
   const [nascimento, setNascimento] = useState('')
-  const [senha, setSenha] = useState('••••••••')
+  const [senhaAtual, setSenhaAtual] = useState('')
+  const [novaSenha, setNovaSenha] = useState('')
+  const [confirmarNovaSenha, setConfirmarNovaSenha] = useState('')
+  const [mensagemSenha, setMensagemSenha] = useState('')
+
   const email = 'usuario@gmail.com'
-  const { foto, setFoto } = useUser() // foto de perfil compartilhada via contexto
-  const inputFoto = useRef(null) // referência ao input de arquivo escondido
+  const textoNascimento = obterTextoNascimento(nascimento)
 
-
-  // renderiza o campo nome — input se editando, texto se não
-  function renderizaNome() {
-    if (editando) {
-      return <input value={nome} onChange={(e) => setNome(e.target.value)} />
-    }
-    return <p>{nome}</p>
-  }
-
-  function renderizaNascimento() {
-    if (editando) {
-      return <input type="date" value={nascimento} onChange={(e) => setNascimento(e.target.value)}/>
-    }
-    return <p>{nascimento}</p>
-  }
-
-  // renderiza o campo senha — input se editando, texto se não
-  function renderizaSenha() {
-    if (editando) {
-      return <input type="password" value={senha} onChange={(e) => setSenha(e.target.value)} />
-    }
-    return <p>{senha}</p>
+  let srcFoto = '/imagem_padrao_perfil.png'
+  if (foto) {
+    srcFoto = foto
   }
 
   function aoEscolherFoto(e) {
     const arquivo = e.target.files[0]
-    if (arquivo) {
-      setFoto(URL.createObjectURL(arquivo)) // cria URL temporária para preview
-    }
+    if (!arquivo) return
+
+    setFoto(URL.createObjectURL(arquivo))
   }
 
-  // renderiza o botão — salvar se editando, editar se não
-  function renderizaBotao() {
+  function abrirSeletorFoto() {
+    inputFoto.current.click()
+  }
+
+  function salvarPerfil() {
+    // TODO: integrar com backend para atualizar os dados do usuario.
+    setEditando(false)
+  }
+
+  function cancelarEdicao() {
+    setEditando(false)
+  }
+
+  function limparCamposSenha() {
+    setSenhaAtual('')
+    setNovaSenha('')
+    setConfirmarNovaSenha('')
+    setMensagemSenha('')
+  }
+
+  function abrirAlteracaoSenha() {
+    setAlterandoSenha(true)
+  }
+
+  function cancelarAlteracaoSenha() {
+    limparCamposSenha()
+    setAlterandoSenha(false)
+  }
+
+  function salvarSenha() {
+    if (!senhaAtual) {
+      setMensagemSenha('Informe a senha atual.')
+      return
+    }
+
+    if (!novaSenha) {
+      setMensagemSenha('Informe a nova senha.')
+      return
+    }
+
+    if (novaSenha !== confirmarNovaSenha) {
+      setMensagemSenha('As senhas nao conferem.')
+      return
+    }
+
+    // TODO: integrar com backend para validar a senha atual e salvar a nova senha.
+    limparCamposSenha()
+    setAlterandoSenha(false)
+  }
+
+  function sairDaConta() {
+    // TODO: integrar com autenticacao real para limpar sessao/token.
+    setFoto(null)
+    navigate('/login')
+  }
+
+  function renderizarCampoNome() {
     if (editando) {
-      return <button onClick={() => setEditando(false)}>Salvar</button>
+      return (
+        <input
+          className={styles.input}
+          type="text"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+        />
+      )
     }
-    return <button onClick={() => setEditando(true)}>Editar</button>
+
+    return <span className={styles.valorCampo}>{nome}</span>
   }
-    return (
-      <div className={styles.pagina}>
-        {/* container da foto com lápis por cima */}
-        <div className={styles.avatarContainer}>
 
-          {/* mostra foto escolhida ou foto padrão */}
-          <img src={foto || '/imagem_padrao_perfil.png'} className={styles.avatar} />
+  function renderizarCampoNascimento() {
+    if (editando) {
+      return (
+        <input
+          className={styles.input}
+          type="date"
+          value={nascimento}
+          onChange={(e) => setNascimento(e.target.value)}
+        />
+      )
+    }
 
-          {/* lápis clicável que abre o seletor de arquivo */}
-          <div className={styles.editarFoto} onClick={() => inputFoto.current.click()}>
-            <CiEdit />
+    return <span className={styles.valorCampo}>{textoNascimento}</span>
+  }
+
+  function renderizarCampoSenha() {
+    if (alterandoSenha) {
+      return (
+        <div className={styles.formSenha}>
+          <input
+            className={styles.input}
+            type="password"
+            placeholder="Senha atual"
+            value={senhaAtual}
+            onChange={(e) => setSenhaAtual(e.target.value)}
+          />
+          <input
+            className={styles.input}
+            type="password"
+            placeholder="Nova senha"
+            value={novaSenha}
+            onChange={(e) => setNovaSenha(e.target.value)}
+          />
+          <input
+            className={styles.input}
+            type="password"
+            placeholder="Confirmar nova senha"
+            value={confirmarNovaSenha}
+            onChange={(e) => setConfirmarNovaSenha(e.target.value)}
+          />
+
+          <div className={styles.acoesSenha}>
+            <button type="button" className={styles.botaoSecundario} onClick={cancelarAlteracaoSenha}>
+              <FiX />
+              Cancelar
+            </button>
+            <button type="button" className={styles.botaoPrimario} onClick={salvarSenha}>
+              <FiSave />
+              Salvar senha
+            </button>
           </div>
 
-          {/* input escondido */}
-          <input
-            type="file"
-            accept="image/*"
-            ref={inputFoto}
-            style={{ display: 'none' }}
-            onChange={aoEscolherFoto}
-          />
+          <span className={styles.mensagemSenha}>{mensagemSenha}</span>
         </div>
+      )
+    }
 
-        <p className={styles.label}>Nome:</p>
-        {renderizaNome()}
-
-        <p>Data de nascimento</p>
-        <p>{renderizaNascimento()}</p>
-
-        <p>E-mail:</p>
-        <p>{email}</p>
-
-        <p>Senha:</p>
-        {renderizaSenha()}
-
-        {renderizaBotao()}
+    return (
+      <div className={styles.senhaResumo}>
+        <span className={styles.valorCampo}>********</span>
+        <button type="button" className={styles.botaoTexto} onClick={abrirAlteracaoSenha}>
+          <FiLock />
+          Alterar senha
+        </button>
       </div>
     )
-
   }
 
+  function renderizarAcoesPerfil() {
+    if (editando) {
+      return (
+        <div className={styles.acoesPerfil}>
+          <button type="button" className={styles.botaoSecundario} onClick={cancelarEdicao}>
+            <FiX />
+            Cancelar
+          </button>
+          <button type="button" className={styles.botaoPrimario} onClick={salvarPerfil}>
+            <FiSave />
+            Salvar
+          </button>
+        </div>
+      )
+    }
+
+    return (
+      <div className={styles.acoesPerfil}>
+        <button type="button" className={styles.botaoPrimario} onClick={() => setEditando(true)}>
+          <FiEdit2 />
+          Editar perfil
+        </button>
+      </div>
+    )
+  }
+
+  return (
+    <div className={styles.pagina}>
+      <section className={styles.conteudoPerfil}>
+        <div className={styles.resumoPerfil}>
+          <div className={styles.avatarContainer}>
+            <img src={srcFoto} className={styles.avatar} alt="Foto de perfil" />
+            <button
+              type="button"
+              className={styles.botaoFoto}
+              onClick={abrirSeletorFoto}
+              aria-label="Alterar foto de perfil"
+            >
+              <FiCamera />
+            </button>
+            <input
+              type="file"
+              accept="image/*"
+              ref={inputFoto}
+              className={styles.inputFoto}
+              onChange={aoEscolherFoto}
+            />
+          </div>
+
+          <div className={styles.identidade}>
+            <span className={styles.nomeResumo}>{nome}</span>
+          </div>
+        </div>
+
+        {/* Campos principais do perfil, editaveis apenas no modo de edicao. */}
+        <div className={styles.camposLista}>
+          <div className={styles.campo}>
+            <label>Nome</label>
+            {renderizarCampoNome()}
+          </div>
+
+          <div className={styles.campo}>
+            <label>Data de nascimento</label>
+            {renderizarCampoNascimento()}
+          </div>
+
+          <div className={styles.campo}>
+            <label>E-mail</label>
+            <span className={styles.valorCampo}>{email}</span>
+          </div>
+
+          <div className={styles.campo}>
+            <label>Senha</label>
+            {renderizarCampoSenha()}
+          </div>
+        </div>
+
+        <div className={styles.rodapePerfil}>
+          {renderizarAcoesPerfil()}
+
+          <button type="button" className={styles.botaoSair} onClick={sairDaConta}>
+            <FiLogOut />
+            Sair da conta
+          </button>
+        </div>
+      </section>
+    </div>
+  )
+}
