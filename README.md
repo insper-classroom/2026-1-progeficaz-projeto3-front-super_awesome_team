@@ -1,8 +1,8 @@
 # Projeto 3 Programação Eficaz ( FRONTEND ) - Super Awesome Team
 
-[![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/) [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white)](https://nodejs.org/) [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
-
-Este repositório contém o frontend do Projeto 3 da disciplina de Programação Eficaz.
+[![React](https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=white)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white)](https://vite.dev/)
+[![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)](https://developer.mozilla.org/docs/Web/JavaScript)
 
 ## Equipe
 
@@ -12,15 +12,49 @@ Este repositório contém o frontend do Projeto 3 da disciplina de Programação
 - Pedro Pereira
 - Victor Costa
 
-### Instalação de dependências 
+## Requisitos
 
-npm install react-router-dom axios recharts react-icons
+- Node.js instalado
+- npm instalado
 
-### Como rodar o projeto
+## Como rodar
+
+Instale as dependencias do projeto:
 
 ```bash
 npm install
+```
+
+Rode o servidor de desenvolvimento:
+
+```bash
 npm run dev
 ```
 
-O projeto estará disponível em `http://localhost:5173`
+O projeto ficara disponivel em:
+
+```txt
+http://localhost:5173
+```
+
+## Dependencias principais
+
+As dependencias ja estao listadas no `package.json` e sao instaladas com `npm install`.
+
+- `react`
+- `react-dom`
+- `react-router-dom`
+- `axios`
+- `react-icons`
+- `recharts`
+- `vite`
+
+## Dados mockados
+
+O projeto ainda usa dados mockados em:
+
+- `src/services/mockData.js`
+- `src/hooks/useVisaoGeral.js`
+- `src/hooks/useMetas.js`
+
+Quando o backend estiver pronto, a ideia e substituir os mocks por chamadas reais usando `src/services/api.js`.
