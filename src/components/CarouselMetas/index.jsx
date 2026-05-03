@@ -1,6 +1,7 @@
 // Carrossel de metas do grupo: 3 cards visíveis, setas anterior/próximo, barra de progresso.
 // Aceita onVerMetas para navegar para a aba de Metas ao clicar em "ver metas ↗".
 import { useState, useRef, useLayoutEffect } from 'react'
+import IconeMeta from '../IconeMeta'
 import styles from './CarouselMetas.module.css'
 
 const VISIVEIS = 3
@@ -8,6 +9,21 @@ const ESPACO = 16
 
 function formatarMoeda(valor) {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 })
+}
+
+function calcularPercentual(meta) {
+  if (!meta.total) return 0
+  return Math.min(100, Math.round((meta.alcancado / meta.total) * 100))
+}
+
+function classeProgressoPct(meta) {
+  if (meta.situacao === 'atencao') return `${styles.progressoPct} ${styles.progressoAtencao}`
+  return styles.progressoPct
+}
+
+function classeBarraPreenchimento(meta) {
+  if (meta.situacao === 'atencao') return `${styles.barraPreenchimento} ${styles.progressoAtencao}`
+  return styles.barraPreenchimento
 }
 
 export default function CarouselMetas({ metas = [], onVerMetas }) {
@@ -63,13 +79,15 @@ export default function CarouselMetas({ metas = [], onVerMetas }) {
             style={{ transform: `translateX(-${deslocamento}px)` }}
           >
             {metas.map((meta) => {
-              const pct = Math.round((meta.alcancado / meta.total) * 100)
+              const percentual = calcularPercentual(meta)
               return (
                 <div key={meta.id} className={styles.cartao} style={estilo}>
 
-                  {/* Topo: emoji, nome, prazo e link da meta */}
+                  {/* Topo: icone, nome, prazo e link da meta */}
                   <div className={styles.cartaoTopo}>
-                    <div className={styles.icone}>{meta.emoji}</div>
+                    <div className={styles.icone}>
+                      <IconeMeta meta={meta} />
+                    </div>
                     <div className={styles.infoNome}>
                       <div className={styles.nome}>{meta.nome}</div>
                       <div className={styles.prazo}>Prazo: {meta.prazo}</div>
@@ -81,10 +99,10 @@ export default function CarouselMetas({ metas = [], onVerMetas }) {
                   {/* Progresso */}
                   <div className={styles.progressoCabecalho}>
                     <span className={styles.progressoLabel}>Progresso</span>
-                    <span className={styles.progressoPct}>{pct}%</span>
+                    <span className={classeProgressoPct(meta)}>{percentual}%</span>
                   </div>
                   <div className={styles.barra}>
-                    <div className={styles.barraPreenchimento} style={{ width: `${pct}%` }} />
+                    <div className={classeBarraPreenchimento(meta)} style={{ width: `${percentual}%` }} />
                   </div>
 
                   {/* Valores: alcançado vs meta total */}
