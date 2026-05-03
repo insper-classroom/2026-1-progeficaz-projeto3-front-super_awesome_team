@@ -19,6 +19,12 @@
 
 ## Como rodar
 
+Crie um arquivo `.env` na raiz do frontend apontando para a API local:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
 Instale as dependencias do projeto:
 
 ```bash
