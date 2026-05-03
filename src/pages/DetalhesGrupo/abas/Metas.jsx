@@ -1,6 +1,8 @@
 // Aba de metas do grupo: resumo, carrossel de metas e registro de aportes.
 import { useState } from 'react'
 import { FiEdit2 } from 'react-icons/fi'
+import { useMetas } from '../../../hooks/useMetas'
+import GraficoAportes from '../../../components/GraficoAportes'
 import styles from './Metas.module.css'
 
 const MS_POR_DIA = 1000 * 60 * 60 * 24
@@ -64,10 +66,54 @@ function buscarMembrosDaMeta(meta, membros) {
   return membros.filter((membro) => meta.membrosIds?.includes(membro.id))
 }
 
-export function Metas({ metas = [], membros = [] }) {
+function classeProgressoValor(meta) {
+  if (meta.situacao === 'atencao') return `${styles.progressoValor} ${styles.progressoAtencao}`
+  return styles.progressoValor
+}
+
+function classeBarraMeta(meta) {
+  if (meta.situacao === 'atencao') return `${styles.barraPreenchida} ${styles.progressoAtencao}`
+  return styles.barraPreenchida
+}
+
+// Texto do kicker acima do título no card de destaque.
+function obterKickerMeta(meta) {
+  if (meta.situacao === 'atencao') return 'Meta com atenção'
+  if (meta.situacao === 'saudavel') return 'Meta saudável'
+  return 'Meta no ritmo'
+}
+
+function obterTituloMovimentacao(mov) {
+  if (mov.tipo === 'aporte') return `${mov.nomeMembro} registrou aporte`
+  if (mov.tipo === 'ajuste') return `${mov.nomeMembro} ajustou a meta`
+  if (mov.tipo === 'criacao') return `${mov.nomeMembro} criou uma meta`
+  return mov.nomeMembro
+}
+
+// Gera descrição automática se a meta não tiver uma definida no backend.
+function obterDescricaoMeta(meta, percentual) {
+  if (meta.descricao) return meta.descricao
+  const falta = formatarMoeda(meta.total - meta.alcancado)
+  if (meta.situacao === 'atencao') {
+    return `A meta está em ${percentual}% e precisa de atenção. Revise o aporte mensal para garantir que o prazo seja cumprido.`
+  }
+  if (meta.situacao === 'saudavel') {
+    return `Boa consistência de aportes. Com o ritmo atual, a meta será concluída dentro do prazo previsto.`
+  }
+  return `${percentual}% concluído. Faltam ${falta} para atingir o objetivo.`
+}
+
+export function Metas({ grupoId }) {
+  const { data, loading } = useMetas(grupoId)
+
   // Guarda a meta escolhida para destacar o card e alimentar as próximas seções.
-  const [metaSelecionadaId, setMetaSelecionadaId] = useState(metas[0]?.id ?? null)
+  const [metaSelecionadaId, setMetaSelecionadaId] = useState(null)
   const [indiceCarrossel, setIndiceCarrossel] = useState(0)
+  const [periodoAportes, setPeriodoAportes] = useState('6m')
+
+  if (loading || !data) return <div className={styles.carregando}>Carregando...</div>
+
+  const { metas, membros, movimentacoes } = data
 
   if (!metas.length) {
     return (
@@ -104,46 +150,17 @@ export function Metas({ metas = [], membros = [] }) {
   // Dados da meta atualmente selecionada para o card de destaque e painel de aporte.
   const metaSelecionada = metas.find((meta) => meta.id === metaSelecionadaIdAtual)
   const percentualSelecionada = calcularPercentual(metaSelecionada)
-  const membrosDaSelecionada = buscarMembrosDaMeta(metaSelecionada, membros)
 
+  // '—' como fallback até o backend retornar o campo aporteIdeal.
   let textoAporteIdeal = '—'
   if (metaSelecionada.aporteIdeal) {
     textoAporteIdeal = `${formatarMoeda(metaSelecionada.aporteIdeal)}/mês`
   }
 
+  // Fecha sobre metaSelecionadaIdAtual, por isso fica dentro do componente.
   function classeCardMeta(meta) {
     if (meta.id === metaSelecionadaIdAtual) return `${styles.cardMeta} ${styles.cardMetaAtivo}`
     return styles.cardMeta
-  }
-
-  function classeProgressoValor(meta) {
-    if (meta.situacao === 'atencao') return `${styles.progressoValor} ${styles.progressoAtencao}`
-    return styles.progressoValor
-  }
-
-  function classeBarraMeta(meta) {
-    if (meta.situacao === 'atencao') return `${styles.barraPreenchida} ${styles.progressoAtencao}`
-    return styles.barraPreenchida
-  }
-
-  // Texto do kicker acima do título no card de destaque.
-  function obterKickerMeta(meta) {
-    if (meta.situacao === 'atencao') return 'Meta com atenção'
-    if (meta.situacao === 'saudavel') return 'Meta saudável'
-    return 'Meta no ritmo'
-  }
-
-  // Gera descrição automática se a meta não tiver uma definida.
-  function obterDescricaoMeta(meta, percentual) {
-    if (meta.descricao) return meta.descricao
-    const falta = formatarMoeda(meta.total - meta.alcancado)
-    if (meta.situacao === 'atencao') {
-      return `A meta está em ${percentual}% e precisa de atenção. Revise o aporte mensal para garantir que o prazo seja cumprido.`
-    }
-    if (meta.situacao === 'saudavel') {
-      return `Boa consistência de aportes. Com o ritmo atual, a meta será concluída dentro do prazo previsto.`
-    }
-    return `${percentual}% concluído. Faltam ${falta} para atingir o objetivo.`
   }
 
   return (
@@ -360,17 +377,19 @@ export function Metas({ metas = [], membros = [] }) {
               <span className={styles.tagAporte}>pendente</span>
             </div>
 
-            {/* Divisão do aporte entre os membros da meta */}
+            {/* Total combinado e divisão por membro */}
             <div className={styles.linhasAporte}>
-              {membrosDaSelecionada.map((membro) => {
-                let valorAporte = '—'
-                if (membro.aporte) {
-                  valorAporte = formatarMoeda(membro.aporte)
-                }
+              <div className={styles.linhaAporte}>
+                <span>Valor combinado</span>
+                <strong>{formatarMoeda(metaSelecionada.proximoAporte.valorTotal)}</strong>
+              </div>
+              {metaSelecionada.proximoAporte.porMembro.map((item) => {
+                const membro = membros.find((m) => m.id === item.membroId)
+                if (!membro) return null
                 return (
-                  <div key={membro.id} className={styles.linhaAporte}>
+                  <div key={item.membroId} className={styles.linhaAporte}>
                     <span>{membro.nome}</span>
-                    <strong>{valorAporte}</strong>
+                    <strong>{formatarMoeda(item.valor)}</strong>
                   </div>
                 )
               })}
@@ -380,6 +399,55 @@ export function Metas({ metas = [], membros = [] }) {
           <button type="button" className={styles.botaoPrimario}>Registrar aporte</button>
           <button type="button" className={styles.botaoSecundario}>Ajustar divisão</button>
         </aside>
+
+      </section>
+
+      {/* Gráfico de evolução + movimentações recentes lado a lado */}
+      <section className={styles.splitGrid}>
+
+        <GraficoAportes
+          evolucao={metaSelecionada.evolucaoAportes?.[periodoAportes] ?? null}
+          totalPeriodo={metaSelecionada.estatisticasAportes?.[periodoAportes]?.total ?? 0}
+          variacao={metaSelecionada.estatisticasAportes?.[periodoAportes]?.variacao ?? null}
+          periodo={periodoAportes}
+          onPeriodo={setPeriodoAportes}
+        />
+
+        <article className={styles.cardMovimentacoes}>
+          <div className={styles.cabecalhoSecao}>
+            <span className={styles.tituloSecao}>Movimentações recentes</span>
+          </div>
+
+          {movimentacoes.length === 0 ? (
+            <div className={styles.vazio}>Nenhuma movimentação registrada.</div>
+          ) : (
+            <div className={styles.listaMovimentacoes}>
+              {movimentacoes.map((mov) => {
+                const membro = membros.find((m) => m.id === mov.membroId)
+                return (
+                  <div key={mov.id} className={styles.itemMovimentacao}>
+                    <span
+                      className={styles.avatarMovimentacao}
+                      style={{ backgroundColor: membro?.cor ?? '#888' }}
+                      title={mov.nomeMembro}
+                    >
+                      {membro?.iniciais ?? mov.nomeMembro[0]}
+                    </span>
+
+                    <div className={styles.infoMovimentacao}>
+                      <span className={styles.tituloMovimentacao}>{obterTituloMovimentacao(mov)}</span>
+                      <span className={styles.metaMovimentacao}>{mov.nomeMeta} · {mov.data}</span>
+                    </div>
+
+                    {mov.valor != null && (
+                      <span className={styles.valorMovimentacao}>+{formatarMoeda(mov.valor)}</span>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </article>
 
       </section>
 

@@ -23,7 +23,7 @@ export function DetalhesGrupo() {
   function renderizaAba() {
     if (abaAtiva === 'visaoGeral') return <VisaoGeral grupoId={id} onVerMetas={() => setAbaAtiva('metas')} onVerDespesas={() => setAbaAtiva('despesas')} />
     if (abaAtiva === 'despesas') return <Despesas />
-    if (abaAtiva === 'metas') return <Metas metas={data?.metas} membros={data?.grupo?.membros} />
+    if (abaAtiva === 'metas') return <Metas grupoId={id} />
   }
 
   // retorna o estilo certo para cada aba

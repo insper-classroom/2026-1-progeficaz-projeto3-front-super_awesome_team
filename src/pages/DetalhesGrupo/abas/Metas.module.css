@@ -610,13 +610,94 @@
   border-color: var(--text);
 }
 
+/* ── Gráfico + movimentações lado a lado ── */
+
+.splitGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(300px, 0.95fr);
+  gap: 16px;
+  margin-bottom: 24px;
+  align-items: start;
+}
+
+.cardMovimentacoes {
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 20px;
+}
+
+.listaMovimentacoes {
+  overflow: hidden;
+}
+
+.itemMovimentacao {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.itemMovimentacao:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.avatarMovimentacao {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.infoMovimentacao {
+  flex: 1;
+  min-width: 0;
+}
+
+.tituloMovimentacao {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.metaMovimentacao {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  margin-top: 2px;
+}
+
+.valorMovimentacao {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--positive);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
 @media (max-width: 760px) {
   .resumoGrid {
     flex-direction: column;
   }
 
   .areaMetas,
-  .destaqueGrid {
+  .destaqueGrid,
+  .splitGrid {
     grid-template-columns: 1fr;
   }
 
@@ -628,7 +709,8 @@
 
 @media (min-width: 761px) and (max-width: 1120px) {
   .areaMetas,
-  .destaqueGrid {
+  .destaqueGrid,
+  .splitGrid {
     grid-template-columns: 1fr;
   }
 
