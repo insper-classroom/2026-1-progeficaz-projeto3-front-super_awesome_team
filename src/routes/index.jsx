@@ -8,9 +8,20 @@ import { Home } from '../pages/Home'
 import { Login } from '../pages/Login'
 import { Cadastro } from '../pages/Cadastro'
 import { VerifyEmail } from '../pages/VerifyEmail'
+import { AuthCallback } from '../pages/AuthCallback'
+import { EmailVerified } from '../pages/EmailVerified'
 import { LayoutPrincipal } from '../layouts/LayoutPrincipal'
 import { UserProvider } from '../contexts/UserContext'
 import { ThemeProvider } from '../contexts/ThemeContext'
+import { ProtectedRoute } from './ProtectedRoute'
+
+function rotaProtegida(children) {
+  return (
+    <ProtectedRoute>
+      <LayoutPrincipal>{children}</LayoutPrincipal>
+    </ProtectedRoute>
+  )
+}
 
 export function AppRoutes() {
   return (
@@ -23,12 +34,14 @@ export function AppRoutes() {
             <Route path="/login" element={<Login />} />
             <Route path="/cadastro" element={<Cadastro />} />
             <Route path="/verificar-email" element={<VerifyEmail />} />
+            <Route path="/email-verified" element={<EmailVerified />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
             {/* Rotas autenticadas — com sidebar */}
-            <Route path="/grupos" element={<LayoutPrincipal><Grupos /></LayoutPrincipal>} />
-            <Route path="/grupos/:id" element={<LayoutPrincipal><DetalhesGrupo /></LayoutPrincipal>} />
-            <Route path="/pessoal" element={<LayoutPrincipal><Pessoal /></LayoutPrincipal>} />
-            <Route path="/perfil" element={<LayoutPrincipal><Perfil /></LayoutPrincipal>} />
+            <Route path="/grupos" element={rotaProtegida(<Grupos />)} />
+            <Route path="/grupos/:id" element={rotaProtegida(<DetalhesGrupo />)} />
+            <Route path="/pessoal" element={rotaProtegida(<Pessoal />)} />
+            <Route path="/perfil" element={rotaProtegida(<Perfil />)} />
           </Routes>
         </UserProvider>
       </ThemeProvider>

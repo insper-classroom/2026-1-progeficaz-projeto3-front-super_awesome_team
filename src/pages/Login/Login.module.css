@@ -156,6 +156,19 @@
   color: #000;
 }
 
+.submitBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.errorMessage {
+  color: #ff6b6b;
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  margin: 0;
+  text-align: center;
+}
+
 .or {
   font-family: "Roboto", sans-serif;
   font-weight: 200;
