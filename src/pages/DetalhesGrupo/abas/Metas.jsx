@@ -23,6 +23,7 @@ function obterDataPrazo(prazoData) {
   if (!prazoData) return null
   const [ano, mes] = prazoData.split('-').map(Number)
   if (!ano || !mes) return null
+  // dia 0 do mês seguinte equivale ao último dia do mês atual
   return new Date(ano, mes, 0)
 }
 
@@ -100,6 +101,16 @@ export function Metas({ metas = [], membros = [] }) {
     nomeProximaMeta = resumo.proximaMeta.nome
   }
 
+  // Dados da meta atualmente selecionada para o card de destaque e painel de aporte.
+  const metaSelecionada = metas.find((meta) => meta.id === metaSelecionadaIdAtual)
+  const percentualSelecionada = calcularPercentual(metaSelecionada)
+  const membrosDaSelecionada = buscarMembrosDaMeta(metaSelecionada, membros)
+
+  let textoAporteIdeal = '—'
+  if (metaSelecionada.aporteIdeal) {
+    textoAporteIdeal = `${formatarMoeda(metaSelecionada.aporteIdeal)}/mês`
+  }
+
   function classeCardMeta(meta) {
     if (meta.id === metaSelecionadaIdAtual) return `${styles.cardMeta} ${styles.cardMetaAtivo}`
     return styles.cardMeta
@@ -113,6 +124,26 @@ export function Metas({ metas = [], membros = [] }) {
   function classeBarraMeta(meta) {
     if (meta.situacao === 'atencao') return `${styles.barraPreenchida} ${styles.progressoAtencao}`
     return styles.barraPreenchida
+  }
+
+  // Texto do kicker acima do título no card de destaque.
+  function obterKickerMeta(meta) {
+    if (meta.situacao === 'atencao') return 'Meta com atenção'
+    if (meta.situacao === 'saudavel') return 'Meta saudável'
+    return 'Meta no ritmo'
+  }
+
+  // Gera descrição automática se a meta não tiver uma definida.
+  function obterDescricaoMeta(meta, percentual) {
+    if (meta.descricao) return meta.descricao
+    const falta = formatarMoeda(meta.total - meta.alcancado)
+    if (meta.situacao === 'atencao') {
+      return `A meta está em ${percentual}% e precisa de atenção. Revise o aporte mensal para garantir que o prazo seja cumprido.`
+    }
+    if (meta.situacao === 'saudavel') {
+      return `Boa consistência de aportes. Com o ritmo atual, a meta será concluída dentro do prazo previsto.`
+    }
+    return `${percentual}% concluído. Faltam ${falta} para atingir o objetivo.`
   }
 
   return (
@@ -260,6 +291,96 @@ export function Metas({ metas = [], membros = [] }) {
             </button>
           </div>
         </div>
+      </section>
+
+      {/* Spotlight da meta selecionada + painel de próximo aporte */}
+      <section className={styles.destaqueGrid}>
+
+        <article className={styles.cardDestaque}>
+          <div>
+            <div className={styles.topoDestaque}>
+              <div>
+                <div className={styles.kickerMeta}>
+                  <span className={styles.kickerPonto} />
+                  <span>{obterKickerMeta(metaSelecionada)}</span>
+                </div>
+                <h2 className={styles.tituloDestaque}>{metaSelecionada.nome}</h2>
+                <p className={styles.descricaoDestaque}>{obterDescricaoMeta(metaSelecionada, percentualSelecionada)}</p>
+              </div>
+              <button
+                type="button"
+                className={styles.botaoEditarDestaque}
+                aria-label={`Editar meta ${metaSelecionada.nome}`}
+              >
+                <FiEdit2 />
+              </button>
+            </div>
+
+            <div className={styles.progressoMeta}>
+              <div className={styles.progressoLinha}>
+                <span className={styles.progressoRotulo}>Progresso</span>
+                <span className={classeProgressoValor(metaSelecionada)}>{percentualSelecionada}%</span>
+              </div>
+              <div className={styles.barraMeta}>
+                <div className={classeBarraMeta(metaSelecionada)} style={{ width: `${percentualSelecionada}%` }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Mini-métricas: guardado, total e aporte ideal */}
+          <div className={styles.miniMetricas}>
+            <div className={styles.miniMetrica}>
+              <span className={styles.miniRotulo}>Guardado</span>
+              <span className={`${styles.miniValor} ${styles.valorPositivo}`}>
+                {formatarMoeda(metaSelecionada.alcancado)}
+              </span>
+            </div>
+            <div className={styles.miniMetrica}>
+              <span className={styles.miniRotulo}>Meta total</span>
+              <span className={styles.miniValor}>{formatarMoeda(metaSelecionada.total)}</span>
+            </div>
+            <div className={styles.miniMetrica}>
+              <span className={styles.miniRotulo}>Aporte ideal</span>
+              <span className={`${styles.miniValor} ${styles.valorAtencao}`}>
+                {textoAporteIdeal}
+              </span>
+            </div>
+          </div>
+        </article>
+
+        {/* Painel: próximo aporte da meta selecionada */}
+        <aside className={styles.painelAporte}>
+          <div className={styles.cabecalhoPainel}>
+            <span className={styles.tituloSecao}>Próximo aporte da meta</span>
+          </div>
+
+          <div className={styles.cardProximoAporte}>
+            <div className={styles.cabecalhoProximoAporte}>
+              <span className={styles.nomeProximoAporte}>{metaSelecionada.nome}</span>
+              <span className={styles.tagAporte}>pendente</span>
+            </div>
+
+            {/* Divisão do aporte entre os membros da meta */}
+            <div className={styles.linhasAporte}>
+              {membrosDaSelecionada.map((membro) => {
+                let valorAporte = '—'
+                if (membro.aporte) {
+                  valorAporte = formatarMoeda(membro.aporte)
+                }
+                return (
+                  <div key={membro.id} className={styles.linhaAporte}>
+                    <span>{membro.nome}</span>
+                    <strong>{valorAporte}</strong>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          <button type="button" className={styles.botaoPrimario}>Registrar aporte</button>
+          <button type="button" className={styles.botaoSecundario}>Ajustar divisão</button>
+        </aside>
+
       </section>
 
     </div>
