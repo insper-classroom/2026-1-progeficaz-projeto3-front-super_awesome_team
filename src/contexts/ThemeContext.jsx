@@ -1,7 +1,6 @@
 // Contexto de tema: alterna entre claro e escuro e persiste no localStorage
-import { createContext, useState, useContext, useLayoutEffect } from 'react'
-
-const ThemeContext = createContext()
+import { useState, useLayoutEffect } from 'react'
+import { TemaContext } from './TemaContext'
 
 export function ThemeProvider({ children }) {
   // Lê o tema salvo no localStorage ou usa claro como padrão
@@ -22,13 +21,8 @@ export function ThemeProvider({ children }) {
   }
 
   return (
-    <ThemeContext.Provider value={{ tema, alternarTema }}>
+    <TemaContext.Provider value={{ tema, alternarTema }}>
       {children}
-    </ThemeContext.Provider>
+    </TemaContext.Provider>
   )
-}
-
-// Hook para acessar o tema em qualquer componente
-export function useTema() {
-  return useContext(ThemeContext)
 }

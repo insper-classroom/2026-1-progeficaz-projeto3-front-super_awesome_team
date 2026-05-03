@@ -87,12 +87,43 @@
   font-family: inherit;
   width: 100%;
   transition: border-color 0.15s;
-  color-scheme: light dark;
 }
 
 .input:focus {
   outline: none;
   border-color: var(--primary);
+}
+
+.inputComIconeData {
+  position: relative;
+}
+
+.inputComIconeData .input {
+  padding-right: 44px;
+}
+
+.inputData[type="month"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  opacity: 0;
+}
+
+.iconeCalendario {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+:global([data-theme="light"]) .input {
+  color-scheme: light;
+}
+
+:global([data-theme="dark"]) .input {
+  color-scheme: dark;
 }
 
 .inputComPrefixo {
@@ -129,6 +160,19 @@
 
 .inputSemBorda:focus {
   outline: none;
+}
+
+.campoCalculado {
+  min-height: 43px;
+  background: color-mix(in srgb, var(--text-muted) 6%, var(--bg));
+  border: 1px dashed color-mix(in srgb, var(--text-muted) 55%, var(--border));
+  border-radius: 10px;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  display: flex;
+  align-items: center;
 }
 
 /* Linha icone + nome */

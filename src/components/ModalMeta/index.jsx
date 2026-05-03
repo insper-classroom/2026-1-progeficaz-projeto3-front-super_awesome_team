@@ -1,7 +1,7 @@
 // Modal de criação e edição de meta.
 // meta=null → nova meta; meta={...} → editar existente.
 import { useState, useEffect } from 'react'
-import { FiX } from 'react-icons/fi'
+import { FiCalendar, FiX } from 'react-icons/fi'
 import IconeMeta from '../IconeMeta'
 import styles from './ModalMeta.module.css'
 
@@ -28,6 +28,10 @@ function normalizarTexto(texto = '') {
     .toLowerCase()
 }
 
+function formatarMoeda(valor) {
+  return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 })
+}
+
 function obterIconeInicial(meta) {
   if (meta?.icone) return meta.icone
 
@@ -49,6 +53,40 @@ function valorInicial(meta) {
     prazoData:   meta?.prazoData   ?? '',
     membrosIds:  meta?.membrosIds  ?? [],
   }
+}
+
+function calcularMesesAtePrazo(prazoData) {
+  if (!prazoData) return 0
+
+  const [anoPrazo, mesPrazo] = prazoData.split('-').map(Number)
+  if (!anoPrazo || !mesPrazo) return 0
+
+  const hoje = new Date()
+  const anoAtual = hoje.getFullYear()
+  const mesAtual = hoje.getMonth() + 1
+  const diferencaMeses = (anoPrazo - anoAtual) * 12 + (mesPrazo - mesAtual)
+
+  // Considera o mes atual como uma oportunidade de aporte.
+  return Math.max(1, diferencaMeses + 1)
+}
+
+function calcularValorRestante(total, meta) {
+  let valorRestante = total
+  if (meta?.alcancado) {
+    valorRestante = total - meta.alcancado
+  }
+
+  return Math.max(0, valorRestante)
+}
+
+function calcularAporteIdeal(form, meta) {
+  const total = Number(form.total)
+  const mesesAtePrazo = calcularMesesAtePrazo(form.prazoData)
+
+  if (!total || !mesesAtePrazo) return 0
+
+  const valorRestante = calcularValorRestante(total, meta)
+  return Math.ceil(valorRestante / mesesAtePrazo)
 }
 
 export default function ModalMeta({ meta, membros, onSalvar, onFechar }) {
@@ -90,6 +128,7 @@ export default function ModalMeta({ meta, membros, onSalvar, onFechar }) {
     onSalvar({
       ...form,
       total: Number(form.total),
+      aporteIdeal: aporteIdealCalculado,
     })
   }
 
@@ -97,6 +136,13 @@ export default function ModalMeta({ meta, membros, onSalvar, onFechar }) {
     form.nome.trim().length >= 2 &&
     Number(form.total) > 0 &&
     form.prazoData !== ''
+
+  const aporteIdealCalculado = calcularAporteIdeal(form, meta)
+
+  let textoAporteIdeal = ''
+  if (aporteIdealCalculado > 0) {
+    textoAporteIdeal = `${formatarMoeda(aporteIdealCalculado)}/mês`
+  }
 
   return (
     <div className={styles.overlay} onClick={onFechar}>
@@ -174,14 +220,25 @@ export default function ModalMeta({ meta, membros, onSalvar, onFechar }) {
           {/* Prazo */}
           <div className={styles.grupo}>
             <label className={styles.rotulo}>Prazo</label>
-            <input
-              className={styles.input}
-              type="month"
-              min={MES_ATUAL}
-              value={form.prazoData}
-              onChange={(e) => atualizar('prazoData', e.target.value)}
-              required
-            />
+            <div className={styles.inputComIconeData}>
+              <input
+                className={`${styles.input} ${styles.inputData}`}
+                type="month"
+                min={MES_ATUAL}
+                value={form.prazoData}
+                onChange={(e) => atualizar('prazoData', e.target.value)}
+                required
+              />
+              <FiCalendar className={styles.iconeCalendario} aria-hidden="true" />
+            </div>
+          </div>
+
+          {/* Aporte ideal calculado automaticamente a partir do valor e prazo */}
+          <div className={styles.grupo}>
+            <label className={styles.rotulo}>Aporte mensal ideal</label>
+            <div className={styles.campoCalculado} aria-live="polite">
+              <span>{textoAporteIdeal}</span>
+            </div>
           </div>
 
           {/* Membros vinculados a meta */}

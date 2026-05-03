@@ -2,7 +2,7 @@
 import styles from './Perfil.module.css'
 import { useState, useRef } from "react"
 import { CiEdit } from 'react-icons/ci'
-import { useUser } from '../../contexts/UserContext'
+import { useUser } from '../../hooks/useUser'
 
 export function Perfil() {
 

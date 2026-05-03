@@ -190,13 +190,13 @@ export function Metas({ grupoId }) {
     setMetaDoModal(null)
   }
 
-  function handleSalvarMeta(formData) {
-    // TODO: chamar api.post/put quando o backend estiver pronto
+  function handleSalvarMeta() {
+    // TODO: integrar com backend: criar ou atualizar meta e recarregar lista.
     fecharModal()
   }
 
-  function handleSalvarAporte(formData) {
-    // TODO: chamar api.post quando o backend estiver pronto
+  function handleSalvarAporte() {
+    // TODO: integrar com backend: registrar aporte e recarregar metas/movimentações.
     fecharModal()
   }
 

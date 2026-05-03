@@ -1,7 +1,7 @@
 // Modal para registrar um aporte em uma meta.
 // metaInicial pre-seleciona a meta; se null, usa a primeira da lista.
 import { useState, useEffect } from 'react'
-import { FiX } from 'react-icons/fi'
+import { FiCalendar, FiX } from 'react-icons/fi'
 import IconeMeta from '../IconeMeta'
 import styles from './ModalAporte.module.css'
 
@@ -142,13 +142,16 @@ export default function ModalAporte({ metas, membros, metaInicial, onSalvar, onF
           {/* Data */}
           <div className={styles.grupo}>
             <label className={styles.rotulo}>Data</label>
-            <input
-              className={styles.input}
-              type="date"
-              value={form.data}
-              onChange={(e) => atualizar('data', e.target.value)}
-              required
-            />
+            <div className={styles.inputComIconeData}>
+              <input
+                className={`${styles.input} ${styles.inputData}`}
+                type="date"
+                value={form.data}
+                onChange={(e) => atualizar('data', e.target.value)}
+                required
+              />
+              <FiCalendar className={styles.iconeCalendario} aria-hidden="true" />
+            </div>
           </div>
 
           <div className={styles.rodape}>
