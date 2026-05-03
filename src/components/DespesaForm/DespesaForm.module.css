@@ -119,3 +119,10 @@
   border-radius: 8px;
   border: 1px solid #ddd;
 }
+
+.erro {
+  color: #c53030;
+  font-weight: 700;
+  font-size: 13px;
+  margin-bottom: 12px;
+}

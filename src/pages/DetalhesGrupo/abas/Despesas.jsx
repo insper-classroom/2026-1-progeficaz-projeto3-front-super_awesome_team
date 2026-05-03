@@ -5,10 +5,29 @@ import DespesaCard from '../../../components/DespesaCard'
 export function Despesas() {
   const [despesas, setDespesas] = useState([])
   const [mostrarForm, setMostrarForm] = useState(false)
+  const [editandoIndice, setEditandoIndice] = useState(null)
 
-  function adicionarDespesa(despesa) {
-    setDespesas([...despesas, despesa])
+  function salvarDespesa(despesa) {
+    if (editandoIndice !== null) {
+      const novas = [...despesas]
+      novas[editandoIndice] = despesa
+      setDespesas(novas)
+      setEditandoIndice(null)
+    } else {
+      setDespesas([...despesas, despesa])
+    }
+
     setMostrarForm(false)
+  }
+
+  function abrirEdicao(indice) {
+    setEditandoIndice(indice)
+    setMostrarForm(true)
+  }
+
+  function fecharForm() {
+    setMostrarForm(false)
+    setEditandoIndice(null)
   }
 
   return (
@@ -19,8 +38,9 @@ export function Despesas() {
 
       {mostrarForm && (
         <DespesaForm
-          onAdd={adicionarDespesa}
-          onClose={() => setMostrarForm(false)}
+          initialData={editandoIndice !== null ? despesas[editandoIndice] : null}
+          onAdd={salvarDespesa}
+          onClose={fecharForm}
         />
       )}
 
@@ -28,7 +48,8 @@ export function Despesas() {
         <DespesaCard
           key={i}
           despesa={d}
-          onDelete={() => setDespesas(despesas.filter((_, index) => index !== i))}
+          onEdit={() => abrirEdicao(i)}
+          onDelete={() => setDespesas(despesas.filter((_, idx) => idx !== i))}
         />
       ))}
     </div>

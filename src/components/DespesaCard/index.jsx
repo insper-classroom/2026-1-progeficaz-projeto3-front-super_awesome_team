@@ -1,30 +1,33 @@
 import styles from "./DespesaCard.module.css";
 
-export default function DespesaCard({ despesa, onDelete }) {
+export default function DespesaCard({ despesa, onDelete, onEdit }) {
+  const membros = Array.isArray(despesa?.membros) ? despesa.membros : [];
+
   return (
     <div className={styles.card}>
       <div className={styles.header}>
-        <h4>{despesa.nome}</h4>
-        <span>R$ {despesa.total}</span>
+        <h4>{despesa?.nome ?? "Despesa"}</h4>
+        <span>R$ {despesa?.total ?? 0}</span>
       </div>
 
       <div className={styles.membros}>
-        {despesa.membros.map((m, i) => (
+        {membros.map((m, i) => (
           <div key={i} className={styles.membro}>
-            <span>{m.nome}</span>
-            <span>R$ {m.valor}</span>
+            <span>{m?.nome ?? "Membro"}</span>
+            <span>R$ {m?.valor ?? 0}</span>
           </div>
         ))}
       </div>
-       <div className={styles.actions}>
-        <button className={styles.primaryBtn}>
-            Editar
+
+      <div className={styles.actions}>
+        <button className={styles.primaryBtn} onClick={onEdit}>
+          Editar
         </button>
 
         <button className={styles.secondaryBtn} onClick={onDelete}>
-            Concluído
+          Concluído
         </button>
-        </div>
       </div>
+    </div>
   );
 }

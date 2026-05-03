@@ -1,61 +1,88 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./DespesaForm.module.css";
 
-export default function DespesaForm({ onAdd, onClose }) {
+function criarMembroVazio(indice = 1) {
+  return { nome: `Membro ${indice}`, valor: "", percentual: "" };
+}
+
+export default function DespesaForm({ onAdd, onClose, initialData }) {
   const [nome, setNome] = useState("");
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState("");
+  const [membros, setMembros] = useState([criarMembroVazio(1)]);
+  const [erro, setErro] = useState("");
 
-  const [membros, setMembros] = useState([
-    { nome: "Membro 1", valor: "", percentual: "" }
-  ]);
+  useEffect(() => {
+    if (initialData) {
+      setNome(initialData.nome ?? "");
+      setTotal(initialData.total ?? "");
 
-  // VALOR → %
+      const membrosIniciais =
+        Array.isArray(initialData.membros) && initialData.membros.length > 0
+          ? initialData.membros.map((m, index) => ({
+              nome: m.nome ?? `Membro ${index + 1}`,
+              valor: m.valor ?? "",
+              percentual: m.percentual ?? ""
+            }))
+          : [criarMembroVazio(1)];
+
+      setMembros(membrosIniciais);
+    } else {
+      setNome("");
+      setTotal("");
+      setMembros([criarMembroVazio(1)]);
+    }
+
+    setErro("");
+  }, [initialData]);
+
   function handleValor(i, valor) {
+    const totalNum = Number(total);
     const novos = [...membros];
-    novos[i].valor = Number(valor);
+    const valorNum = valor === "" ? "" : Number(valor);
 
-    novos[i].percentual = total
-      ? ((valor / total) * 100).toFixed(2)
-      : "";
+    novos[i].valor = valorNum;
+    novos[i].percentual =
+      totalNum && valorNum !== ""
+        ? ((Number(valorNum) / totalNum) * 100).toFixed(2)
+        : "";
 
     setMembros(novos);
+    setErro("");
   }
 
-  // % → VALOR
   function handlePercentual(i, percentual) {
+    const totalNum = Number(total);
     const novos = [...membros];
-    novos[i].percentual = Number(percentual);
+    const percentualNum = percentual === "" ? "" : Number(percentual);
 
-    novos[i].valor = total
-      ? ((percentual / 100) * total).toFixed(2)
-      : "";
+    novos[i].percentual = percentualNum;
+    novos[i].valor =
+      totalNum && percentualNum !== ""
+        ? ((Number(percentualNum) / 100) * totalNum).toFixed(2)
+        : "";
 
     setMembros(novos);
+    setErro("");
   }
 
-  // ADICIONAR MEMBRO
   function adicionarMembro() {
     setMembros([
       ...membros,
-      {
-        nome: `Membro ${membros.length + 1}`,
-        valor: "",
-        percentual: ""
-      }
+      criarMembroVazio(membros.length + 1)
     ]);
   }
 
-  // REMOVER MEMBRO
   function removerMembro(index) {
+    if (membros.length === 1) return;
     const novos = membros.filter((_, i) => i !== index);
     setMembros(novos);
   }
 
-  // DIVIDIR IGUAL
   function dividirIgual() {
-    if (!total || membros.length === 0) return;
+    const totalNum = Number(total);
+    if (!totalNum || membros.length === 0) return;
 
-    const valorPorPessoa = total / membros.length;
+    const valorPorPessoa = totalNum / membros.length;
 
     const novos = membros.map((m) => ({
       ...m,
@@ -64,117 +91,140 @@ export default function DespesaForm({ onAdd, onClose }) {
     }));
 
     setMembros(novos);
+    setErro("");
   }
 
   function salvar() {
+    const totalNum = Number(total) || 0;
+    const soma = membros.reduce((acc, m) => acc + Number(m.valor || 0), 0);
+
+    if (!nome.trim()) {
+      setErro("Informe o nome da despesa.");
+      return;
+    }
+
+    if (totalNum <= 0) {
+      setErro("Informe um valor total válido.");
+      return;
+    }
+
+    if (Math.round(soma * 100) !== Math.round(totalNum * 100)) {
+      setErro("A soma dos valores dos membros precisa ser igual ao valor total.");
+      return;
+    }
+
     onAdd({
-      nome,
-      total,
-      membros
+      nome: nome.trim(),
+      total: totalNum,
+      membros: membros.map((m) => ({
+        nome: m.nome,
+        valor: Number(m.valor || 0),
+        percentual: Number(m.percentual || 0)
+      }))
     });
   }
 
+  return (
+    <div className={styles.overlay}>
+      <div className={styles.container}>
+        <h3 className={styles.title}>
+          {initialData ? "Editar despesa" : "Nova despesa"}
+        </h3>
 
-return (
-  <div className={styles.overlay}>
-    <div className={styles.container}>
+        {erro && <p className={styles.erro}>{erro}</p>}
 
-      <h3 className={styles.title}>Nova despesa</h3>
-
-      <input
-        className={styles.input}
-        placeholder="Nome da despesa"
-        value={nome}
-        onChange={(e) => setNome(e.target.value)}
-      />
-
-      <div className={styles.field}>
-        <span className={styles.prefix}>R$</span>
         <input
-          className={`${styles.input} ${styles.inputPrefix}`}
-          type="number"
-          placeholder="Valor total"
-          onChange={(e) => setTotal(Number(e.target.value))}
+          className={styles.input}
+          placeholder="Nome da despesa"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
         />
-      </div>
 
-      <div className={styles.membersHeader}>
-        <h4>Membros</h4>
+        <div className={styles.field}>
+          <span className={styles.prefix}>R$</span>
+          <input
+            className={`${styles.input} ${styles.inputPrefix}`}
+            type="number"
+            placeholder="Valor total"
+            value={total}
+            onChange={(e) => setTotal(e.target.value)}
+          />
+        </div>
 
-        <div className={styles.membersActions}>
+        <div className={styles.membersHeader}>
+          <h4>Membros</h4>
+
+          <div className={styles.membersActions}>
             <button className={styles.primary} onClick={adicionarMembro}>
-            + Adicionar
+              + Adicionar
             </button>
 
             <button className={styles.primary} onClick={dividirIgual}>
-            Dividir igualmente
+              Dividir igualmente
             </button>
-        </div>
+          </div>
         </div>
 
-      {membros.map((m, i) => (
-        <div key={i} className={styles.memberRow}>
-
-          {/* avatar */}
-          <div className={styles.avatar}>
-            {m.nome ? m.nome.charAt(0) : "?"}
+        {membros.map((m, i) => (
+          <div key={i} className={styles.memberRow}>
+            <div className={styles.avatar}>
+              {m.nome ? m.nome.charAt(0) : "?"}
             </div>
 
             <select
-            className={styles.select}
-            value={m.nome}
-            onChange={(e) => {
+              className={styles.select}
+              value={m.nome}
+              onChange={(e) => {
                 const novos = [...membros];
                 novos[i].nome = e.target.value;
                 setMembros(novos);
-            }}
+              }}
             >
-            <option value="">Selecionar</option>
-            <option value="João">João</option>
-            <option value="Maria">Maria</option>
-            <option value="Pedro">Pedro</option>
+              <option value="">Selecionar</option>
+              <option value="João">João</option>
+              <option value="Maria">Maria</option>
+              <option value="Pedro">Pedro</option>
             </select>
 
-          <div className={styles.field}>
-            <span className={styles.prefix}>R$</span>
-            <input
-              className={`${styles.input} ${styles.inputPrefix}`}
-              type="number"
-              value={m.valor || ""}
-              onChange={(e) => handleValor(i, e.target.value)}
-            />
-          </div>
+            <div className={styles.field}>
+              <span className={styles.prefix}>R$</span>
+              <input
+                className={`${styles.input} ${styles.inputPrefix}`}
+                type="number"
+                value={m.valor || ""}
+                onChange={(e) => handleValor(i, e.target.value)}
+              />
+            </div>
 
-          <div className={styles.field}>
-            <span className={styles.prefix}>%</span>
-            <input
-              className={`${styles.input} ${styles.inputPrefix}`}
-              type="number"
-              value={m.percentual || ""}
-              onChange={(e) => handlePercentual(i, e.target.value)}
-            />
-          </div>
+            <div className={styles.field}>
+              <span className={styles.prefix}>%</span>
+              <input
+                className={`${styles.input} ${styles.inputPrefix}`}
+                type="number"
+                value={m.percentual || ""}
+                onChange={(e) => handlePercentual(i, e.target.value)}
+              />
+            </div>
 
-          <button
-            className={styles.removeBtn}
-            onClick={() => removerMembro(i)}
-          >
-            ❌
+            <button
+              className={styles.removeBtn}
+              onClick={() => removerMembro(i)}
+            >
+              ❌
+            </button>
+          </div>
+        ))}
+
+        <div className={styles.actions}>
+          <button className={styles.secondary} onClick={onClose}>
+            Cancelar
+          </button>
+
+          <button className={styles.primary} onClick={salvar}>
+            Salvar
           </button>
         </div>
-      ))}
-
-      <div className={styles.actions}>
-        <button className={styles.secondary} onClick={onClose}>
-          Cancelar
-        </button>
-
-        <button className={styles.primary} onClick={salvar}>
-          Salvar
-        </button>
       </div>
-
     </div>
-  </div>
-);
+  );
 }
