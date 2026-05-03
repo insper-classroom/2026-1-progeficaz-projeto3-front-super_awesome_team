@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { FiCamera, FiEdit2, FiLock, FiLogOut, FiSave, FiX } from 'react-icons/fi'
 import styles from './Perfil.module.css'
 import { useUser } from '../../hooks/useUser'
+import { updateUser } from '../../services/userService'
 
 function obterTextoNascimento(nascimento) {
   if (nascimento) return nascimento
@@ -12,19 +13,21 @@ function obterTextoNascimento(nascimento) {
 
 export function Perfil() {
   const navigate = useNavigate()
-  const { foto, setFoto } = useUser()
+  const { carregarUsuario, foto, sair, setFoto, usuario } = useUser()
   const inputFoto = useRef(null)
 
   const [editando, setEditando] = useState(false)
   const [alterandoSenha, setAlterandoSenha] = useState(false)
-  const [nome, setNome] = useState('Nome do usuario')
+  const [nome, setNome] = useState('')
   const [nascimento, setNascimento] = useState('')
   const [senhaAtual, setSenhaAtual] = useState('')
   const [novaSenha, setNovaSenha] = useState('')
   const [confirmarNovaSenha, setConfirmarNovaSenha] = useState('')
   const [mensagemSenha, setMensagemSenha] = useState('')
+  const [mensagemPerfil, setMensagemPerfil] = useState('')
 
-  const email = 'usuario@gmail.com'
+  const email = usuario?.email || ''
+  const nomeExibido = usuario?.name || 'Nome do usuario'
   const textoNascimento = obterTextoNascimento(nascimento)
 
   let srcFoto = '/imagem_padrao_perfil.png'
@@ -43,12 +46,21 @@ export function Perfil() {
     inputFoto.current.click()
   }
 
-  function salvarPerfil() {
-    // TODO: integrar com backend para atualizar os dados do usuario.
-    setEditando(false)
+  async function salvarPerfil() {
+    setMensagemPerfil('')
+
+    try {
+      await updateUser({ name: nome })
+      await carregarUsuario()
+      setEditando(false)
+    } catch (error) {
+      setMensagemPerfil(error.response?.data?.error || 'Não foi possível salvar o perfil.')
+    }
   }
 
   function cancelarEdicao() {
+    setNome(nomeExibido)
+    setMensagemPerfil('')
     setEditando(false)
   }
 
@@ -68,7 +80,7 @@ export function Perfil() {
     setAlterandoSenha(false)
   }
 
-  function salvarSenha() {
+  async function salvarSenha() {
     if (!senhaAtual) {
       setMensagemSenha('Informe a senha atual.')
       return
@@ -84,14 +96,20 @@ export function Perfil() {
       return
     }
 
-    // TODO: integrar com backend para validar a senha atual e salvar a nova senha.
-    limparCamposSenha()
-    setAlterandoSenha(false)
+    try {
+      await updateUser({
+        password: novaSenha,
+        current_password: senhaAtual,
+      })
+      limparCamposSenha()
+      setAlterandoSenha(false)
+    } catch (error) {
+      setMensagemSenha(error.response?.data?.error || 'Não foi possível alterar a senha.')
+    }
   }
 
   function sairDaConta() {
-    // TODO: integrar com autenticacao real para limpar sessao/token.
-    setFoto(null)
+    sair()
     navigate('/login')
   }
 
@@ -107,7 +125,7 @@ export function Perfil() {
       )
     }
 
-    return <span className={styles.valorCampo}>{nome}</span>
+    return <span className={styles.valorCampo}>{nomeExibido}</span>
   }
 
   function renderizarCampoNascimento() {
@@ -196,7 +214,14 @@ export function Perfil() {
 
     return (
       <div className={styles.acoesPerfil}>
-        <button type="button" className={styles.botaoPrimario} onClick={() => setEditando(true)}>
+        <button
+          type="button"
+          className={styles.botaoPrimario}
+          onClick={() => {
+            setNome(nomeExibido)
+            setEditando(true)
+          }}
+        >
           <FiEdit2 />
           Editar perfil
         </button>
@@ -228,7 +253,7 @@ export function Perfil() {
           </div>
 
           <div className={styles.identidade}>
-            <span className={styles.nomeResumo}>{nome}</span>
+            <span className={styles.nomeResumo}>{nomeExibido}</span>
           </div>
         </div>
 
@@ -237,6 +262,7 @@ export function Perfil() {
           <div className={styles.campo}>
             <label>Nome</label>
             {renderizarCampoNome()}
+            {mensagemPerfil && <span className={styles.mensagemSenha}>{mensagemPerfil}</span>}
           </div>
 
           <div className={styles.campo}>

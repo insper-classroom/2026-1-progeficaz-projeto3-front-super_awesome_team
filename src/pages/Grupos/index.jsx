@@ -1,9 +1,10 @@
 // Página de listagem de grupos do usuário
-import { useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import styles from './Grupos.module.css'
 import { useNavigate } from 'react-router-dom'
 import GrupoCard from '../../components/GrupoCard'
 import Button from '../../components/Button'
+import { criarGrupo as criarGrupoApi, listarGrupos } from '../../services/groupService'
 
 export function Grupos() {
 
@@ -15,6 +16,8 @@ export function Grupos() {
     const [membros, setMembros] = useState([]) // lista de e-mails dos membros adicionados
     const [imgSelecionada, setImgSelecionada] = useState('/casa.jpg') // imagem escolhida para o grupo
     const [imgUpload, setImgUpload] = useState(null) // url temporária da imagem enviada pelo usuário
+    const [carregando, setCarregando] = useState(true)
+    const [erro, setErro] = useState('')
     const inputUploadRef = useRef(null) // referência ao input de arquivo oculto
 
     const imagens = [
@@ -22,6 +25,24 @@ export function Grupos() {
       { src: '/mercado.jpg', label: 'Mercado' },
       { src: '/estudo.jpg', label: 'Estudos' },
     ]
+
+    useEffect(() => {
+      async function carregarGrupos() {
+        setCarregando(true)
+        setErro('')
+
+        try {
+          const gruposCarregados = await listarGrupos()
+          setGrupos(gruposCarregados)
+        } catch {
+          setErro('Não foi possível carregar seus grupos.')
+        } finally {
+          setCarregando(false)
+        }
+      }
+
+      carregarGrupos()
+    }, [])
 
     // adiciona e-mail à lista, bloqueando duplicados
     function adicionarMembro() {
@@ -45,16 +66,28 @@ export function Grupos() {
       setModalAberto(false)
       setNomeGrupo('')
       setMembros([])
+      setEmailMembro('')
       setImgSelecionada('/casa.jpg')
       setImgUpload(null)
     }
 
     // cria grupo
-    function criarGrupo() {
+    async function criarGrupo() {
       if (!nomeGrupo) return
-      const novoGrupo = { id: Date.now(), nome: nomeGrupo, membros, img: imgSelecionada, desc: 'Novo grupo', valor: 'R$ 0' }
-      setGrupos([...grupos, novoGrupo])
-      fecharModal()
+      setErro('')
+
+      try {
+        await criarGrupoApi({
+          nome: nomeGrupo,
+          membros,
+          descricao: 'Novo grupo',
+        })
+        const gruposAtualizados = await listarGrupos()
+        setGrupos(gruposAtualizados)
+        fecharModal()
+      } catch (error) {
+        setErro(error.response?.data?.error || 'Não foi possível criar o grupo.')
+      }
     }
 
     return (
@@ -67,6 +100,8 @@ export function Grupos() {
                 <Button onClick={() => setModalAberto(true)}>Criar grupo</Button>
             </div>
             {/* lista de grupos criados — cada card navega para o dashboard do grupo*/}
+            {carregando && <p>Carregando grupos...</p>}
+            {erro && <p>{erro}</p>}
 
             <div className={styles.grid}>
                 {grupos.map((grupo) => (
@@ -74,7 +109,7 @@ export function Grupos() {
                       key={grupo.id}
                       title={grupo.nome}
                       subtitle={grupo.desc}
-                      image={grupo.img}
+                      image={grupo.imagem}
                       onClick={() => navigate(`/grupos/${grupo.id}`)}
                     />
                   ))}
