@@ -2,38 +2,71 @@ import { useState } from "react";
 import DespesaForm from "../../../components/DespesaForm";
 import DespesaCard from "../../../components/DespesaCard";
 import Button from "../../../components/Button";
+import { despesasMock } from "../../../mocks/despesasMock.js";
 
 export function Despesas() {
-  const [despesas, setDespesas] = useState([]);
-  const [mostrarForm, setMostrarForm] = useState(false);
-  const [editandoIndice, setEditandoIndice] = useState(null);
-
-  function salvarDespesa(despesa) {
-    if (editandoIndice !== null) {
-      const novas = [...despesas];
-      novas[editandoIndice] = despesa;
-      setDespesas(novas);
-      setEditandoIndice(null);
-    } else {
-      setDespesas([...despesas, despesa]);
-    }
-
-    setMostrarForm(false);
-  }
+  const [despesas, setDespesas] = useState(despesasMock);
+  const [modal, setModal] = useState({
+    aberto: false,
+    tipo: null,
+    despesa: null,
+    indice: null,
+  });
 
   function abrirNovaDespesa() {
-    setEditandoIndice(null);
-    setMostrarForm(true);
+    setModal({
+      aberto: true,
+      tipo: "form",
+      despesa: null,
+      indice: null,
+    });
   }
 
-  function abrirEdicao(indice) {
-    setEditandoIndice(indice);
-    setMostrarForm(true);
+  function abrirDetalhe(despesa, indice) {
+    setModal({
+      aberto: true,
+      tipo: "detalhe",
+      despesa,
+      indice,
+    });
   }
 
-  function fecharForm() {
-    setMostrarForm(false);
-    setEditandoIndice(null);
+  function abrirEdicao(despesa, indice) {
+    setModal({
+      aberto: true,
+      tipo: "form",
+      despesa,
+      indice,
+    });
+  }
+
+  function fecharModal() {
+    setModal({
+      aberto: false,
+      tipo: null,
+      despesa: null,
+      indice: null,
+    });
+  }
+
+  function salvarDespesa(despesaSalva) {
+    if (modal.indice !== null) {
+      const novas = [...despesas];
+      novas[modal.indice] = despesaSalva;
+      setDespesas(novas);
+    } else {
+      setDespesas((prev) => [...prev, despesaSalva]);
+    }
+
+    fecharModal();
+  }
+
+  function deletarDespesa(indice) {
+    setDespesas((prev) => prev.filter((_, i) => i !== indice));
+
+    if (modal.indice === indice) {
+      fecharModal();
+    }
   }
 
   return (
@@ -42,11 +75,12 @@ export function Despesas() {
 
       <Button onClick={abrirNovaDespesa}>+ Nova despesa</Button>
 
-      {mostrarForm && (
+      {modal.aberto && modal.tipo === "form" && (
         <DespesaForm
-          initialData={editandoIndice !== null ? despesas[editandoIndice] : null}
-          onAdd={salvarDespesa}
-          onClose={fecharForm}
+          initialData={modal.despesa}
+          modo={modal.indice !== null ? "edit" : "create"}
+          onSave={salvarDespesa}
+          onClose={fecharModal}
         />
       )}
 
@@ -55,8 +89,11 @@ export function Despesas() {
           <DespesaCard
             key={i}
             despesa={d}
-            onEdit={() => abrirEdicao(i)}
-            onDelete={() => setDespesas(despesas.filter((_, index) => index !== i))}
+            aberto={modal.aberto && modal.tipo === "detalhe" && modal.indice === i}
+            onOpen={() => abrirDetalhe(d, i)}
+            onClose={fecharModal}
+            onEdit={() => abrirEdicao(d, i)}
+            onDelete={() => deletarDespesa(i)}
           />
         ))}
       </div>

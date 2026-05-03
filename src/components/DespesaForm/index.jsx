@@ -1,17 +1,23 @@
 import { useEffect, useState } from "react";
 import styles from "./DespesaForm.module.css";
 import Button from "../Button";
+import { membrosMock } from "../../mocks/membrosMock";
 
 function criarMembroVazio(indice = 1) {
   return {
-    nome: `Membro ${indice}`,
+    nome: "",
     valor: "",
     percentual: "",
     pago: false,
   };
 }
 
-export default function DespesaForm({ onAdd, onClose, initialData }) {
+export default function DespesaForm({
+  onSave,
+  onClose,
+  initialData,
+  modo = "create", // "create" | "edit"
+}) {
   const [nome, setNome] = useState("");
   const [total, setTotal] = useState("");
   const [membros, setMembros] = useState([criarMembroVazio(1)]);
@@ -24,8 +30,8 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
 
       const membrosIniciais =
         Array.isArray(initialData.membros) && initialData.membros.length > 0
-          ? initialData.membros.map((m, index) => ({
-              nome: m.nome ?? `Membro ${index + 1}`,
+          ? initialData.membros.map((m) => ({
+              nome: m.nome ?? "",
               valor: m.valor ?? "",
               percentual: m.percentual ?? "",
               pago: m.pago ?? false,
@@ -40,7 +46,7 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
     }
 
     setErro("");
-  }, [initialData]);
+  }, [initialData, modo]);
 
   function handleValor(i, valor) {
     const totalNum = Number(total);
@@ -99,7 +105,7 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
       ...m,
       valor: valorPorPessoa.toFixed(2),
       percentual: (100 / membros.length).toFixed(2),
-      pago: false,
+      pago: m.pago ?? false,
     }));
 
     setMembros(novos);
@@ -125,7 +131,7 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
       return;
     }
 
-    onAdd({
+    onSave({
       nome: nome.trim(),
       total: totalNum,
       membros: membros.map((m) => ({
@@ -141,7 +147,7 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
     <div className={styles.overlay}>
       <div className={styles.container}>
         <h3 className={styles.title}>
-          {initialData ? "Editar despesa" : "Nova despesa"}
+          {modo === "edit" ? "Editar despesa" : "Nova despesa"}
         </h3>
 
         {erro && <p className={styles.erro}>{erro}</p>}
@@ -175,14 +181,16 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
 
         {membros.map((m, i) => (
           <div key={i} className={styles.memberRow}>
-            <label className={styles.pagoCheckbox}>
-              <input
-                type="checkbox"
-                checked={m.pago || false}
-                onChange={(e) => togglePago(i, e.target.checked)}
-              />
-              Pago
-            </label>
+            {modo === "edit" && (
+              <label className={styles.pagoCheckbox}>
+                <input
+                  type="checkbox"
+                  checked={m.pago || false}
+                  onChange={(e) => togglePago(i, e.target.checked)}
+                />
+                Pago
+              </label>
+            )}
 
             <div className={styles.avatar}>
               {m.nome ? m.nome.charAt(0) : "?"}
@@ -198,9 +206,11 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
               }}
             >
               <option value="">Selecionar</option>
-              <option value="João">João</option>
-              <option value="Maria">Maria</option>
-              <option value="Pedro">Pedro</option>
+              {membrosMock.map((membro) => (
+                <option key={membro.id} value={membro.nome}>
+                  {membro.nome}
+                </option>
+              ))}
             </select>
 
             <div className={styles.field}>
@@ -238,7 +248,9 @@ export default function DespesaForm({ onAdd, onClose, initialData }) {
             Cancelar
           </Button>
 
-          <Button onClick={salvar}>Salvar</Button>
+          <Button onClick={salvar}>
+            {modo === "edit" ? "Salvar alterações" : "Salvar"}
+          </Button>
         </div>
       </div>
     </div>

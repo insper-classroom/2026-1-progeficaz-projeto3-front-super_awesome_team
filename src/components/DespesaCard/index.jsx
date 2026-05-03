@@ -1,17 +1,24 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import styles from "./DespesaCard.module.css";
-import Button from "../Button";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
-const CORES = ["#1f7a63", "#2563eb", "#f59e0b", "#8b5cf6", "#ef4444", "#14b8a6"];
+const CORES_FALLBACK = [
+  "#1f7a63",
+  "#2563eb",
+  "#f59e0b",
+  "#8b5cf6",
+  "#ef4444",
+  "#14b8a6",
+];
 
-function comAlpha(hex, alpha = "22") {
-  return `${hex}${alpha}`;
-}
-
-export default function DespesaCard({ despesa, onEdit, onDelete }) {
-  const [mostrarModal, setMostrarModal] = useState(false);
-
+export default function DespesaCard({
+  despesa,
+  aberto,
+  onOpen,
+  onClose,
+  onEdit,
+  onDelete,
+}) {
   const membros = Array.isArray(despesa?.membros) ? despesa.membros : [];
   const total = Number(despesa?.total ?? 0) || 0;
 
@@ -19,7 +26,7 @@ export default function DespesaCard({ despesa, onEdit, onDelete }) {
     () =>
       membros.map((m, i) => ({
         ...m,
-        cor: CORES[i % CORES.length],
+        cor: m.cor || CORES_FALLBACK[i % CORES_FALLBACK.length],
       })),
     [membros]
   );
@@ -34,52 +41,35 @@ export default function DespesaCard({ despesa, onEdit, onDelete }) {
   const percentualPago = total > 0 ? (pagoTotal / total) * 100 : 0;
 
   const chartData = useMemo(() => {
-    const pago = Math.max(pagoTotal, 0);
-    const restante = Math.max(total - pagoTotal, 0);
+    const pagos = membrosColoridos
+      .filter((m) => m.pago && Number(m.valor || 0) > 0)
+      .map((m) => ({
+        name: m.nome,
+        value: Number(m.valor || 0),
+        cor: m.cor,
+      }));
 
-    return [
-      { name: "Pago", value: pago, cor: "#1f7a63" },
-      { name: "Falta", value: restante, cor: "#d1d5db" },
-    ].filter((item) => item.value > 0);
-  }, [pagoTotal, total]);
+    if (pagos.length === 0) {
+      return [{ name: "Não pago", value: total || 1, cor: "#d1d5db" }];
+    }
+
+    return pagos;
+  }, [membrosColoridos, total]);
 
   return (
     <>
-      <button
-        type="button"
-        className={styles.card}
-        onClick={() => setMostrarModal(true)}
-      >
-        <div className={styles.header}>
-          <div className={styles.infoPrincipal}>
-            <h4 className={styles.nome}>{despesa?.nome ?? "Despesa"}</h4>
-            <span className={styles.total}>R$ {total.toFixed(2)}</span>
-          </div>
-
-          <div className={styles.membrosResumo}>
-            {membrosColoridos.map((m, i) => (
-              <div
-                key={i}
-                className={styles.avatar}
-                title={m?.nome ?? "Membro"}
-                style={{ backgroundColor: m.cor }}
-              >
-                {m?.nome ? m.nome.charAt(0) : "?"}
-              </div>
-            ))}
+      <button type="button" className={styles.card} onClick={onOpen}>
+        <div className={styles.cardTop}>
+          <div>
+            <h4 className={styles.cardTitle}>{despesa?.nome ?? "Despesa"}</h4>
+            <p className={styles.cardSubtitle}>R$ {total.toFixed(2)}</p>
           </div>
         </div>
       </button>
 
-      {mostrarModal && (
-        <div
-          className={styles.overlay}
-          onClick={() => setMostrarModal(false)}
-        >
-          <div
-            className={styles.modal}
-            onClick={(e) => e.stopPropagation()}
-          >
+      {aberto && (
+        <div className={styles.overlay} onClick={onClose}>
+          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <div>
                 <h3 className={styles.modalTitle}>{despesa?.nome ?? "Despesa"}</h3>
@@ -91,7 +81,7 @@ export default function DespesaCard({ despesa, onEdit, onDelete }) {
               <button
                 type="button"
                 className={styles.closeBtn}
-                onClick={() => setMostrarModal(false)}
+                onClick={onClose}
               >
                 ✕
               </button>
@@ -153,7 +143,11 @@ export default function DespesaCard({ despesa, onEdit, onDelete }) {
                             </div>
                           </div>
 
-                          <span className={m.pago ? styles.badgePago : styles.badgePendente}>
+                          <span
+                            className={
+                              m.pago ? styles.badgePago : styles.badgePendente
+                            }
+                          >
                             {m.pago ? "Pago" : "Não pago"}
                           </span>
                         </div>
@@ -170,7 +164,7 @@ export default function DespesaCard({ despesa, onEdit, onDelete }) {
                             className={styles.progressPendente}
                             style={{
                               width: `${m.pago ? 0 : 100}%`,
-                              backgroundColor: comAlpha(m.cor),
+                              backgroundColor: `${m.cor}22`,
                             }}
                           />
                         </div>
@@ -185,10 +179,16 @@ export default function DespesaCard({ despesa, onEdit, onDelete }) {
                 </div>
 
                 <div className={styles.actions}>
-                  <Button onClick={onEdit}>Editar</Button>
-                  <Button variant="secondary" onClick={onDelete}>
+                  <button type="button" onClick={onEdit} className={styles.editBtn}>
+                    Editar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={onDelete}
+                    className={styles.doneBtn}
+                  >
                     Concluído
-                  </Button>
+                  </button>
                 </div>
               </div>
             </div>
