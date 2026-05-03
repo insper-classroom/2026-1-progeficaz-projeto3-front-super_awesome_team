@@ -45,6 +45,11 @@
   transition: color 0.2s;
 }
 
+.btnTema,
+.linkPerfil {
+  position: relative;
+}
+
 .links a:hover {
   color: var(--primary);
 }
@@ -57,33 +62,76 @@
   opacity: 0;
   font-size: 12px;
   position: absolute;
-  bottom: -20px;
+  left: 38px;
+  top: 50%;
+  transform: translateY(-50%);
   transition: 0.2s;
   white-space: nowrap;
+  color: var(--primary);
+}
+
+.btnTema span,
+.linkPerfil span {
+  opacity: 0;
+  font-size: 12px;
+  position: absolute;
+  left: 38px;
+  top: 50%;
+  transform: translateY(-50%);
+  transition: 0.2s;
+  white-space: nowrap;
+  color: var(--primary);
 }
 
 .links a:hover span {
   opacity: 1;
 }
 
+.btnTema:hover span,
+.linkPerfil:hover span {
+  opacity: 1;
+}
+
+.linkPerfil span {
+  left: 44px;
+}
+
 /* Botão de alternância de tema — sutil, acima da foto */
 .btnTema {
   background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 50%;
+  border: none;
   width: 30px;
   height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 22px;
   cursor: pointer;
   margin-bottom: 10px;
-  transition: border-color 0.2s, color 0.2s;
+  opacity: 1;
+  transition: color 0.2s;
 }
 
 .btnTema:hover {
-  border-color: var(--primary);
   color: var(--primary);
+}
+
+.linkPerfil {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fotoPerfil {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  object-fit: cover;
+  transition: border-color 0.2s;
+}
+
+.linkPerfil:hover .fotoPerfil {
+  border-color: var(--primary);
 }

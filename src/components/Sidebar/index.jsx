@@ -15,6 +15,13 @@ export function Sidebar() {
     logoSidebar = '/logo_branca.png'
   }
 
+  let iconeTema = <BsMoon />
+  let textoTema = 'Tema escuro'
+  if (tema === 'dark') {
+    iconeTema = <BsSun />
+    textoTema = 'Tema claro'
+  }
+
   return (
     <nav className={styles.sidebar}>
       <img className={styles.logo} src={logoSidebar} alt="Logo" />
@@ -28,16 +35,19 @@ export function Sidebar() {
       <div className={styles.spacer} />
 
       {/* Botão de alternância de tema */}
-      <button className={styles.btnTema} onClick={alternarTema} aria-label="alternar tema">
-        {tema === 'dark' ? <BsSun /> : <BsMoon />}
+      <button className={styles.btnTema} onClick={alternarTema} aria-label={textoTema}>
+        {iconeTema}
+        <span>{textoTema}</span>
       </button>
 
       {/* Perfil no rodapé */}
-      <Link to="/perfil">
+      <Link to="/perfil" className={styles.linkPerfil} aria-label="Perfil">
         <img
+          className={styles.fotoPerfil}
           src={foto || '/imagem_padrao_perfil.png'}
-          style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover' }}
+          alt="Perfil"
         />
+        <span>Perfil</span>
       </Link>
     </nav>
   )
