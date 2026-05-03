@@ -10,9 +10,14 @@ export function Sidebar() {
   const { foto } = useUser()
   const { tema, alternarTema } = useTema()
 
+  let logoSidebar = '/logo_preta.png'
+  if (tema === 'dark') {
+    logoSidebar = '/logo_branca.png'
+  }
+
   return (
     <nav className={styles.sidebar}>
-      <div className={styles.logo}>Logo</div>
+      <img className={styles.logo} src={logoSidebar} alt="Logo" />
 
       <div className={styles.links}>
         {/* Links principais */}

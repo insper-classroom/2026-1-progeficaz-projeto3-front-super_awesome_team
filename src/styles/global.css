@@ -7,14 +7,14 @@
 :root {
   --primary:        #047857;
   --primary-muted:  #d1fae5;
-  --bg:             #f5f5f7;
+  --bg:             #ffffff;
   --surface:        #ffffff;
   --border:         #e4e4ef;
   --text:           #1a1a2e;
   --text-muted:     #8e8ea0;
   --positive:       #047857;
   --negative:       #dc2626;
-  --sidebar-bg:     #1a1a2e;
+  --sidebar-bg:     #ffffff;
 }
 
 /* Variáveis de design — tema escuro */
