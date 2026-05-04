@@ -55,6 +55,16 @@
   width: 100%;
 }
 
+.dateField {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .prefix {
   position: absolute;
   left: 12px;
@@ -130,15 +140,6 @@
   color: var(--negative);
 }
 
-.pagoCheckbox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--text);
-  margin-left: auto;
-}
-
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -154,12 +155,4 @@ input[type="number"]::-webkit-inner-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
-}
-
-.pagoCheckboxRight {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-  color: var(--text);
 }

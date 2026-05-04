@@ -29,6 +29,11 @@ function criarMembroVazio(membro = {}) {
   };
 }
 
+function normalizarDataInput(data) {
+  if (!data) return "";
+  return String(data).split("T")[0];
+}
+
 function normalizarMembroInicial(membro, opcoesMembros) {
   const opcao = opcoesMembros.find(
     (item) => item.email === membro.email || item.nome === membro.nome
@@ -37,7 +42,7 @@ function normalizarMembroInicial(membro, opcoesMembros) {
   return {
     email: opcao?.email || membro.email || membro.nome || "",
     nome: opcao?.nome || membro.nome || nomeDoEmail(membro.email),
-    valor: membro.valor ?? "",
+    valor: membro.valor ?? membro.value ?? "",
     percentual: membro.percentual ?? "",
     pago: membro.pago ?? false,
     cor: opcao?.cor || membro.cor,
@@ -54,6 +59,7 @@ export default function DespesaForm({
 }) {
   const [nome, setNome] = useState("");
   const [total, setTotal] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [membros, setMembros] = useState([criarMembroVazio()]);
   const [erro, setErro] = useState("");
 
@@ -66,6 +72,7 @@ export default function DespesaForm({
       if (initialData) {
         setNome(initialData.nome ?? "");
         setTotal(initialData.total ?? "");
+        setDueDate(normalizarDataInput(initialData.dueDate));
 
         const membrosIniciais =
           Array.isArray(initialData.membros) && initialData.membros.length > 0
@@ -78,6 +85,7 @@ export default function DespesaForm({
       } else {
         setNome("");
         setTotal("");
+        setDueDate("");
         setMembros([criarMembroVazio(opcoesMembros[0])]);
       }
 
@@ -111,13 +119,6 @@ export default function DespesaForm({
         ? ((Number(percentualNum) / 100) * totalNum).toFixed(2)
         : "";
 
-    setMembros(novos);
-    setErro("");
-  }
-
-  function togglePago(i, checked) {
-    const novos = [...membros];
-    novos[i].pago = checked;
     setMembros(novos);
     setErro("");
   }
@@ -195,12 +196,12 @@ export default function DespesaForm({
       id: initialData?.id,
       nome: nome.trim(),
       total: totalNum,
+      dueDate,
       membros: membrosComValor.map((membro) => ({
         email: membro.email,
         nome: membro.nome,
         valor: Number(membro.valor || 0),
         percentual: Number(membro.percentual || 0),
-        pago: Boolean(membro.pago),
         cor: membro.cor,
       })),
     });
@@ -235,6 +236,16 @@ export default function DespesaForm({
             onChange={(e) => setTotal(e.target.value)}
           />
         </div>
+
+        <label className={styles.dateField}>
+          <span>Pagar até</span>
+          <input
+            className={styles.input}
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
+        </label>
 
         <div className={styles.membersHeader}>
           <h4>Membros</h4>
@@ -304,16 +315,6 @@ export default function DespesaForm({
             >
               X
             </button>
-            {modo === "edit" && (
-              <label className={styles.pagoCheckbox}>
-                <input
-                  type="checkbox"
-                  checked={m.pago || false}
-                  onChange={(e) => togglePago(i, e.target.checked)}
-                />
-                Pago
-              </label>
-            )}
           </div>
         ))}
 
