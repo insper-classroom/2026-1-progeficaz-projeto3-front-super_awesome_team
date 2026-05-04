@@ -4,5 +4,10 @@
   --negative-hover: #be3434;
 
   margin-left: 60px; /* igual à largura da sidebar */
+  min-height: 100vh;
   overflow-x: hidden;
+}
+
+:global([data-theme="light"]) .main {
+  background: #f7f8fb;
 }
