@@ -1,12 +1,14 @@
-import { useEffect, useState, useRef } from 'react'
-import styles from './Grupos.module.css'
-import { useNavigate } from 'react-router-dom'
-import GrupoCard from '../../components/GrupoCard'
-import Button from '../../components/Button'
+import { useEffect, useState, useRef } from "react";
+import styles from "./Grupos.module.css";
+import { useNavigate } from "react-router-dom";
+import GrupoCard from "../../components/GrupoCard";
+import Button from "../../components/Button";
 import {
   criarGrupo as criarGrupoApi,
   atualizarGrupo as atualizarGrupoApi,
+  deletarGrupo as deletarGrupoApi,
   listarGrupos,
+<<<<<<< HEAD
 } from '../../services/groupService'
 import { encodeImageToBase64 } from '../../utils/imageUtils'
 
@@ -29,39 +31,61 @@ export function Grupos() {
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
   const inputUploadRef = useRef(null) // referência ao input de arquivo oculto
+=======
+} from "../../services/groupService";
+
+export function Grupos() {
+  const navigate = useNavigate();
+
+  const [grupos, setGrupos] = useState([]);
+  const [modalAberto, setModalAberto] = useState(false);
+  const [modoModal, setModoModal] = useState("create"); // create | edit
+  const [grupoEditando, setGrupoEditando] = useState(null);
+
+  const [nomeGrupo, setNomeGrupo] = useState("");
+  const [descricaoGrupo, setDescricaoGrupo] = useState("");
+  const [emailMembro, setEmailMembro] = useState("");
+  const [membros, setMembros] = useState([]);
+  const [imgSelecionada, setImgSelecionada] = useState("/casa.jpg");
+  const [imgUpload, setImgUpload] = useState(null);
+  const [carregando, setCarregando] = useState(true);
+  const [erro, setErro] = useState("");
+
+  const inputUploadRef = useRef(null);
+>>>>>>> 13d6ea5 (botao de deletar funcional e tudo certo)
 
   const imagens = [
-    { src: '/casa.jpg', label: 'Casa' },
-    { src: '/mercado.jpg', label: 'Mercado' },
-    { src: '/estudo.jpg', label: 'Estudos' },
-  ]
+    { src: "/casa.jpg", label: "Casa" },
+    { src: "/mercado.jpg", label: "Mercado" },
+    { src: "/estudo.jpg", label: "Estudos" },
+  ];
 
   useEffect(() => {
     async function carregarGrupos() {
-      setCarregando(true)
-      setErro('')
+      setCarregando(true);
+      setErro("");
 
       try {
-        const gruposCarregados = await listarGrupos()
-        setGrupos(gruposCarregados)
+        const gruposCarregados = await listarGrupos();
+        setGrupos(gruposCarregados);
       } catch {
-        setErro('Não foi possível carregar seus grupos.')
+        setErro("Não foi possível carregar seus grupos.");
       } finally {
-        setCarregando(false)
+        setCarregando(false);
       }
     }
 
-    carregarGrupos()
-  }, [])
+    carregarGrupos();
+  }, []);
 
   function limparFormulario() {
-    setNomeGrupo('')
-    setDescricaoGrupo('')
-    setMembros([])
-    setEmailMembro('')
-    setImgSelecionada('/casa.jpg')
-    setImgUpload(null)
-    setGrupoEditando(null)
+    setNomeGrupo("");
+    setDescricaoGrupo("");
+    setMembros([]);
+    setEmailMembro("");
+    setImgSelecionada("/casa.jpg");
+    setImgUpload(null);
+    setGrupoEditando(null);
   }
     // converte o arquivo enviado em url temporária e seleciona como imagem do grupo
     function handleUpload(e) {
@@ -74,65 +98,70 @@ export function Grupos() {
     }
 
   function abrirCriarGrupo() {
-    setModoModal('create')
-    limparFormulario()
-    setModalAberto(true)
+    setModoModal("create");
+    limparFormulario();
+    setModalAberto(true);
   }
 
   function abrirEditarGrupo(grupo) {
-    setModoModal('edit')
-    setGrupoEditando(grupo)
+    setModoModal("edit");
+    setGrupoEditando(grupo);
 
-    setNomeGrupo(grupo.nome || '')
-    setDescricaoGrupo(grupo.descricao || '')
-    setMembros((grupo.membros || []).map((m) => m.email))
-    setEmailMembro('')
-    setImgSelecionada(grupo.imagem || '/casa.jpg')
-    setImgUpload(null)
-    setModalAberto(true)
+    setNomeGrupo(grupo.nome || "");
+    setDescricaoGrupo(grupo.descricao || "");
+    setMembros((grupo.membros || []).map((m) => m.email));
+    setEmailMembro("");
+    setImgSelecionada(grupo.imagem || "/casa.jpg");
+    setImgUpload(null);
+    setModalAberto(true);
   }
 
   function adicionarMembro() {
-    const email = emailMembro.trim().toLowerCase()
+    const email = emailMembro.trim().toLowerCase();
 
     if (email && !membros.includes(email)) {
+<<<<<<< HEAD
       setMembros([...membros, email])
       setEmailMembro('')
       setImgSelecionada('/casa.jpg')
       setImgUpload(null)
       setArquivoUpload(null)
+=======
+      setMembros([...membros, email]);
+      setEmailMembro("");
+>>>>>>> 13d6ea5 (botao de deletar funcional e tudo certo)
     }
   }
 
   function removerMembro(emailParaRemover) {
-    setMembros(membros.filter((email) => email !== emailParaRemover))
+    setMembros(membros.filter((email) => email !== emailParaRemover));
   }
 
   function handleUpload(e) {
-    const arquivo = e.target.files[0]
-    if (!arquivo) return
-    const url = URL.createObjectURL(arquivo)
-    setImgUpload(url)
-    setImgSelecionada(url)
+    const arquivo = e.target.files?.[0];
+    if (!arquivo) return;
+
+    const url = URL.createObjectURL(arquivo);
+    setImgUpload(url);
+    setImgSelecionada(url);
   }
 
   function fecharModal() {
-    setModalAberto(false)
-    setModoModal('create')
-    limparFormulario()
-    setErro('')
+    setModalAberto(false);
+    setModoModal("create");
+    limparFormulario();
+    setErro("");
   }
 
   async function salvarGrupo() {
-    if (!nomeGrupo.trim()) return
-    setErro('')
+    if (!nomeGrupo.trim()) return;
+    setErro("");
 
     try {
-      const imagemFinal = imgUpload || imgSelecionada
-
       const payload = {
         nome: nomeGrupo.trim(),
         membros,
+<<<<<<< HEAD
         descricao: descricaoGrupo.trim() || 'Novo grupo',
       try {
         const imagem = arquivoUpload ? await encodeImageToBase64(arquivoUpload) : null
@@ -148,24 +177,45 @@ export function Grupos() {
       } catch (error) {
         setErro(error.response?.data?.error || 'Não foi possível criar o grupo.')
       }
+=======
+        descricao: descricaoGrupo.trim() || "Novo grupo",
+      };
+>>>>>>> 13d6ea5 (botao de deletar funcional e tudo certo)
 
-      if (modoModal === 'edit' && grupoEditando) {
-        await atualizarGrupoApi(grupoEditando.id, payload)
+      if (modoModal === "edit" && grupoEditando) {
+        await atualizarGrupoApi(grupoEditando.id, payload);
       } else {
-        await criarGrupoApi(payload)
+        await criarGrupoApi(payload);
       }
 
-      const gruposAtualizados = await listarGrupos()
-      setGrupos(gruposAtualizados)
-      fecharModal()
+      const gruposAtualizados = await listarGrupos();
+      setGrupos(gruposAtualizados);
+      fecharModal();
     } catch (error) {
-      setErro(error.response?.data?.error || 'Não foi possível salvar o grupo.')
+      setErro(error.response?.data?.error || "Não foi possível salvar o grupo.");
+    }
+  }
+
+  async function deletarGrupo() {
+    if (!grupoEditando) return;
+
+    const confirmar = window.confirm("Tem certeza que deseja excluir este grupo?");
+    if (!confirmar) return;
+
+    try {
+      await deletarGrupoApi(grupoEditando.id);
+
+      const gruposAtualizados = await listarGrupos();
+      setGrupos(gruposAtualizados);
+      fecharModal();
+    } catch {
+      setErro("Não foi possível excluir o grupo.");
     }
   }
 
   return (
     <div className={styles.pagina}>
-      <div className={styles.content}> 
+      <div className={styles.content}>
         <div className={styles.header}>
           <div>
             <h1>Meus Grupos</h1>
@@ -264,7 +314,9 @@ export function Grupos() {
                   key={img.src}
                   type="button"
                   className={
-                    imgSelecionada === img.src ? styles.imgSelecionada : styles.imgOpcao
+                    imgSelecionada === img.src
+                      ? styles.imgSelecionada
+                      : styles.imgOpcao
                   }
                   onClick={() => setImgSelecionada(img.src)}
                 >
@@ -299,17 +351,29 @@ export function Grupos() {
             </div>
 
             <div className={styles.modalActions}>
-              <Button variant="secondary" onClick={fecharModal}>
-                Cancelar
-              </Button>
+              {modoModal === "edit" && (
+                <button
+                  type="button"
+                  className={styles.danger}
+                  onClick={deletarGrupo}
+                >
+                  Excluir grupo
+                </button>
+              )}
 
-              <Button onClick={salvarGrupo}>
-                {modoModal === "edit" ? "Salvar alterações" : "Criar grupo"}
-              </Button>
+              <div className={styles.rightActions}>
+                <Button variant="secondary" onClick={fecharModal}>
+                  Cancelar
+                </Button>
+
+                <Button onClick={salvarGrupo}>
+                  {modoModal === "edit" ? "Salvar alterações" : "Criar grupo"}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }

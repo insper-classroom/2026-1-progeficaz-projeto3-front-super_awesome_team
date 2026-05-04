@@ -64,6 +64,11 @@ export async function atualizarGrupo(groupId, { nome, membros, descricao, imagem
   return response.data
 }
 
+export async function deletarGrupo(groupId) {
+  const response = await api.delete(`/group/${groupId}`)
+  return response.data
+}
+
 export async function buscarGrupo(groupId) {
   const response = await api.get(`/group/${groupId}`)
   return normalizarGrupo(response.data)

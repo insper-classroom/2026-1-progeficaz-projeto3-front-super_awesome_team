@@ -146,12 +146,16 @@
 
 .modalActions {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 20px;
 }
+.rightActions {
+  display: flex;
+  gap: 10px;
+}
 
-.page {
+.pagina {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
   gap: 28px;
@@ -178,4 +182,27 @@
 
 .content {
   padding-left: 24px;
+}
+
+.danger {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+
+  background: rgba(220, 38, 38, 0.12); /* vermelho suave */
+  color: var(--negative);
+
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.danger:hover {
+  transform: translateY(-1px);
+  filter: brightness(0.95);
+}
+
+.danger:active {
+  transform: translateY(0);
+  filter: brightness(0.9);
 }
