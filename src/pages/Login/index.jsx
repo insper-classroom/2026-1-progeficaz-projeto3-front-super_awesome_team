@@ -24,7 +24,7 @@ export function Login() {
         email,
         password: senha,
       })
-      salvarToken(resposta.data.token)
+      salvarToken(resposta.token)
       navigate(location.state?.from?.pathname || '/grupos', { replace: true })
     } catch (error) {
       setErro(error.response?.data?.error || 'Não foi possível entrar.')
