@@ -30,6 +30,8 @@ const formatadorMes = new Intl.DateTimeFormat("pt-BR", {
   year: "numeric",
 });
 
+const LIMITE_HISTORICO_RECENTE = 6;
+
 function calcularStatus(despesa) {
   if (typeof despesa?.concluida === "boolean") {
     return despesa.concluida ? "concluida" : "nao_concluida";
@@ -97,6 +99,18 @@ function obterDataReferencia(despesa) {
   return obterDataValida(despesa?.dueDate) || obterDataValida(despesa?.criadaEm);
 }
 
+function obterDataRegistro(despesa) {
+  return obterDataValida(despesa?.criadaEm);
+}
+
+function obterChaveDia(data) {
+  return [
+    data.getFullYear(),
+    String(data.getMonth() + 1).padStart(2, "0"),
+    String(data.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
 function obterChaveMes(despesa) {
   const data = obterDataReferencia(despesa);
   if (!data) return "sem-data";
@@ -122,6 +136,13 @@ function ordenarPorDataReferencia(a, b) {
   const dataA = obterDataReferencia(a)?.getTime() || 0;
   const dataB = obterDataReferencia(b)?.getTime() || 0;
   return dataB - dataA;
+}
+
+function formatarMoeda(valor) {
+  return Number(valor || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
 }
 
 function despesaVencida(despesa) {
@@ -169,6 +190,120 @@ function agruparPorMes(despesas) {
     titulo: formatarMes(chave),
     itens,
   }));
+}
+
+function obterEstadoVazio(filtroAtivo, busca) {
+  if (busca.trim()) {
+    return {
+      titulo: "Nenhuma conta encontrada",
+      detalhe: "Tente buscar por outro nome, membro ou credor.",
+    };
+  }
+
+  if (filtroAtivo === "abertas") {
+    return {
+      titulo: "Nenhuma despesa aberta",
+      detalhe: "As contas pendentes do grupo aparecerão aqui.",
+    };
+  }
+
+  if (filtroAtivo === "minhas") {
+    return {
+      titulo: "Nenhuma pendência sua",
+      detalhe: "Quando você tiver algo para pagar, a conta aparece aqui.",
+    };
+  }
+
+  if (filtroAtivo === "vencidas") {
+    return {
+      titulo: "Nenhuma despesa vencida",
+      detalhe: "As contas fora do prazo aparecerão neste filtro.",
+    };
+  }
+
+  if (filtroAtivo === "concluidas") {
+    return {
+      titulo: "Nenhuma despesa concluída",
+      detalhe: "As contas finalizadas do grupo aparecerão aqui.",
+    };
+  }
+
+  return {
+    titulo: "Nenhuma conta encontrada",
+    detalhe: "Altere os filtros ou registre uma nova despesa.",
+  };
+}
+
+function obterMesMapaCalor(chaveMes) {
+  if (/^\d{4}-\d{2}$/.test(chaveMes)) {
+    const [ano, mes] = chaveMes.split("-").map(Number);
+    return { ano, mesIndex: mes - 1, chave: chaveMes };
+  }
+
+  const hoje = new Date();
+  return {
+    ano: hoje.getFullYear(),
+    mesIndex: hoje.getMonth(),
+    chave: `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}`,
+  };
+}
+
+function calcularNivelMapa(valor, maiorValor) {
+  if (!valor || !maiorValor) return 0;
+
+  const proporcao = valor / maiorValor;
+  if (proporcao >= 0.76) return 4;
+  if (proporcao >= 0.51) return 3;
+  if (proporcao >= 0.26) return 2;
+  return 1;
+}
+
+function montarMapaCalor(despesas, chaveMes) {
+  const { ano, mesIndex, chave } = obterMesMapaCalor(chaveMes);
+  const primeiroDia = new Date(ano, mesIndex, 1);
+  const diasNoMes = new Date(ano, mesIndex + 1, 0).getDate();
+  const totaisPorDia = new Map();
+
+  despesas.forEach((despesa) => {
+    const data = obterDataRegistro(despesa);
+    if (!data || data.getFullYear() !== ano || data.getMonth() !== mesIndex) return;
+
+    const chaveDia = obterChaveDia(data);
+    totaisPorDia.set(chaveDia, (totaisPorDia.get(chaveDia) || 0) + Number(despesa.total || 0));
+  });
+
+  const valores = [...totaisPorDia.values()];
+  const maiorValor = valores.length > 0 ? Math.max(...valores) : 0;
+  const totalMes = valores.reduce((total, valor) => total + valor, 0);
+  const maiorEntrada = [...totaisPorDia.entries()].sort(([, valorA], [, valorB]) => valorB - valorA)[0];
+  const celulas = [];
+
+  for (let i = 0; i < primeiroDia.getDay(); i += 1) {
+    celulas.push({ tipo: "vazio", id: `vazio-${i}` });
+  }
+
+  for (let dia = 1; dia <= diasNoMes; dia += 1) {
+    const data = new Date(ano, mesIndex, dia);
+    const chaveDia = obterChaveDia(data);
+    const valor = totaisPorDia.get(chaveDia) || 0;
+
+    celulas.push({
+      tipo: "dia",
+      id: chaveDia,
+      dia,
+      valor,
+      nivel: calcularNivelMapa(valor, maiorValor),
+    });
+  }
+
+  return {
+    titulo: formatarMes(chave),
+    totalMes,
+    maiorValor,
+    maiorDia: maiorEntrada ? Number(maiorEntrada[0].split("-")[2]) : null,
+    diasComDespesa: totaisPorDia.size,
+    celulas,
+  };
 }
 
 function normalizarDespesaComGrupo(despesa, grupo) {
@@ -357,6 +492,18 @@ export function Despesas({ grupoId, grupo }) {
   const gruposDespesas = useMemo(() => {
     return agruparPorMes(despesasVisiveis);
   }, [despesasVisiveis]);
+
+  const estadoVazio = useMemo(() => {
+    return obterEstadoVazio(filtroAtivo, busca);
+  }, [busca, filtroAtivo]);
+
+  const mapaCalor = useMemo(() => {
+    return montarMapaCalor(despesas, mesSelecionado);
+  }, [despesas, mesSelecionado]);
+
+  const historicoRecente = useMemo(() => {
+    return historico.slice(0, LIMITE_HISTORICO_RECENTE);
+  }, [historico]);
 
   const podeCarregarMais = quantidadeVisivel < despesasFiltradas.length;
 
@@ -622,8 +769,8 @@ export function Despesas({ grupoId, grupo }) {
           </div>
         ) : (
           <div className={styles.estadoVazio}>
-            <strong>Nenhuma conta encontrada</strong>
-            <span>Altere os filtros ou registre uma nova despesa.</span>
+            <strong>{estadoVazio.titulo}</strong>
+            <span>{estadoVazio.detalhe}</span>
           </div>
         )}
 
@@ -658,12 +805,85 @@ export function Despesas({ grupoId, grupo }) {
       </main>
 
       <aside className={styles.colunaLateral}>
+        <section className={styles.mapaCalor}>
+          <div className={styles.mapaCalorCabecalho}>
+            <div>
+              <h3 className={styles.mapaCalorTitle}>Mapa de calor</h3>
+              <p>{mapaCalor.titulo}</p>
+            </div>
+
+            <span>{formatarMoeda(mapaCalor.totalMes)}</span>
+          </div>
+
+          <div className={styles.mapaCalorResumo}>
+            <div>
+              <span>Maior dia</span>
+              <strong>
+                {mapaCalor.maiorDia
+                  ? `${String(mapaCalor.maiorDia).padStart(2, "0")} - ${formatarMoeda(mapaCalor.maiorValor)}`
+                  : "Sem despesas"}
+              </strong>
+            </div>
+            <div>
+              <span>Dias com despesa</span>
+              <strong>{mapaCalor.diasComDespesa}</strong>
+            </div>
+          </div>
+
+          <div className={styles.mapaCalorSemana}>
+            {["D", "S", "T", "Q", "Q", "S", "S"].map((dia, index) => (
+              <span key={`${dia}-${index}`}>{dia}</span>
+            ))}
+          </div>
+
+          <div className={styles.mapaCalorGrade}>
+            {mapaCalor.celulas.map((celula) => {
+              if (celula.tipo === "vazio") {
+                return <span key={celula.id} className={styles.mapaCalorVazio} />;
+              }
+
+              return (
+                <span
+                  key={celula.id}
+                  className={`${styles.mapaCalorDia} ${styles[`mapaCalorNivel${celula.nivel}`]}`}
+                  tabIndex={0}
+                  aria-label={`${String(celula.dia).padStart(2, "0")}: ${formatarMoeda(celula.valor)}`}
+                >
+                  {celula.dia}
+                  <span className={styles.mapaCalorTooltip}>
+                    <strong>Dia {String(celula.dia).padStart(2, "0")}</strong>
+                    <span>{formatarMoeda(celula.valor)}</span>
+                  </span>
+                </span>
+              );
+            })}
+          </div>
+
+          <div className={styles.mapaCalorLegenda}>
+            <span>Menor gasto</span>
+            <div>
+              {[0, 1, 2, 3, 4].map((nivel) => (
+                <span
+                  key={nivel}
+                  className={`${styles.mapaCalorLegendaItem} ${styles[`mapaCalorNivel${nivel}`]}`}
+                />
+              ))}
+            </div>
+            <span>Maior gasto</span>
+          </div>
+        </section>
+
         <section className={styles.historico}>
-          <h3 className={styles.historicoTitle}>Histórico</h3>
+          <div className={styles.historicoCabecalho}>
+            <h3 className={styles.historicoTitle}>Atividade recente</h3>
+            {historico.length > 0 && (
+              <span>Últimas {Math.min(historico.length, LIMITE_HISTORICO_RECENTE)}</span>
+            )}
+          </div>
 
           <div className={styles.historicoLista}>
-          {historico.length > 0 ? (
-            historico.map((item) => (
+          {historicoRecente.length > 0 ? (
+            historicoRecente.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -672,9 +892,7 @@ export function Despesas({ grupoId, grupo }) {
               >
                 <div>
                   <strong className={styles.historicoNome}>{item.nome}</strong>
-                  <p className={styles.historicoValor}>
-                    R$ {Number(item.valor).toFixed(2)}
-                  </p>
+                  <p className={styles.historicoValor}>{formatarMoeda(item.valor)}</p>
                   {item.dueDate && (
                     <p className={styles.historicoPrazo}>
                       Prazo: {String(item.dueDate).split("T")[0]}
