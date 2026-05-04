@@ -2,15 +2,23 @@ import { useCallback, useEffect, useState } from "react";
 import DespesaForm from "../../../components/DespesaForm";
 import DespesaCard from "../../../components/DespesaCard";
 import Button from "../../../components/Button";
+import { useUser } from "../../../hooks/useUser";
 import {
   atualizarContaGrupo,
   criarContaGrupo,
   listarContasDoGrupo,
-  marcarContaComoPaga,
 } from "../../../services/billService";
+import {
+  confirmarPagamentoComoDevedor,
+  confirmarRecebimentoComoCredor,
+  listarPendenciasDoGrupo,
+} from "../../../services/pendencyService";
 import styles from "./Despesas.module.css";
 
 function calcularStatus(despesa) {
+  if (typeof despesa?.concluida === "boolean") {
+    return despesa.concluida ? "concluida" : "nao_concluida";
+  }
   if (despesa?.paga) return "concluida";
 
   const membros = Array.isArray(despesa?.membros) ? despesa.membros : [];
@@ -40,11 +48,20 @@ function criarHistorico(despesas) {
     });
 }
 
+function nomeDoEmail(email) {
+  if (!email) return "Credor";
+  return email.split("@")[0];
+}
+
 function normalizarDespesaComGrupo(despesa, grupo) {
   const membrosGrupo = grupo?.membros || [];
+  const credorGrupo = membrosGrupo.find(
+    (item) => item.email === despesa.criadaPor || item.id === despesa.criadaPor
+  );
 
   return {
     ...despesa,
+    credorNome: credorGrupo?.nome || nomeDoEmail(despesa.criadaPor),
     membros: (despesa.membros || []).map((membro, index) => {
       const membroGrupo = membrosGrupo.find(
         (item) =>
@@ -66,7 +83,55 @@ function normalizarDespesaComGrupo(despesa, grupo) {
   };
 }
 
+function agruparPendenciasPorConta(pendencias) {
+  return pendencias.reduce((mapa, pendencia) => {
+    const pendenciasDaConta = mapa.get(pendencia.billId) || [];
+    pendenciasDaConta.push(pendencia);
+    mapa.set(pendencia.billId, pendenciasDaConta);
+    return mapa;
+  }, new Map());
+}
+
+function aplicarPendenciasNaDespesa(despesa, pendencias) {
+  const credorEmail = despesa.criadaPor;
+
+  const membros = despesa.membros.map((membro) => {
+    const pendencia = pendencias.find(
+      (item) => item.devedorEmail === membro.email
+    );
+    const ehCredor = membro.email === credorEmail;
+    const resolvida = pendencia ? pendencia.resolvida : Boolean(despesa.paga || ehCredor);
+
+    return {
+      ...membro,
+      papel: ehCredor ? "credor" : "devedor",
+      pendenciaId: pendencia?.id,
+      credorEmail,
+      devedorConfirmou: pendencia?.devedorConfirmou ?? false,
+      credorConfirmou: pendencia?.credorConfirmou ?? false,
+      resolvida,
+      pago: resolvida,
+    };
+  });
+
+  const devedores = membros.filter((membro) => membro.email !== credorEmail);
+  const concluida = Boolean(despesa.paga) || (
+    devedores.length === 0
+      ? true
+      : devedores.every((membro) => membro.resolvida)
+  );
+
+  return {
+    ...despesa,
+    credorEmail,
+    pendencias,
+    membros,
+    concluida,
+  };
+}
+
 export function Despesas({ grupoId, grupo }) {
+  const { usuario } = useUser();
   const [despesas, setDespesas] = useState([]);
   const [historico, setHistorico] = useState([]);
   const [modal, setModal] = useState({
@@ -77,6 +142,7 @@ export function Despesas({ grupoId, grupo }) {
   });
   const [carregando, setCarregando] = useState(false);
   const [salvando, setSalvando] = useState(false);
+  const [confirmandoPendenciaId, setConfirmandoPendenciaId] = useState(null);
   const [erro, setErro] = useState("");
 
   const carregarContas = useCallback(async () => {
@@ -86,11 +152,20 @@ export function Despesas({ grupoId, grupo }) {
     setErro("");
 
     try {
-      const contas = await listarContasDoGrupo(grupoId);
-      const contasNormalizadas = contas.map((conta) =>
-        normalizarDespesaComGrupo(conta, grupo)
-      );
-      const contasAbertas = contasNormalizadas.filter((conta) => !conta.paga);
+      const [contas, pendencias] = await Promise.all([
+        listarContasDoGrupo(grupoId),
+        listarPendenciasDoGrupo(grupoId),
+      ]);
+      const pendenciasPorConta = agruparPendenciasPorConta(pendencias);
+      const contasNormalizadas = contas
+        .map((conta) => normalizarDespesaComGrupo(conta, grupo))
+        .map((conta) =>
+          aplicarPendenciasNaDespesa(
+            conta,
+            pendenciasPorConta.get(conta.id) || []
+          )
+        );
+      const contasAbertas = contasNormalizadas.filter((conta) => !conta.concluida);
 
       setDespesas(contasAbertas);
       setHistorico(criarHistorico(contasNormalizadas));
@@ -175,21 +250,37 @@ export function Despesas({ grupoId, grupo }) {
     }
   }
 
-  async function concluirDespesa(indice) {
-    const despesa = despesas[indice];
+  async function confirmarPagamentoMembro(membro) {
     setErro("");
 
-    if (!despesa?.id) {
-      setErro("Conta não encontrada para concluir.");
+    if (!membro?.pendenciaId) {
+      setErro("Pendência não encontrada para confirmar.");
       return;
     }
 
+    const usuarioEmail = usuario?.email;
+    const ehDevedor = membro.email === usuarioEmail;
+    const ehCredor = membro.credorEmail === usuarioEmail;
+
+    if (!ehDevedor && !ehCredor) {
+      setErro("Apenas o credor ou o devedor podem confirmar este pagamento.");
+      return;
+    }
+
+    setConfirmandoPendenciaId(membro.pendenciaId);
     try {
-      await marcarContaComoPaga(despesa.id);
+      if (ehCredor) {
+        await confirmarRecebimentoComoCredor(membro.pendenciaId);
+      } else {
+        await confirmarPagamentoComoDevedor(membro.pendenciaId);
+      }
+
       await carregarContas();
       fecharModal();
     } catch (error) {
-      setErro(error.response?.data?.error || "Não foi possível concluir a conta.");
+      setErro(error.response?.data?.error || "Não foi possível confirmar o pagamento.");
+    } finally {
+      setConfirmandoPendenciaId(null);
     }
   }
 
@@ -225,7 +316,9 @@ export function Despesas({ grupoId, grupo }) {
               onOpen={() => abrirDetalhe(d, i)}
               onClose={fecharModal}
               onEdit={() => abrirEdicao(d, i)}
-              onDelete={() => concluirDespesa(i)}
+              onConfirmarPagamento={confirmarPagamentoMembro}
+              usuarioEmail={usuario?.email}
+              confirmandoPendenciaId={confirmandoPendenciaId}
             />
           ))}
         </div>

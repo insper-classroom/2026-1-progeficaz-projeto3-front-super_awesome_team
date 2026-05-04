@@ -25,13 +25,16 @@ export default function DespesaCard({
   onOpen,
   onClose,
   onEdit,
-  onDelete,
+  onConfirmarPagamento,
+  usuarioEmail,
+  confirmandoPendenciaId,
 }) {
   const membros = useMemo(
     () => (Array.isArray(despesa?.membros) ? despesa.membros : []),
     [despesa]
   );
   const total = Number(despesa?.total ?? 0) || 0;
+  const podeEditar = usuarioEmail && usuarioEmail === despesa?.credorEmail;
 
   const membrosColoridos = useMemo(
     () =>
@@ -67,6 +70,25 @@ export default function DespesaCard({
     return pagos;
   }, [membrosColoridos, total]);
 
+  function textoStatusMembro(membro) {
+    if (membro.papel === "credor") return "Credor";
+    if (membro.resolvida) return "Pago";
+    if (membro.devedorConfirmou && !membro.credorConfirmou) return "Aguardando credor";
+    if (membro.credorConfirmou && !membro.devedorConfirmou) return "Aguardando devedor";
+    return "Pendente";
+  }
+
+  function textoAcaoMembro(membro) {
+    if (!membro.pendenciaId || membro.resolvida) return null;
+    if (membro.email === usuarioEmail && !membro.devedorConfirmou) {
+      return "Confirmar pagamento";
+    }
+    if (membro.credorEmail === usuarioEmail && !membro.credorConfirmou) {
+      return "Confirmar recebimento";
+    }
+    return null;
+  }
+
   return (
     <>
       <button type="button" className={styles.card} onClick={onOpen}>
@@ -87,6 +109,11 @@ export default function DespesaCard({
                 <p className={styles.modalSubtitle}>
                   {formatarMoeda(total)} • {percentualPago.toFixed(0)}% pago
                 </p>
+                {despesa?.credorEmail && (
+                  <p className={styles.modalSubtitle}>
+                    Credor: {despesa.credorNome || despesa.credorEmail}
+                  </p>
+                )}
               </div>
 
               <button
@@ -136,6 +163,8 @@ export default function DespesaCard({
                     const valor = Number(m.valor || 0);
                     const pago = m.pago ? valor : 0;
                     const restante = Math.max(valor - pago, 0);
+                    const textoAcao = textoAcaoMembro(m);
+                    const confirmando = confirmandoPendenciaId === m.pendenciaId;
 
                     return (
                       <div key={i} className={styles.memberRow}>
@@ -150,18 +179,46 @@ export default function DespesaCard({
 
                             <div>
                               <strong>{m.nome}</strong>
-                              <p>Deve {formatarMoeda(valor)}</p>
+                              <p>
+                                {m.papel === "credor" ? "Credor" : "Deve"}{" "}
+                                {formatarMoeda(valor)}
+                              </p>
                             </div>
                           </div>
 
                           <span
                             className={
-                              m.pago ? styles.badgePago : styles.badgePendente
+                              m.pago || m.papel === "credor"
+                                ? styles.badgePago
+                                : styles.badgePendente
                             }
                           >
-                            {m.pago ? "Pago" : "Não pago"}
+                            {textoStatusMembro(m)}
                           </span>
                         </div>
+
+                        {m.papel !== "credor" && (
+                          <div className={styles.confirmationRow}>
+                            <span
+                              className={
+                                m.devedorConfirmou
+                                  ? styles.confirmacaoOk
+                                  : styles.confirmacaoPendente
+                              }
+                            >
+                              Devedor
+                            </span>
+                            <span
+                              className={
+                                m.credorConfirmou
+                                  ? styles.confirmacaoOk
+                                  : styles.confirmacaoPendente
+                              }
+                            >
+                              Credor
+                            </span>
+                          </div>
+                        )}
 
                         <div className={styles.progressBar}>
                           <div
@@ -184,17 +241,27 @@ export default function DespesaCard({
                           <span>Pago: {formatarMoeda(pago)}</span>
                           <span>Falta: {formatarMoeda(restante)}</span>
                         </div>
+
+                        {textoAcao && (
+                          <button
+                            type="button"
+                            className={styles.memberAction}
+                            onClick={() => onConfirmarPagamento(m)}
+                            disabled={confirmando}
+                          >
+                            {confirmando ? "Confirmando..." : textoAcao}
+                          </button>
+                        )}
                       </div>
                     );
                   })}
                 </div>
 
-                <div className={styles.actions}>
-                  <Button onClick={onEdit}>Editar</Button>
-                  <Button variant="secondary" onClick={onDelete}>
-                    Concluído
-                  </Button>
-                </div>
+                {podeEditar && (
+                  <div className={styles.actions}>
+                    <Button onClick={onEdit}>Editar</Button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

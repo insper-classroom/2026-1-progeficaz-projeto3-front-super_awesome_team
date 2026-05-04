@@ -115,13 +115,6 @@ export default function DespesaForm({
     setErro("");
   }
 
-  function togglePago(i, checked) {
-    const novos = [...membros];
-    novos[i].pago = checked;
-    setMembros(novos);
-    setErro("");
-  }
-
   function adicionarMembro() {
     const emailsSelecionados = membros.map((membro) => membro.email);
     const proximoMembro = opcoesMembros.find(
@@ -200,7 +193,6 @@ export default function DespesaForm({
         nome: membro.nome,
         valor: Number(membro.valor || 0),
         percentual: Number(membro.percentual || 0),
-        pago: Boolean(membro.pago),
         cor: membro.cor,
       })),
     });
@@ -304,16 +296,6 @@ export default function DespesaForm({
             >
               X
             </button>
-            {modo === "edit" && (
-              <label className={styles.pagoCheckbox}>
-                <input
-                  type="checkbox"
-                  checked={m.pago || false}
-                  onChange={(e) => togglePago(i, e.target.checked)}
-                />
-                Pago
-              </label>
-            )}
           </div>
         ))}
 

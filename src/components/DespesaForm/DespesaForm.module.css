@@ -130,15 +130,6 @@
   color: var(--negative);
 }
 
-.pagoCheckbox {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  color: var(--text);
-  margin-left: auto;
-}
-
 .actions {
   display: flex;
   justify-content: flex-end;
@@ -154,12 +145,4 @@ input[type="number"]::-webkit-inner-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
-}
-
-.pagoCheckboxRight {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-  color: var(--text);
 }

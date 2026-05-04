@@ -5,12 +5,14 @@ export default function Button({
   variant = "primary",
   onClick,
   type = "button",
+  disabled = false,
 }) {
   return (
     <button
       type={type}
       className={`${styles.button} ${styles[variant] || styles.primary}`}
       onClick={onClick}
+      disabled={disabled}
     >
       {children}
     </button>
