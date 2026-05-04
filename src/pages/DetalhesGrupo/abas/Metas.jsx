@@ -1,5 +1,5 @@
 // Aba de metas do grupo: resumo, carrossel de metas e registro de aportes.
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FiEdit2 } from 'react-icons/fi'
 import { useMetas } from '../../../hooks/useMetas'
 import GraficoAportes from '../../../components/GraficoAportes'
@@ -106,18 +106,30 @@ function obterDescricaoMeta(meta, percentual) {
   return `${percentual}% concluído. Faltam ${falta} para atingir o objetivo.`
 }
 
-export function Metas({ grupoId }) {
+function idsIguais(idA, idB) {
+  return idA != null && idB != null && String(idA) === String(idB)
+}
+
+export function Metas({ grupoId, metaInicialId = null }) {
   const { data, loading, criarMeta, atualizarMeta, registrarAporte, usandoMock } = useMetas(grupoId)
+  const destaqueRef = useRef(null)
 
   // Guarda a meta escolhida para destacar o card e alimentar as próximas seções.
-  const [metaSelecionadaId, setMetaSelecionadaId] = useState(null)
+  const [metaSelecionadaId, setMetaSelecionadaId] = useState(metaInicialId)
   const [indiceCarrossel, setIndiceCarrossel] = useState(0)
+  const [usuarioMoveuCarrossel, setUsuarioMoveuCarrossel] = useState(false)
   const [periodoAportes, setPeriodoAportes] = useState('6m')
 
   // Controla qual modal está aberto e qual meta está sendo manipulada.
   const [modalAberto, setModalAberto] = useState(null) // 'novaMeta' | 'editarMeta' | 'aporte'
   const [metaDoModal, setMetaDoModal] = useState(null)
   const [erroOperacao, setErroOperacao] = useState('')
+
+  useEffect(() => {
+    if (metaInicialId && data?.metas?.length) {
+      destaqueRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [data?.metas?.length, metaInicialId])
 
   if (loading || !data) return <div className={styles.carregando}>Carregando...</div>
 
@@ -209,15 +221,24 @@ export function Metas({ grupoId }) {
 
   // Garante que sempre há uma meta selecionada válida, mesmo se a lista mudar.
   let metaSelecionadaIdAtual = metas[0].id
-  if (metas.some((meta) => meta.id === metaSelecionadaId)) {
+  if (metas.some((meta) => idsIguais(meta.id, metaSelecionadaId))) {
     metaSelecionadaIdAtual = metaSelecionadaId
   }
 
   const totalVisivel = 2
   const indiceMaximo = Math.max(0, metas.length - totalVisivel)
-  const podeVoltar = indiceCarrossel > 0
-  const podeAvancar = indiceCarrossel < indiceMaximo
-  const metasVisiveis = metas.slice(indiceCarrossel, indiceCarrossel + totalVisivel)
+  const indiceMetaSelecionada = metas.findIndex((meta) => idsIguais(meta.id, metaSelecionadaIdAtual))
+
+  let indiceCarrosselAtual = indiceCarrossel
+  const metaSelecionadaForaDaJanela = indiceMetaSelecionada < indiceCarrossel ||
+    indiceMetaSelecionada >= indiceCarrossel + totalVisivel
+  if (metaInicialId && !usuarioMoveuCarrossel && metaSelecionadaForaDaJanela) {
+    indiceCarrosselAtual = Math.min(indiceMetaSelecionada, indiceMaximo)
+  }
+
+  const podeVoltar = indiceCarrosselAtual > 0
+  const podeAvancar = indiceCarrosselAtual < indiceMaximo
+  const metasVisiveis = metas.slice(indiceCarrosselAtual, indiceCarrosselAtual + totalVisivel)
 
   const textoMetasAtivas = pluralizar(metas.length, 'meta ativa', 'metas ativas')
   const textoMembros = pluralizar(membros.length, 'membro', 'membros')
@@ -230,7 +251,7 @@ export function Metas({ grupoId }) {
   }
 
   // Dados da meta atualmente selecionada para o card de destaque e painel de aporte.
-  const metaSelecionada = metas.find((meta) => meta.id === metaSelecionadaIdAtual)
+  const metaSelecionada = metas.find((meta) => idsIguais(meta.id, metaSelecionadaIdAtual))
   const percentualSelecionada = calcularPercentual(metaSelecionada)
 
   // '—' como fallback até o backend retornar o campo aporteIdeal.
@@ -241,7 +262,7 @@ export function Metas({ grupoId }) {
 
   // Fecha sobre metaSelecionadaIdAtual, por isso fica dentro do componente.
   function classeCardMeta(meta) {
-    if (meta.id === metaSelecionadaIdAtual) return `${styles.cardMeta} ${styles.cardMetaAtivo}`
+    if (idsIguais(meta.id, metaSelecionadaIdAtual)) return `${styles.cardMeta} ${styles.cardMetaAtivo}`
     return styles.cardMeta
   }
 
@@ -296,7 +317,10 @@ export function Metas({ grupoId }) {
             <button
               type="button"
               className={`${styles.setaCarrossel} ${styles.setaAnterior}`}
-              onClick={() => setIndiceCarrossel(indiceCarrossel - 1)}
+              onClick={() => {
+                setUsuarioMoveuCarrossel(true)
+                setIndiceCarrossel(indiceCarrosselAtual - 1)
+              }}
               disabled={!podeVoltar}
               aria-label="Metas anteriores"
             >
@@ -317,7 +341,7 @@ export function Metas({ grupoId }) {
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setMetaSelecionadaId(meta.id) }}
                     role="button"
                     tabIndex={0}
-                    aria-pressed={meta.id === metaSelecionadaIdAtual}
+                    aria-pressed={idsIguais(meta.id, metaSelecionadaIdAtual)}
                   >
                     <div className={styles.topoMeta}>
                       <div className={styles.blocoTituloMeta}>
@@ -392,7 +416,10 @@ export function Metas({ grupoId }) {
             <button
               type="button"
               className={`${styles.setaCarrossel} ${styles.setaProxima}`}
-              onClick={() => setIndiceCarrossel(indiceCarrossel + 1)}
+              onClick={() => {
+                setUsuarioMoveuCarrossel(true)
+                setIndiceCarrossel(indiceCarrosselAtual + 1)
+              }}
               disabled={!podeAvancar}
               aria-label="Próximas metas"
             >
@@ -403,7 +430,7 @@ export function Metas({ grupoId }) {
       </section>
 
       {/* Spotlight da meta selecionada + painel de próximo aporte */}
-      <section className={styles.destaqueGrid}>
+      <section className={styles.destaqueGrid} ref={destaqueRef}>
 
         <article className={styles.cardDestaque}>
           <div>

@@ -1,5 +1,5 @@
 // Carrossel de metas do grupo: 3 cards visíveis, setas anterior/próximo, barra de progresso.
-// Aceita onVerMetas para navegar para a aba de Metas ao clicar em "ver metas ↗".
+// Aceita onVerMetas para navegar para a aba de Metas.
 import { useState, useRef, useLayoutEffect } from 'react'
 import IconeMeta from '../IconeMeta'
 import styles from './CarouselMetas.module.css'
@@ -92,8 +92,15 @@ export default function CarouselMetas({ metas = [], onVerMetas }) {
                       <div className={styles.nome}>{meta.nome}</div>
                       <div className={styles.prazo}>Prazo: {meta.prazo}</div>
                     </div>
-                    {/* Link ainda sem rota — será conectado quando a página de meta existir */}
-                    <span className={styles.verMeta}>ver meta ↗</span>
+                    {onVerMetas && (
+                      <button
+                        type="button"
+                        className={styles.verMeta}
+                        onClick={() => onVerMetas(meta.id)}
+                      >
+                        ver meta ↗
+                      </button>
+                    )}
                   </div>
 
                   {/* Progresso */}

@@ -20,6 +20,7 @@ export function DetalhesGrupo() {
 
   // controla qual aba esta visivel
   const [abaAtiva, setAbaAtiva] = useState('visaoGeral')
+  const [metaInicialId, setMetaInicialId] = useState(null)
 
   useEffect(() => {
     async function carregarGrupo() {
@@ -34,11 +35,16 @@ export function DetalhesGrupo() {
     carregarGrupo()
   }, [id])
 
+  function abrirAbaMetas(metaId = null) {
+    setMetaInicialId(metaId)
+    setAbaAtiva('metas')
+  }
+
   // renderiza o conteudo conforme a aba selecionada
   function renderizaAba() {
-    if (abaAtiva === 'visaoGeral') return <VisaoGeral grupoId={id} onVerMetas={() => setAbaAtiva('metas')} onVerDespesas={() => setAbaAtiva('despesas')} />
+    if (abaAtiva === 'visaoGeral') return <VisaoGeral grupoId={id} onVerMetas={abrirAbaMetas} onVerDespesas={() => setAbaAtiva('despesas')} />
     if (abaAtiva === 'despesas') return <Despesas grupoId={id} grupo={grupo || data?.grupo} />
-    if (abaAtiva === 'metas') return <Metas grupoId={id} />
+    if (abaAtiva === 'metas') return <Metas grupoId={id} metaInicialId={metaInicialId} />
   }
 
   // retorna o estilo certo para cada aba
@@ -63,7 +69,7 @@ export function DetalhesGrupo() {
           Despesas
         </button>
 
-        <button className={classeAba('metas')} onClick={() => setAbaAtiva('metas')}>
+        <button className={classeAba('metas')} onClick={() => abrirAbaMetas()}>
           Metas
         </button>
       </div>
