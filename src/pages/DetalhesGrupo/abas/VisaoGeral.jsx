@@ -18,14 +18,16 @@ const periodos = [
 
 export function VisaoGeral({ grupoId, onVerMetas, onVerDespesas }) {
   const [periodo, setPeriodo] = useState('30d')
-  const { data, loading } = useVisaoGeral(grupoId, periodo)
+  const { data, loading, error } = useVisaoGeral(grupoId, periodo)
 
   function classePeriodo(valor) {
     if (periodo === valor) return `${styles.btnPeriodo} ${styles.btnPeriodoAtivo}`
     return styles.btnPeriodo
   }
 
-  if (loading || !data) return <div className={styles.carregando}>Carregando...</div>
+  if (loading) return <div className={styles.carregando}>Carregando...</div>
+  if (error) return <div className={styles.carregando}>Não foi possível carregar a visão geral.</div>
+  if (!data) return <div className={styles.carregando}>Nenhum dado disponível.</div>
 
   return (
     <div className={styles.container}>

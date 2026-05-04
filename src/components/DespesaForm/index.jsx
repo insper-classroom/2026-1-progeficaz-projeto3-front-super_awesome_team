@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import Button from "../Button";
-import { membrosMock } from "../../mocks/membrosMock";
 import styles from "./DespesaForm.module.css";
 
 const membrosVazios = [];
@@ -59,8 +58,7 @@ export default function DespesaForm({
   const [erro, setErro] = useState("");
 
   const opcoesMembros = useMemo(() => {
-    const origem = membrosDoGrupo.length ? membrosDoGrupo : membrosMock;
-    return origem.map(normalizarOpcaoMembro);
+    return membrosDoGrupo.map(normalizarOpcaoMembro);
   }, [membrosDoGrupo]);
 
   useEffect(() => {
@@ -168,6 +166,11 @@ export default function DespesaForm({
       0
     );
 
+    if (opcoesMembros.length === 0) {
+      setErro("Não foi possível carregar os membros do grupo.");
+      return;
+    }
+
     if (!nome.trim()) {
       setErro("Informe o nome da despesa.");
       return;
@@ -211,6 +214,9 @@ export default function DespesaForm({
         </h3>
 
         {erro && <p className={styles.erro}>{erro}</p>}
+        {opcoesMembros.length === 0 && (
+          <p className={styles.erro}>Carregue os membros do grupo antes de criar despesas.</p>
+        )}
 
         <input
           className={styles.input}
@@ -234,8 +240,8 @@ export default function DespesaForm({
           <h4>Membros</h4>
 
           <div className={styles.membersActions}>
-            <Button onClick={adicionarMembro}>+ Adicionar</Button>
-            <Button onClick={dividirIgual}>Dividir igualmente</Button>
+            <Button onClick={adicionarMembro} disabled={opcoesMembros.length === 0}>+ Adicionar</Button>
+            <Button onClick={dividirIgual} disabled={opcoesMembros.length === 0}>Dividir igualmente</Button>
           </div>
         </div>
 
@@ -316,7 +322,7 @@ export default function DespesaForm({
             Cancelar
           </Button>
 
-          <Button onClick={salvar} disabled={salvando}>
+          <Button onClick={salvar} disabled={salvando || opcoesMembros.length === 0}>
             {salvando
               ? "Salvando..."
               : modo === "edit"

@@ -86,7 +86,7 @@ export default function InsightCard({ totalAtual, totalAnterior, categorias, per
   const temComparacao = variacaoPct !== null
   const gastouMenos = temComparacao && variacaoPct < 0
 
-  // Maior categoria já vem ordenada por valor no mock/API
+  // Maior categoria já vem ordenada por valor nos dados da visão geral
   const maiorCategoria = categorias?.[0]
 
   const { frase, topicos } = gerarTextoInsight(variacaoPct, maiorCategoria?.nome ?? '', totalAtual)

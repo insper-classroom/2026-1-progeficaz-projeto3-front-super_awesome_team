@@ -14,26 +14,13 @@ export function DetalhesGrupo() {
   // pega o id do grupo pela URL (ex: /grupos/123)
   const { id } = useParams()
 
-  // busca os dados do grupo (mock por enquanto, troca pela API depois)
+  // busca os dados do grupo para o cabeçalho e abas
   const { data } = useVisaoGeral(id)
   const [grupo, setGrupo] = useState(null)
 
   // controla qual aba esta visivel
   const [abaAtiva, setAbaAtiva] = useState('visaoGeral')
   const [metaInicialId, setMetaInicialId] = useState(null)
-
-  useEffect(() => {
-    async function carregarGrupo() {
-      try {
-        const grupoCarregado = await buscarGrupo(id)
-        setGrupo(grupoCarregado)
-      } catch {
-        setGrupo(null)
-      }
-    }
-
-    carregarGrupo()
-  }, [id])
 
   function abrirAbaMetas(metaId = null) {
     setMetaInicialId(metaId)

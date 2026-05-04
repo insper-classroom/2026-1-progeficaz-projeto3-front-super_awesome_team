@@ -1,4 +1,4 @@
-// Icone visual da meta: traduz as metas conhecidas do mockup para icones vetoriais.
+// Icone visual da meta: traduz nomes e chaves conhecidas para icones vetoriais.
 import {
   FiBookOpen,
   FiGlobe,

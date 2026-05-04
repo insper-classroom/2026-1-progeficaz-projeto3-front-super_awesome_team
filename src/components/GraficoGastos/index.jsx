@@ -17,7 +17,7 @@ const textoPorPeriodo = {
   '1a':  { atual: 'este ano',       anterior: 'ano anterior'       },
 }
 
-// Transforma os arrays do mock em objetos que o Recharts entende
+// Transforma os arrays de evolução em objetos que o Recharts entende
 function prepararDados(evolucao) {
   return evolucao.curr.map((valor, i) => ({
     idx: i,

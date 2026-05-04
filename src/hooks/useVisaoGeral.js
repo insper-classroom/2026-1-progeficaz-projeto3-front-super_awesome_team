@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { listarContasDoGrupo } from '../services/billService'
 import { listarMetasDoGrupo } from '../services/goalService'
 import { buscarGrupo } from '../services/groupService'
-import { getMockVisaoGeral } from '../services/mockData'
 import { getCurrentUser } from '../services/userService'
 import { calcularVariacaoPercentual } from '../utils/variacaoFinanceira'
 import { normalizarDadosMetas } from './useMetas'
@@ -195,8 +194,7 @@ function calcularVoceDeve(contas, emailUsuario) {
   }, 0)
 }
 
-function montarVisaoGeralDoBackend(grupoId, periodo, contas, usuario, metas) {
-  const mock = getMockVisaoGeral(grupoId, periodo)
+function montarVisaoGeralDoBackend(grupoId, periodo, contas, usuario, metas, grupo) {
   const periodoConfig = configuracaoPeriodo[periodo] || configuracaoPeriodo['30d']
   const dadosPeriodo = periodoConfig.tipo === 'meses'
     ? montarEvolucaoPorMeses(contas, periodoConfig)
@@ -204,11 +202,7 @@ function montarVisaoGeralDoBackend(grupoId, periodo, contas, usuario, metas) {
   const { categorias, categoriasPrev } = agruparCategorias(dadosPeriodo.atual, dadosPeriodo.anterior)
 
   return {
-    ...mock,
-    grupo: {
-      ...mock.grupo,
-      id: grupoId,
-    },
+    grupo: grupo || { id: grupoId, nome: 'Grupo', membros: [] },
     totalAtual: somarValores(dadosPeriodo.atual),
     totalAnterior: somarValores(dadosPeriodo.anterior),
     voceDeVe: calcularVoceDeve(contas, usuario?.email),
@@ -246,11 +240,10 @@ export function useVisaoGeral(grupoId, periodo = '30d') {
         const metas = normalizarDadosMetas(grupo, goals).metas
 
         if (!ativo) return
-        setData(montarVisaoGeralDoBackend(grupoId, periodo, contas, usuario, metas))
+        setData(montarVisaoGeralDoBackend(grupoId, periodo, contas, usuario, metas, grupo))
       } catch (err) {
         if (!ativo) return
-        // Fallback mantido: se a API de contas/metas falhar, a visão geral continua usando mockData.
-        setData(getMockVisaoGeral(grupoId, periodo))
+        setData(null)
         setError(err)
       } finally {
         if (ativo) setLoading(false)
