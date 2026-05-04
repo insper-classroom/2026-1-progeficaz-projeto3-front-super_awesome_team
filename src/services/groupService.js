@@ -26,6 +26,7 @@ function normalizarMembro(membro, index) {
 
 export function normalizarGrupo(grupo) {
   const membros = grupo.member_details || grupo.members || []
+  const imagem = decodeImageFromBase64(grupo.image || grupo.imagem) || '/casa.jpg'
 
   return {
     id: grupo._id,
@@ -33,8 +34,7 @@ export function normalizarGrupo(grupo) {
     desc: grupo.description || `${membros.length} membros`,
     descricao: grupo.description,
     membros: membros.map(normalizarMembro),
-    imagem: grupo.image || grupo.imagem || '/casa.jpg',
-    imagem: decodeImageFromBase64(grupo.image) || '/casa.jpg',
+    imagem,
     raw: grupo,
   }
 }
