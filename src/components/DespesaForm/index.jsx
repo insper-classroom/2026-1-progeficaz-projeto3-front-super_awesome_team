@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import Button from "../Button";
+import { FiPlus, FiTrash2, FiX } from "react-icons/fi";
 import styles from "./DespesaForm.module.css";
 
 const membrosVazios = [];
@@ -56,6 +56,7 @@ export default function DespesaForm({
   initialData,
   modo = "create",
   salvando = false,
+  erroExterno = "",
 }) {
   const [nome, setNome] = useState("");
   const [total, setTotal] = useState("");
@@ -92,6 +93,15 @@ export default function DespesaForm({
       setErro("");
     });
   }, [initialData, modo, opcoesMembros]);
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === "Escape") onClose();
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
 
   function handleValor(i, valor) {
     const totalNum = Number(total);
@@ -157,7 +167,9 @@ export default function DespesaForm({
     setErro("");
   }
 
-  function salvar() {
+  function salvar(e) {
+    e.preventDefault();
+
     const totalNum = Number(total) || 0;
     const membrosComValor = membros.filter(
       (membro) => membro.email && Number(membro.valor || 0) > 0
@@ -207,6 +219,7 @@ export default function DespesaForm({
     });
   }
 
+  const mensagemErro = erroExterno || erro;
   return (
     <div className={styles.overlay}>
       <div className={styles.container}>
@@ -250,87 +263,197 @@ export default function DespesaForm({
         <div className={styles.membersHeader}>
           <h4>Membros</h4>
 
-          <div className={styles.membersActions}>
-            <Button onClick={adicionarMembro} disabled={opcoesMembros.length === 0}>+ Adicionar</Button>
-            <Button onClick={dividirIgual} disabled={opcoesMembros.length === 0}>Dividir igualmente</Button>
-          </div>
+  return (
+    <div className={styles.overlay} onClick={onClose}>
+      <div
+        className={styles.modal}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={modo === "edit" ? "Editar despesa" : "Nova despesa"}
+      >
+        <div className={styles.cabecalho}>
+          <h2 className={styles.title}>
+            {modo === "edit" ? "Editar despesa" : "Nova despesa"}
+          </h2>
+          <button type="button" className={styles.botaoFechar} onClick={onClose} aria-label="Fechar">
+            <FiX />
+          </button>
         </div>
 
-        {membros.map((m, i) => (
-          <div key={i} className={styles.memberRow}>
-            <div className={styles.avatar}>
-              {m.nome ? m.nome.charAt(0) : "?"}
+        <form className={styles.form} onSubmit={salvar}>
+          {mensagemErro && (
+            <div className={styles.erro} role="alert">
+              {mensagemErro}
             </div>
+          )}
+          {opcoesMembros.length === 0 && (
+            <div className={styles.erro} role="alert">
+              Carregue os membros do grupo antes de criar despesas.
+            </div>
+          )}
 
-            <select
-              className={styles.select}
-              value={m.email}
-              onChange={(e) => {
-                const novos = [...membros];
-                const membroSelecionado = opcoesMembros.find(
-                  (opcao) => opcao.email === e.target.value
-                );
-                if (!membroSelecionado) return;
-                novos[i] = {
-                  ...novos[i],
-                  email: membroSelecionado.email,
-                  nome: membroSelecionado.nome,
-                  cor: membroSelecionado.cor,
-                };
-                setMembros(novos);
-              }}
-            >
-              <option value="">Selecionar</option>
-              {opcoesMembros.map((membro) => (
-                <option key={membro.email} value={membro.email}>
-                  {membro.nome}
-                </option>
-              ))}
-            </select>
+          <div className={styles.grupo}>
+            <label className={styles.rotulo}>Nome da despesa</label>
+            <input
+              className={styles.input}
+              placeholder="Ex: Mercado"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              autoFocus
+              required
+            />
+          </div>
 
-            <div className={styles.field}>
-              <span className={styles.prefix}>R$</span>
+          <div className={styles.grupo}>
+            <label className={styles.rotulo}>Valor total</label>
+            <div className={styles.inputComPrefixo}>
+              <span className={styles.prefixo}>R$</span>
               <input
-                className={`${styles.input} ${styles.inputPrefix}`}
+                className={styles.inputSemBorda}
                 type="number"
-                value={m.valor || ""}
-                onChange={(e) => handleValor(i, e.target.value)}
+                min="1"
+                step="0.01"
+                placeholder="0"
+                value={total}
+                onChange={(e) => setTotal(e.target.value)}
+                required
               />
             </div>
+          </div>
 
-            <div className={styles.field}>
-              <span className={styles.prefix}>%</span>
-              <input
-                className={`${styles.input} ${styles.inputPrefix}`}
-                type="number"
-                value={m.percentual || ""}
-                onChange={(e) => handlePercentual(i, e.target.value)}
-              />
+          <div className={styles.membersHeader}>
+            <span className={styles.tituloSecao}>Membros</span>
+
+            <div className={styles.membersActions}>
+              <button
+                type="button"
+                className={styles.botaoTexto}
+                onClick={adicionarMembro}
+                disabled={opcoesMembros.length === 0}
+              >
+                <FiPlus />
+                Adicionar
+              </button>
+              <button
+                type="button"
+                className={styles.botaoTexto}
+                onClick={dividirIgual}
+                disabled={opcoesMembros.length === 0}
+              >
+                Dividir igualmente
+              </button>
             </div>
+          </div>
+
+          <div className={styles.memberList}>
+            {membros.map((m, i) => (
+              <div key={i} className={styles.memberRow}>
+                <div className={styles.avatar} style={{ backgroundColor: m.cor }}>
+                  {m.nome ? m.nome.charAt(0) : "?"}
+                </div>
+
+                <div className={styles.campoMembro}>
+                  <label className={styles.rotuloLinha}>Membro</label>
+                  <select
+                    className={styles.select}
+                    value={m.email}
+                    onChange={(e) => {
+                      const novos = [...membros];
+                      const membroSelecionado = opcoesMembros.find(
+                        (opcao) => opcao.email === e.target.value
+                      );
+                      if (!membroSelecionado) return;
+                      novos[i] = {
+                        ...novos[i],
+                        email: membroSelecionado.email,
+                        nome: membroSelecionado.nome,
+                        cor: membroSelecionado.cor,
+                      };
+                      setMembros(novos);
+                    }}
+                  >
+                    <option value="">Selecionar</option>
+                    {opcoesMembros.map((membro) => (
+                      <option key={membro.email} value={membro.email}>
+                        {membro.nome}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className={styles.campoMembro}>
+                  <label className={styles.rotuloLinha}>Valor</label>
+                  <div className={styles.inputComPrefixo}>
+                    <span className={styles.prefixo}>R$</span>
+                    <input
+                      className={styles.inputSemBorda}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={m.valor || ""}
+                      onChange={(e) => handleValor(i, e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.campoMembro}>
+                  <label className={styles.rotuloLinha}>Percentual</label>
+                  <div className={styles.inputComPrefixo}>
+                    <span className={styles.prefixo}>%</span>
+                    <input
+                      className={styles.inputSemBorda}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={m.percentual || ""}
+                      onChange={(e) => handlePercentual(i, e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                {modo === "edit" && (
+                  <label className={styles.pagoCheckbox}>
+                    <input
+                      type="checkbox"
+                      checked={m.pago || false}
+                      onChange={(e) => togglePago(i, e.target.checked)}
+                    />
+                    Pago
+                  </label>
+                )}
+
+                <button
+                  className={styles.removeBtn}
+                  onClick={() => removerMembro(i)}
+                  type="button"
+                  aria-label="Remover membro"
+                  disabled={membros.length === 1}
+                >
+                  <FiTrash2 />
+                </button>
+              </div>
+            ))}
+          </div>
+
+          <div className={styles.actions}>
+            <button type="button" className={styles.botaoCancelar} onClick={onClose}>
+              Cancelar
+            </button>
 
             <button
-              className={styles.removeBtn}
-              onClick={() => removerMembro(i)}
-              type="button"
+              type="submit"
+              className={styles.botaoConfirmar}
+              disabled={salvando || opcoesMembros.length === 0}
             >
-              X
+              {salvando
+                ? "Salvando..."
+                : modo === "edit"
+                  ? "Salvar alterações"
+                  : "Salvar"}
             </button>
           </div>
-        ))}
-
-        <div className={styles.actions}>
-          <Button variant="secondary" onClick={onClose}>
-            Cancelar
-          </Button>
-
-          <Button onClick={salvar} disabled={salvando || opcoesMembros.length === 0}>
-            {salvando
-              ? "Salvando..."
-              : modo === "edit"
-                ? "Salvar alterações"
-                : "Salvar"}
-          </Button>
-        </div>
+        </form>
       </div>
     </div>
   );

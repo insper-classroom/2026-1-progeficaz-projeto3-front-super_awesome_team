@@ -150,6 +150,7 @@ export function Despesas({ grupoId, grupo }) {
   const [confirmandoPendenciaId, setConfirmandoPendenciaId] = useState(null);
   const [concluindoDespesaId, setConcluindoDespesaId] = useState(null);
   const [erro, setErro] = useState("");
+  const [erroFormulario, setErroFormulario] = useState("");
 
   const carregarContas = useCallback(async () => {
     if (!grupoId) return;
@@ -190,6 +191,7 @@ export function Despesas({ grupoId, grupo }) {
 
   function abrirNovaDespesa() {
     setErro("");
+    setErroFormulario("");
     setModal({
       aberto: true,
       tipo: "form",
@@ -219,6 +221,7 @@ export function Despesas({ grupoId, grupo }) {
 
   function abrirEdicao(despesa, indice) {
     setErro("");
+    setErroFormulario("");
     setModal({
       aberto: true,
       tipo: "form",
@@ -228,6 +231,7 @@ export function Despesas({ grupoId, grupo }) {
   }
 
   function fecharModal() {
+    setErroFormulario("");
     setModal({
       aberto: false,
       tipo: null,
@@ -238,9 +242,10 @@ export function Despesas({ grupoId, grupo }) {
 
   async function salvarDespesa(despesaSalva) {
     setErro("");
+    setErroFormulario("");
 
     if (!grupoId) {
-      setErro("Grupo não encontrado para salvar a conta.");
+      setErroFormulario("Grupo não encontrado para salvar a conta.");
       return;
     }
 
@@ -261,7 +266,7 @@ export function Despesas({ grupoId, grupo }) {
       await carregarContas();
       fecharModal();
     } catch (error) {
-      setErro(error.response?.data?.error || "Não foi possível salvar a conta.");
+      setErroFormulario(error.response?.data?.error || "Não foi possível salvar a conta.");
     } finally {
       setSalvando(false);
     }
@@ -346,6 +351,7 @@ export function Despesas({ grupoId, grupo }) {
             onSave={salvarDespesa}
             onClose={fecharModal}
             salvando={salvando}
+            erroExterno={erroFormulario}
           />
         )}
 
