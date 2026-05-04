@@ -264,5 +264,8 @@ export function useVisaoGeral(grupoId, periodo = '30d') {
     }
   }, [grupoId, periodo])
 
+  const loading = false
+  const error = null
+
   return { data, loading, error }
 }

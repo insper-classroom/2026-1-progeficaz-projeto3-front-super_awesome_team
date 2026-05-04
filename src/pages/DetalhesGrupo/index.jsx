@@ -40,6 +40,19 @@ export function DetalhesGrupo() {
     setAbaAtiva('metas')
   }
 
+  useEffect(() => {
+    async function carregarGrupo() {
+      try {
+        const grupoCarregado = await buscarGrupo(id)
+        setGrupo(grupoCarregado)
+      } catch {
+        setGrupo(null)
+      }
+    }
+
+    carregarGrupo()
+  }, [id])
+
   // renderiza o conteudo conforme a aba selecionada
   function renderizaAba() {
     if (abaAtiva === 'visaoGeral') return <VisaoGeral grupoId={id} onVerMetas={abrirAbaMetas} onVerDespesas={() => setAbaAtiva('despesas')} />
