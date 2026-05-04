@@ -9,6 +9,7 @@ import {
 } from '../../services/groupService'
 import { encodeImageToBase64 } from '../../utils/imageUtils'
 import styles from './Grupos.module.css'
+import { useUser } from '../../hooks/useUser'
 
 const IMAGEM_PADRAO = '/casa.jpg'
 
@@ -29,6 +30,9 @@ export function Grupos() {
   const [arquivoUpload, setArquivoUpload] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
+  const [novoDonoEmail, setNovoDonoEmail] = useState('')
+
+  const { usuario } = useUser()
 
   const imagens = [
     { src: '/casa.jpg', label: 'Casa' },
@@ -63,6 +67,7 @@ export function Grupos() {
     setImgUpload(null)
     setArquivoUpload(null)
     setGrupoEditando(null)
+    setNovoDonoEmail('')
   }
 
   function abrirCriarGrupo() {
@@ -79,6 +84,7 @@ export function Grupos() {
     setNomeGrupo(grupo.nome || '')
     setDescricaoGrupo(grupo.descricao || '')
     setMembros((grupo.membros || []).map((membro) => membro.email))
+    setNovoDonoEmail(grupo.created_by || '')
     setEmailMembro('')
     setImgSelecionada(grupo.imagem || IMAGEM_PADRAO)
     setImgUpload(null)
@@ -137,6 +143,10 @@ export function Grupos() {
         membros,
         descricao: descricaoGrupo.trim() || 'Novo grupo',
         imagem,
+      }
+
+      if (modoModal === 'edit' && novoDonoEmail && novoDonoEmail !== grupoEditando?.created_by) {
+        payload.created_by = novoDonoEmail
       }
 
       if (modoModal === 'edit' && grupoEditando) {
@@ -242,6 +252,27 @@ export function Grupos() {
                 </div>
               ))}
             </div>
+
+            {modoModal === 'edit' && grupoEditando?.created_by === usuario?.email && (
+              <div className={styles.ownerSelect}>
+                <h4>Transferir liderança</h4>
+
+                <select
+                  className={styles.input}
+                  value={novoDonoEmail}
+                  onChange={(e) => setNovoDonoEmail(e.target.value)}
+                >
+                  <option value="">Manter dono atual</option>
+                  {membros
+                    .filter((email) => email !== grupoEditando?.created_by)
+                    .map((email) => (
+                      <option key={email} value={email}>
+                        {email}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
 
             <div className={styles.sectionHeader}>
               <h4>Imagem do grupo</h4>
