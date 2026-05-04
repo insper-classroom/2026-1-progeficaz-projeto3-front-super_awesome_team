@@ -63,6 +63,7 @@
 
 .positivo { color: var(--positive); }
 .negativo { color: var(--negative); }
+.neutro { color: var(--text-muted); }
 
 /* Bolinha colorida da categoria */
 .ponto {

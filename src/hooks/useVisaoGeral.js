@@ -4,6 +4,7 @@ import { listarMetasDoGrupo } from '../services/goalService'
 import { buscarGrupo } from '../services/groupService'
 import { getMockVisaoGeral } from '../services/mockData'
 import { getCurrentUser } from '../services/userService'
+import { calcularVariacaoPercentual } from '../utils/variacaoFinanceira'
 import { normalizarDadosMetas } from './useMetas'
 
 const MS_POR_DIA = 1000 * 60 * 60 * 24
@@ -171,18 +172,12 @@ function agruparCategorias(contas, contasAnteriores) {
 
   const categoriasPrev = categorias.map((categoria) => {
     const valorAnterior = totaisAnteriores.get(categoria.nome) || 0
-    let variacaoPct = 0
-
-    if (valorAnterior > 0) {
-      variacaoPct = Math.round(((categoria.valor - valorAnterior) / valorAnterior) * 100)
-    } else if (categoria.valor > 0) {
-      variacaoPct = 100
-    }
+    const variacaoPct = calcularVariacaoPercentual(categoria.valor, valorAnterior)
 
     return {
       nome: categoria.nome,
       valor: valorAnterior,
-      variacaoPct,
+      variacaoPct: variacaoPct === null ? null : Math.round(variacaoPct),
     }
   })
 

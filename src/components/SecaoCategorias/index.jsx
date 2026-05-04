@@ -68,17 +68,22 @@ export default function SecaoCategorias({ categorias, categoriasPrev, onVerMais 
           </div>
 
           {categorias.map((cat, i) => {
-            const prev = categoriasPrev[i]
-            const caiu = prev.variacaoPct < 0
+            const prev = categoriasPrev?.[i] ?? { valor: 0, variacaoPct: null }
+            const temComparacao = prev.variacaoPct !== null && prev.variacaoPct !== undefined
+            const caiu = temComparacao && prev.variacaoPct < 0
 
             // Cor da barra e classe do badge calculados antes do JSX
-            let corBarra = 'var(--negative)'
-            let classeBadge = styles.badgeCima
-            let setaBadge = '↗'
-            if (caiu) {
+            let corBarra = 'var(--text-muted)'
+            let classeBadge = styles.badgeNeutro
+            let textoBadge = 'novo'
+            if (temComparacao && caiu) {
               corBarra = 'var(--positive)'
               classeBadge = styles.badgeBaixo
-              setaBadge = '↘'
+              textoBadge = `↘ ${Math.abs(prev.variacaoPct)}%`
+            } else if (temComparacao) {
+              corBarra = 'var(--negative)'
+              classeBadge = styles.badgeCima
+              textoBadge = `↗ ${Math.abs(prev.variacaoPct)}%`
             }
 
             return (
@@ -99,7 +104,7 @@ export default function SecaoCategorias({ categorias, categoriasPrev, onVerMais 
                 </div>
                 <div>
                   <span className={`${styles.badge} ${classeBadge}`}>
-                    {setaBadge} {Math.abs(prev.variacaoPct)}%
+                    {textoBadge}
                   </span>
                 </div>
                 <div className={styles.linhaAnterior}>{formatarMoeda(prev.valor)}</div>
