@@ -270,6 +270,76 @@
   color: var(--text-muted);
 }
 
+.pixBox {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.pixInfo {
+  min-width: 0;
+}
+
+.pixInfo span,
+.pixInfo small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pixInfo strong {
+  display: block;
+  margin: 4px 0;
+  color: var(--text);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.pixQrRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pixQr {
+  width: 112px;
+  height: 112px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  box-sizing: border-box;
+  object-fit: contain;
+}
+
+.pixCopyButton {
+  border: 1px solid var(--primary);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.pixCopyButton:hover {
+  background: var(--primary-muted);
+  transform: translateY(-1px);
+}
+
 .confirmationRow {
   display: flex;
   flex-wrap: wrap;
@@ -339,6 +409,16 @@
 @media (max-width: 900px) {
   .modalGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .pixBox {
+    grid-template-columns: 1fr;
+  }
+
+  .pixQrRow {
+    justify-content: flex-start;
   }
 }
 

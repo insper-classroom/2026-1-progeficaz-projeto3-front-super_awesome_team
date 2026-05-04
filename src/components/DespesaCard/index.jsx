@@ -1,6 +1,8 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import Button from "../Button";
+import PixQRCode from "../PixQRCode";
+import { gerarPixBrCode } from "../../utils/pixBrCode";
 import styles from "./DespesaCard.module.css";
 
 const CORES_FALLBACK = [
@@ -62,6 +64,7 @@ export default function DespesaCard({
   concluindoDespesaId,
   somenteModal = false,
 }) {
+  const [pixCopiadoId, setPixCopiadoId] = useState(null);
   const membros = useMemo(
     () => (Array.isArray(despesa?.membros) ? despesa.membros : []),
     [despesa]
@@ -123,6 +126,46 @@ export default function DespesaCard({
       return "Confirmar recebimento";
     }
     return null;
+  }
+
+  function podeExibirPixMembro(membro, valor) {
+    const ehCredorOuDonoDaPendencia =
+      usuarioEmail &&
+      (usuarioEmail === despesa?.credorEmail || usuarioEmail === membro.email);
+
+    return Boolean(
+      despesa?.pixKey &&
+        membro.papel !== "credor" &&
+        valor > 0 &&
+        ehCredorOuDonoDaPendencia
+    );
+  }
+
+  function gerarCodigoPixMembro(membro, valor, index) {
+    try {
+      return gerarPixBrCode({
+        pixKey: despesa?.pixKey,
+        amount: valor,
+        receiverName: despesa?.credorNome || despesa?.credorEmail,
+        txid: membro.pendenciaId || `${despesa?.id || "despesa"}${index}`,
+      });
+    } catch {
+      return "";
+    }
+  }
+
+  async function copiarCodigoPix(codigo, id) {
+    if (!codigo || !navigator?.clipboard) return;
+
+    try {
+      await navigator.clipboard.writeText(codigo);
+      setPixCopiadoId(id);
+      window.setTimeout(() => {
+        setPixCopiadoId((atual) => (atual === id ? null : atual));
+      }, 1800);
+    } catch {
+      setPixCopiadoId(null);
+    }
   }
 
   return (
@@ -206,6 +249,10 @@ export default function DespesaCard({
                     const restante = Math.max(valor - pago, 0);
                     const textoAcao = textoAcaoMembro(m);
                     const confirmando = confirmandoPendenciaId === m.pendenciaId;
+                    const pixId = m.pendenciaId || `${despesa?.id}-${m.email || i}`;
+                    const codigoPix = podeExibirPixMembro(m, valor)
+                      ? gerarCodigoPixMembro(m, valor, i)
+                      : "";
 
                     return (
                       <div key={i} className={styles.memberRow}>
@@ -288,6 +335,33 @@ export default function DespesaCard({
                           <span>Pago: {formatarMoeda(pago)}</span>
                           <span>Falta: {formatarMoeda(restante)}</span>
                         </div>
+
+                        {codigoPix && (
+                          <div className={styles.pixBox}>
+                            <div className={styles.pixInfo}>
+                              <span>Chave PIX</span>
+                              <strong>{despesa.pixKey}</strong>
+                              <small>BR Code com {formatarMoeda(valor)}</small>
+                            </div>
+
+                            <div className={styles.pixQrRow}>
+                              <PixQRCode
+                                value={codigoPix}
+                                className={styles.pixQr}
+                                alt={`QR Code PIX de ${m.nome}`}
+                              />
+                              <button
+                                type="button"
+                                className={styles.pixCopyButton}
+                                onClick={() => copiarCodigoPix(codigoPix, pixId)}
+                              >
+                                {pixCopiadoId === pixId
+                                  ? "Código copiado"
+                                  : "Copiar código PIX"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
 
                         {textoAcao && (
                           <button
