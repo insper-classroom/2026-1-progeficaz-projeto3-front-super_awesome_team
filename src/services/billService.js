@@ -51,6 +51,7 @@ export function normalizarConta(conta) {
     criadaPor: conta.created_by,
     criadaEm: conta.created_at,
     dueDate: conta.due_date ?? conta.dueDate ?? null,
+    pixKey: conta.pix_key ?? conta.pixKey ?? '',
     raw: conta,
   }
 }
@@ -60,7 +61,7 @@ export async function listarContasDoGrupo(groupId) {
   return (response.data.bills || []).map(normalizarConta)
 }
 
-export async function criarContaGrupo({ grupoId, nome, total, membros, dueDate }) {
+export async function criarContaGrupo({ grupoId, nome, total, membros, dueDate, pixKey }) {
   const membersToPay = membros
     .map(normalizarMembroParaPagamento)
     .filter((membro) => membro.email && membro.valor > 0)
@@ -73,6 +74,7 @@ export async function criarContaGrupo({ grupoId, nome, total, membros, dueDate }
     bill_type: nome,
     total_value: numeroSeguro(total),
     group_id: grupoId,
+    pix_key: String(pixKey || '').trim(),
     members_to_pay: membersToPay,
     due_date: normalizarDataParaApi(dueDate),
   })
@@ -80,7 +82,7 @@ export async function criarContaGrupo({ grupoId, nome, total, membros, dueDate }
   return response.data
 }
 
-export async function atualizarContaGrupo(contaId, { nome, total, membros, dueDate }) {
+export async function atualizarContaGrupo(contaId, { nome, total, membros, dueDate, pixKey }) {
   const membersToPay = membros
     .map(normalizarMembroParaPagamento)
     .filter((membro) => membro.email && membro.valor > 0)
@@ -92,6 +94,7 @@ export async function atualizarContaGrupo(contaId, { nome, total, membros, dueDa
   const response = await api.put(`/bill/${contaId}`, {
     bill_type: nome,
     total_value: numeroSeguro(total),
+    pix_key: String(pixKey || '').trim(),
     members_to_pay: membersToPay,
     due_date: normalizarDataParaApi(dueDate),
   })

@@ -259,6 +259,7 @@ export function Despesas({ grupoId, grupo }) {
           nome: despesaSalva.nome,
           total: despesaSalva.total,
           dueDate: despesaSalva.dueDate,
+          pixKey: despesaSalva.pixKey,
           membros: despesaSalva.membros,
         });
       }
