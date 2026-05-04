@@ -1,0 +1,95 @@
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 28px;
+  align-items: start;
+}
+
+.main {
+  min-width: 0;
+}
+
+.topArea {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.title {
+  margin: 0;
+}
+
+.gridDespesas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.historico {
+  position: sticky;
+  top: 20px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  min-height: 300px;
+}
+
+.historicoTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+.historicoLista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.historicoItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.historicoNome {
+  display: block;
+  color: #1e293b;
+  font-size: 14px;
+}
+
+.historicoValor {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.badgeConcluida,
+.badgePendente {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badgeConcluida {
+  color: #1f7a63;
+  background: rgba(31, 122, 99, 0.12);
+}
+
+.badgePendente {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+}

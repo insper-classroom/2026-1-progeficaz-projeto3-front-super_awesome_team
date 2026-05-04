@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import styles from "./DespesaCard.module.css";
+import Button from "../Button";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+
 
 const CORES_FALLBACK = [
   "#1f7a63",
@@ -179,16 +181,10 @@ export default function DespesaCard({
                 </div>
 
                 <div className={styles.actions}>
-                  <button type="button" onClick={onEdit} className={styles.editBtn}>
-                    Editar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={onDelete}
-                    className={styles.doneBtn}
-                  >
+                  <Button onClick={onEdit}>Editar</Button>
+                  <Button variant="secondary" onClick={onDelete}>
                     Concluído
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

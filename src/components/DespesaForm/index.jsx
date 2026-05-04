@@ -181,16 +181,7 @@ export default function DespesaForm({
 
         {membros.map((m, i) => (
           <div key={i} className={styles.memberRow}>
-            {modo === "edit" && (
-              <label className={styles.pagoCheckbox}>
-                <input
-                  type="checkbox"
-                  checked={m.pago || false}
-                  onChange={(e) => togglePago(i, e.target.checked)}
-                />
-                Pago
-              </label>
-            )}
+
 
             <div className={styles.avatar}>
               {m.nome ? m.nome.charAt(0) : "?"}
@@ -240,6 +231,16 @@ export default function DespesaForm({
             >
               ❌
             </button>
+            {modo === "edit" && (
+              <label className={styles.pagoCheckbox}>
+                <input
+                  type="checkbox"
+                  checked={m.pago || false}
+                  onChange={(e) => togglePago(i, e.target.checked)}
+                />
+                Pago
+              </label>
+            )}
           </div>
         ))}
 
