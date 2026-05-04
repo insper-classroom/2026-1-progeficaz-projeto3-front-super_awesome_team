@@ -6,9 +6,14 @@ import {
   registrarAporteMeta,
 } from '../services/goalService'
 import { buscarGrupo } from '../services/groupService'
-import { getMockMetas } from '../services/mockData'
 
 const coresMembros = ['#ff2d87', '#7c2fff', '#ff9f00', '#03fc83', '#2d9cff']
+
+const dadosMetasVazios = {
+  membros: [],
+  metas: [],
+  movimentacoes: [],
+}
 
 function numeroSeguro(valor) {
   const numero = Number(valor)
@@ -193,7 +198,6 @@ export function useMetas(grupoId) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
-  const [usandoMock, setUsandoMock] = useState(false)
 
   const carregarMetas = useCallback(async () => {
     if (!grupoId) {
@@ -211,15 +215,11 @@ export function useMetas(grupoId) {
       ])
       const dados = normalizarDadosMetas(grupo, goals)
       setData(dados)
-      setUsandoMock(false)
       return dados
     } catch (err) {
-      // Fallback preservado para manter a tela funcional se o endpoint de metas nao estiver disponivel.
-      const mock = getMockMetas(grupoId)
-      setData(mock)
+      setData(dadosMetasVazios)
       setError(err)
-      setUsandoMock(true)
-      return mock
+      return dadosMetasVazios
     } finally {
       setLoading(false)
     }
@@ -257,7 +257,6 @@ export function useMetas(grupoId) {
     data,
     loading,
     error,
-    usandoMock,
     recarregar: carregarMetas,
     criarMeta,
     atualizarMeta,

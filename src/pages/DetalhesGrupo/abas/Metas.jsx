@@ -111,7 +111,7 @@ function idsIguais(idA, idB) {
 }
 
 export function Metas({ grupoId, metaInicialId = null }) {
-  const { data, loading, criarMeta, atualizarMeta, registrarAporte, usandoMock } = useMetas(grupoId)
+  const { data, loading, error, criarMeta, atualizarMeta, registrarAporte } = useMetas(grupoId)
   const destaqueRef = useRef(null)
 
   // Guarda a meta escolhida para destacar o card e alimentar as próximas seções.
@@ -134,6 +134,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
   if (loading || !data) return <div className={styles.carregando}>Carregando...</div>
 
   const { metas, membros, movimentacoes } = data
+  const mensagemErroCarregamento = error?.response?.data?.error || error?.message || ''
 
   function abrirNovaMeta() {
     setErroOperacao('')
@@ -161,12 +162,6 @@ export function Metas({ grupoId, metaInicialId = null }) {
   async function handleSalvarMeta(meta) {
     setErroOperacao('')
 
-    if (usandoMock) {
-      setErroOperacao('Endpoint de metas indisponível. Exibindo dados mockados.')
-      fecharModal()
-      return
-    }
-
     try {
       if (metaDoModal?.id) {
         await atualizarMeta(metaDoModal.id, meta)
@@ -182,12 +177,6 @@ export function Metas({ grupoId, metaInicialId = null }) {
   async function handleSalvarAporte(aporte) {
     setErroOperacao('')
 
-    if (usandoMock) {
-      setErroOperacao('Endpoint de metas indisponível. Exibindo dados mockados.')
-      fecharModal()
-      return
-    }
-
     try {
       await registrarAporte(aporte)
       fecharModal()
@@ -199,6 +188,9 @@ export function Metas({ grupoId, metaInicialId = null }) {
   if (!metas.length) {
     return (
       <div className={styles.container}>
+        {mensagemErroCarregamento && (
+          <div className={styles.vazio}>Não foi possível carregar as metas: {mensagemErroCarregamento}</div>
+        )}
         {erroOperacao && <div className={styles.vazio}>{erroOperacao}</div>}
         <div className={styles.vazio}>Nenhuma meta cadastrada.</div>
         <button type="button" className={styles.botaoPrimario} onClick={abrirNovaMeta}>
@@ -268,6 +260,9 @@ export function Metas({ grupoId, metaInicialId = null }) {
 
   return (
     <div className={styles.container}>
+      {mensagemErroCarregamento && (
+        <div className={styles.vazio}>Não foi possível carregar as metas: {mensagemErroCarregamento}</div>
+      )}
       {erroOperacao && <div className={styles.vazio}>{erroOperacao}</div>}
 
       {/* Cards de resumo da aba de metas */}
