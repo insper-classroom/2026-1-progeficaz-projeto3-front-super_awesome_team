@@ -7,6 +7,7 @@ import {
   atualizarContaGrupo,
   criarContaGrupo,
   listarContasDoGrupo,
+  marcarContaComoPaga,
 } from "../../../services/billService";
 import {
   confirmarPagamentoComoDevedor,
@@ -143,6 +144,7 @@ export function Despesas({ grupoId, grupo }) {
   const [carregando, setCarregando] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [confirmandoPendenciaId, setConfirmandoPendenciaId] = useState(null);
+  const [concluindoDespesaId, setConcluindoDespesaId] = useState(null);
   const [erro, setErro] = useState("");
 
   const carregarContas = useCallback(async () => {
@@ -284,6 +286,31 @@ export function Despesas({ grupoId, grupo }) {
     }
   }
 
+  async function concluirDespesaComoCredor(despesa) {
+    setErro("");
+
+    if (!despesa?.id) {
+      setErro("Conta não encontrada para concluir.");
+      return;
+    }
+
+    if (despesa.credorEmail !== usuario?.email) {
+      setErro("Apenas o credor pode concluir esta despesa.");
+      return;
+    }
+
+    setConcluindoDespesaId(despesa.id);
+    try {
+      await marcarContaComoPaga(despesa.id);
+      await carregarContas();
+      fecharModal();
+    } catch (error) {
+      setErro(error.response?.data?.error || "Não foi possível concluir a despesa.");
+    } finally {
+      setConcluindoDespesaId(null);
+    }
+  }
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -317,8 +344,10 @@ export function Despesas({ grupoId, grupo }) {
               onClose={fecharModal}
               onEdit={() => abrirEdicao(d, i)}
               onConfirmarPagamento={confirmarPagamentoMembro}
+              onConcluirDespesa={concluirDespesaComoCredor}
               usuarioEmail={usuario?.email}
               confirmandoPendenciaId={confirmandoPendenciaId}
+              concluindoDespesaId={concluindoDespesaId}
             />
           ))}
         </div>

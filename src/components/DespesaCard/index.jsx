@@ -26,8 +26,10 @@ export default function DespesaCard({
   onClose,
   onEdit,
   onConfirmarPagamento,
+  onConcluirDespesa,
   usuarioEmail,
   confirmandoPendenciaId,
+  concluindoDespesaId,
 }) {
   const membros = useMemo(
     () => (Array.isArray(despesa?.membros) ? despesa.membros : []),
@@ -35,6 +37,7 @@ export default function DespesaCard({
   );
   const total = Number(despesa?.total ?? 0) || 0;
   const podeEditar = usuarioEmail && usuarioEmail === despesa?.credorEmail;
+  const concluindoDespesa = concluindoDespesaId === despesa?.id;
 
   const membrosColoridos = useMemo(
     () =>
@@ -260,6 +263,13 @@ export default function DespesaCard({
                 {podeEditar && (
                   <div className={styles.actions}>
                     <Button onClick={onEdit}>Editar</Button>
+                    <Button
+                      variant="secondary"
+                      onClick={() => onConcluirDespesa(despesa)}
+                      disabled={concluindoDespesa}
+                    >
+                      {concluindoDespesa ? "Concluindo..." : "Concluir despesa"}
+                    </Button>
                   </div>
                 )}
               </div>
