@@ -61,6 +61,7 @@ export default function DespesaForm({
   const [nome, setNome] = useState("");
   const [total, setTotal] = useState("");
   const [dueDate, setDueDate] = useState("");
+  const [pixKey, setPixKey] = useState("");
   const [membros, setMembros] = useState([criarMembroVazio()]);
   const [erro, setErro] = useState("");
 
@@ -74,6 +75,7 @@ export default function DespesaForm({
         setNome(initialData.nome ?? "");
         setTotal(initialData.total ?? "");
         setDueDate(normalizarDataInput(initialData.dueDate));
+        setPixKey(initialData.pixKey ?? "");
 
         const membrosIniciais =
           Array.isArray(initialData.membros) && initialData.membros.length > 0
@@ -87,6 +89,7 @@ export default function DespesaForm({
         setNome("");
         setTotal("");
         setDueDate("");
+        setPixKey("");
         setMembros([criarMembroVazio(opcoesMembros[0])]);
       }
 
@@ -194,6 +197,11 @@ export default function DespesaForm({
       return;
     }
 
+    if (!pixKey.trim()) {
+      setErro("Informe a chave PIX do credor.");
+      return;
+    }
+
     if (membrosComValor.length === 0) {
       setErro("Informe pelo menos um membro com valor.");
       return;
@@ -209,6 +217,7 @@ export default function DespesaForm({
       nome: nome.trim(),
       total: totalNum,
       dueDate,
+      pixKey: pixKey.trim(),
       membros: membrosComValor.map((membro) => ({
         email: membro.email,
         nome: membro.nome,
@@ -292,6 +301,20 @@ export default function DespesaForm({
               type="date"
               value={dueDate}
               onChange={(e) => setDueDate(e.target.value)}
+            />
+          </div>
+
+          <div className={styles.grupo}>
+            <label className={styles.rotulo}>Chave PIX do credor</label>
+            <input
+              className={styles.input}
+              placeholder="E-mail, CPF, telefone ou chave aleatória"
+              value={pixKey}
+              onChange={(e) => {
+                setPixKey(e.target.value);
+                setErro("");
+              }}
+              required
             />
           </div>
 
