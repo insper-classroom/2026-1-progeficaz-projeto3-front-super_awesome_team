@@ -1,6 +1,7 @@
 // Gráfico de linha com evolução dos gastos: período atual vs anterior.
 // Recebe evolucao, totalAtual, totalAnterior e periodo para montar o cabeçalho.
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
+import { calcularVariacaoPercentual } from '../../utils/variacaoFinanceira'
 import styles from './GraficoGastos.module.css'
 
 function formatarMoeda(valor) {
@@ -54,15 +55,22 @@ export default function GraficoGastos({ evolucao, totalAtual, totalAnterior, per
   // ?? significa: se o período não existir no mapa, usa '30d' como padrão
   const textos = textoPorPeriodo[periodo] ?? textoPorPeriodo['30d']
 
-  const variacaoPct = ((totalAtual - totalAnterior) / totalAnterior) * 100
-  const gastouMenos = variacaoPct < 0
+  const variacaoPct = calcularVariacaoPercentual(totalAtual, totalAnterior)
+  const temComparacao = variacaoPct !== null
+  const gastouMenos = temComparacao && variacaoPct < 0
 
   // Classe e sinal do badge calculados antes do JSX
-  let classeBadge = styles.badgePositivo
-  let sinal = ''
-  if (!gastouMenos) {
+  let classeBadge = styles.badgeNeutro
+  let textoBadge = 'Sem histórico'
+  let descricaoVariacao = `sem dados do ${textos.anterior}`
+  if (temComparacao && gastouMenos) {
+    classeBadge = styles.badgePositivo
+    textoBadge = `${variacaoPct.toFixed(1)}%`
+    descricaoVariacao = `vs ${formatarMoeda(totalAnterior)} ${textos.anterior}`
+  } else if (temComparacao) {
     classeBadge = styles.badgeNegativo
-    sinal = '+'
+    textoBadge = `+${variacaoPct.toFixed(1)}%`
+    descricaoVariacao = `vs ${formatarMoeda(totalAnterior)} ${textos.anterior}`
   }
 
   function formatarEixoX(idx) {
@@ -85,10 +93,10 @@ export default function GraficoGastos({ evolucao, totalAtual, totalAnterior, per
           {/* Badge colorido com a variação percentual */}
           <span className={`${styles.badge} ${classeBadge}`}>
             <span className={styles.badgeDot} />
-            {sinal}{variacaoPct.toFixed(1)}%
+            {textoBadge}
           </span>
           <span className={styles.variacaoDesc}>
-            vs {formatarMoeda(totalAnterior)} {textos.anterior}
+            {descricaoVariacao}
           </span>
         </div>
       </div>

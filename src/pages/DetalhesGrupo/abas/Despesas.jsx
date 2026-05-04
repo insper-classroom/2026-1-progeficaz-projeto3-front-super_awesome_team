@@ -1,20 +1,28 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import DespesaForm from "../../../components/DespesaForm";
 import DespesaCard from "../../../components/DespesaCard";
 import Button from "../../../components/Button";
-import styles from "./Despesas.module.css";
+import {
+  atualizarContaGrupo,
+  criarContaGrupo,
+  listarContasDoGrupo,
+  marcarContaComoPaga,
+} from "../../../services/billService";
 import { despesasMock } from "../../../mocks/despesasMock.js";
+import styles from "./Despesas.module.css";
 
 function calcularStatus(despesa) {
+  if (despesa?.paga) return "concluida";
+
   const membros = Array.isArray(despesa?.membros) ? despesa.membros : [];
   if (membros.length === 0) return "nao_concluida";
   return membros.every((m) => m.pago) ? "concluida" : "nao_concluida";
 }
 
-function criarHistoricoInicial() {
-  return despesasMock
+function criarHistorico(despesas) {
+  return despesas
     .map((despesa, index) => ({
-      id: index + 1,
+      id: despesa.id || index + 1,
       nome: despesa.nome,
       valor: despesa.total,
       status: calcularStatus(despesa),
@@ -22,17 +30,80 @@ function criarHistoricoInicial() {
     .reverse();
 }
 
-export function Despesas() {
-  const [despesas, setDespesas] = useState(despesasMock);
-  const [historico, setHistorico] = useState(criarHistoricoInicial());
+function normalizarDespesaComGrupo(despesa, grupo) {
+  const membrosGrupo = grupo?.membros || [];
+
+  return {
+    ...despesa,
+    membros: (despesa.membros || []).map((membro, index) => {
+      const membroGrupo = membrosGrupo.find(
+        (item) =>
+          item.email === membro.email ||
+          item.id === membro.email ||
+          item.nome === membro.nome
+      );
+
+      return {
+        ...membro,
+        email: membro.email || membroGrupo?.email || membroGrupo?.id || membro.nome,
+        nome: membroGrupo?.nome || membro.nome,
+        cor: membro.cor || membroGrupo?.cor,
+        percentual: membro.percentual || (despesa.total ? (membro.valor / despesa.total) * 100 : 0),
+        pago: Boolean(despesa.paga || membro.pago),
+        id: membro.id || membro.email || index,
+      };
+    }),
+  };
+}
+
+export function Despesas({ grupoId, grupo }) {
+  const [despesas, setDespesas] = useState([]);
+  const [historico, setHistorico] = useState([]);
   const [modal, setModal] = useState({
     aberto: false,
     tipo: null,
     despesa: null,
     indice: null,
   });
+  const [carregando, setCarregando] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState("");
+  const [modoLocal, setModoLocal] = useState(false);
+
+  const carregarContas = useCallback(async () => {
+    if (!grupoId) return;
+
+    setCarregando(true);
+    setErro("");
+
+    try {
+      const contas = await listarContasDoGrupo(grupoId);
+      const contasAbertas = contas
+        .filter((conta) => !conta.paga)
+        .map((conta) => normalizarDespesaComGrupo(conta, grupo));
+
+      setDespesas(contasAbertas);
+      setHistorico(criarHistorico(contasAbertas));
+      setModoLocal(false);
+    } catch {
+      const dadosMockados = despesasMock.map((despesa) =>
+        normalizarDespesaComGrupo(despesa, grupo)
+      );
+      setDespesas(dadosMockados);
+      setHistorico(criarHistorico(dadosMockados));
+      setModoLocal(true);
+      setErro("Não foi possível carregar as contas do backend. Usando dados locais nesta sessão.");
+    } finally {
+      setCarregando(false);
+    }
+  }, [grupo, grupoId]);
+
+  useEffect(() => {
+    Promise.resolve().then(carregarContas);
+  }, [carregarContas]);
 
   function abrirNovaDespesa() {
+    setErro("");
     setModal({
       aberto: true,
       tipo: "form",
@@ -51,6 +122,7 @@ export function Despesas() {
   }
 
   function abrirEdicao(despesa, indice) {
+    setErro("");
     setModal({
       aberto: true,
       tipo: "form",
@@ -68,31 +140,74 @@ export function Despesas() {
     });
   }
 
-  function salvarDespesa(despesaSalva) {
-    const novoHistoricoItem = {
-      id: Date.now(),
-      nome: despesaSalva.nome,
-      valor: despesaSalva.total,
-      status: calcularStatus(despesaSalva),
-    };
+  function salvarDespesaLocal(despesaSalva) {
+    const despesaNormalizada = normalizarDespesaComGrupo(despesaSalva, grupo);
 
     if (modal.indice !== null) {
       const novas = [...despesas];
-      novas[modal.indice] = despesaSalva;
+      novas[modal.indice] = despesaNormalizada;
       setDespesas(novas);
+      setHistorico(criarHistorico(novas));
     } else {
-      setDespesas((prev) => [...prev, despesaSalva]);
+      const novas = [...despesas, despesaNormalizada];
+      setDespesas(novas);
+      setHistorico(criarHistorico(novas));
     }
 
-    setHistorico((prev) => [novoHistoricoItem, ...prev]);
     fecharModal();
   }
 
-  function deletarDespesa(indice) {
-    setDespesas((prev) => prev.filter((_, i) => i !== indice));
+  async function salvarDespesa(despesaSalva) {
+    setErro("");
 
-    if (modal.indice === indice) {
+    if (modoLocal || !grupoId) {
+      salvarDespesaLocal(despesaSalva);
+      return;
+    }
+
+    setSalvando(true);
+    try {
+      if (modal.indice !== null && modal.despesa?.id) {
+        await atualizarContaGrupo(modal.despesa.id, despesaSalva);
+      } else {
+        await criarContaGrupo({
+          grupoId,
+          nome: despesaSalva.nome,
+          total: despesaSalva.total,
+          membros: despesaSalva.membros,
+        });
+      }
+
+      await carregarContas();
       fecharModal();
+    } catch (error) {
+      setErro(error.response?.data?.error || "Não foi possível salvar a conta.");
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  async function concluirDespesa(indice) {
+    const despesa = despesas[indice];
+    setErro("");
+
+    if (modoLocal || !despesa?.id) {
+      const novas = despesas.filter((_, i) => i !== indice);
+      setDespesas(novas);
+      setHistorico(criarHistorico(novas));
+
+      if (modal.indice === indice) {
+        fecharModal();
+      }
+      return;
+    }
+
+    try {
+      await marcarContaComoPaga(despesa.id);
+      await carregarContas();
+      fecharModal();
+    } catch (error) {
+      setErro(error.response?.data?.error || "Não foi possível concluir a conta.");
     }
   }
 
@@ -105,25 +220,30 @@ export function Despesas() {
           <Button onClick={abrirNovaDespesa}>+ Nova despesa</Button>
         </div>
 
+        {carregando && <p>Carregando despesas...</p>}
+        {erro && <p>{erro}</p>}
+
         {modal.aberto && modal.tipo === "form" && (
           <DespesaForm
             initialData={modal.despesa}
             modo={modal.indice !== null ? "edit" : "create"}
+            membrosDoGrupo={grupo?.membros}
             onSave={salvarDespesa}
             onClose={fecharModal}
+            salvando={salvando}
           />
         )}
 
         <div className={styles.gridDespesas}>
           {despesas.map((d, i) => (
             <DespesaCard
-              key={i}
+              key={d.id || i}
               despesa={d}
               aberto={modal.aberto && modal.tipo === "detalhe" && modal.indice === i}
               onOpen={() => abrirDetalhe(d, i)}
               onClose={fecharModal}
               onEdit={() => abrirEdicao(d, i)}
-              onDelete={() => deletarDespesa(i)}
+              onDelete={() => concluirDespesa(i)}
             />
           ))}
         </div>
@@ -137,7 +257,9 @@ export function Despesas() {
             <div key={item.id} className={styles.historicoItem}>
               <div>
                 <strong className={styles.historicoNome}>{item.nome}</strong>
-                <p className={styles.historicoValor}>R$ {Number(item.valor).toFixed(2)}</p>
+                <p className={styles.historicoValor}>
+                  R$ {Number(item.valor).toFixed(2)}
+                </p>
               </div>
 
               <span

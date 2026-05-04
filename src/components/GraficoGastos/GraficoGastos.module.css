@@ -69,6 +69,11 @@
   background: color-mix(in srgb, var(--negative) 12%, transparent);
 }
 
+.badgeNeutro {
+  color: var(--text-muted);
+  background: var(--bg);
+}
+
 .variacaoDesc {
   font-size: 13px;
   color: var(--text-muted);

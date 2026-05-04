@@ -1,52 +1,91 @@
-import { useEffect, useState } from "react";
-import styles from "./DespesaForm.module.css";
+import { useEffect, useMemo, useState } from "react";
 import Button from "../Button";
 import { membrosMock } from "../../mocks/membrosMock";
+import styles from "./DespesaForm.module.css";
 
-function criarMembroVazio(indice = 1) {
+const membrosVazios = [];
+
+function nomeDoEmail(email) {
+  if (!email) return "Membro";
+  return email.split("@")[0];
+}
+
+function normalizarOpcaoMembro(membro, index) {
+  const email = membro.email || membro.id || membro.nome || `membro-${index + 1}`;
   return {
-    nome: "",
+    email,
+    nome: membro.nome || nomeDoEmail(email),
+    cor: membro.cor,
+  };
+}
+
+function criarMembroVazio(membro = {}) {
+  return {
+    email: membro.email || "",
+    nome: membro.nome || "",
     valor: "",
     percentual: "",
     pago: false,
+    cor: membro.cor,
+  };
+}
+
+function normalizarMembroInicial(membro, opcoesMembros) {
+  const opcao = opcoesMembros.find(
+    (item) => item.email === membro.email || item.nome === membro.nome
+  );
+
+  return {
+    email: opcao?.email || membro.email || membro.nome || "",
+    nome: opcao?.nome || membro.nome || nomeDoEmail(membro.email),
+    valor: membro.valor ?? "",
+    percentual: membro.percentual ?? "",
+    pago: membro.pago ?? false,
+    cor: opcao?.cor || membro.cor,
   };
 }
 
 export default function DespesaForm({
+  membrosDoGrupo = membrosVazios,
   onSave,
   onClose,
   initialData,
-  modo = "create", // "create" | "edit"
+  modo = "create",
+  salvando = false,
 }) {
   const [nome, setNome] = useState("");
   const [total, setTotal] = useState("");
-  const [membros, setMembros] = useState([criarMembroVazio(1)]);
+  const [membros, setMembros] = useState([criarMembroVazio()]);
   const [erro, setErro] = useState("");
 
+  const opcoesMembros = useMemo(() => {
+    const origem = membrosDoGrupo.length ? membrosDoGrupo : membrosMock;
+    return origem.map(normalizarOpcaoMembro);
+  }, [membrosDoGrupo]);
+
   useEffect(() => {
-    if (initialData) {
-      setNome(initialData.nome ?? "");
-      setTotal(initialData.total ?? "");
+    Promise.resolve().then(() => {
+      if (initialData) {
+        setNome(initialData.nome ?? "");
+        setTotal(initialData.total ?? "");
 
-      const membrosIniciais =
-        Array.isArray(initialData.membros) && initialData.membros.length > 0
-          ? initialData.membros.map((m) => ({
-              nome: m.nome ?? "",
-              valor: m.valor ?? "",
-              percentual: m.percentual ?? "",
-              pago: m.pago ?? false,
-            }))
-          : [criarMembroVazio(1)];
+        const membrosIniciais =
+          Array.isArray(initialData.membros) && initialData.membros.length > 0
+            ? initialData.membros.map((membro) =>
+                normalizarMembroInicial(membro, opcoesMembros)
+              )
+            : [criarMembroVazio(opcoesMembros[0])];
 
-      setMembros(membrosIniciais);
-    } else {
-      setNome("");
-      setTotal("");
-      setMembros([criarMembroVazio(1)]);
-    }
+        setMembros(membrosIniciais);
+      } else {
+        setNome("");
+        setTotal("");
+        setMembros([criarMembroVazio(opcoesMembros[0])]);
+      }
 
-    setErro("");
-  }, [initialData, modo]);
+      setErro("");
+    });
+  }, [initialData, modo, opcoesMembros]);
 
   function handleValor(i, valor) {
     const totalNum = Number(total);
@@ -86,7 +125,14 @@ export default function DespesaForm({
   }
 
   function adicionarMembro() {
-    setMembros([...membros, criarMembroVazio(membros.length + 1)]);
+    const emailsSelecionados = membros.map((membro) => membro.email);
+    const proximoMembro = opcoesMembros.find(
+      (membro) => !emailsSelecionados.includes(membro.email)
+    );
+
+    if (!proximoMembro) return;
+
+    setMembros([...membros, criarMembroVazio(proximoMembro)]);
   }
 
   function removerMembro(index) {
@@ -114,7 +160,13 @@ export default function DespesaForm({
 
   function salvar() {
     const totalNum = Number(total) || 0;
-    const soma = membros.reduce((acc, m) => acc + Number(m.valor || 0), 0);
+    const membrosComValor = membros.filter(
+      (membro) => membro.email && Number(membro.valor || 0) > 0
+    );
+    const soma = membrosComValor.reduce(
+      (acc, membro) => acc + Number(membro.valor || 0),
+      0
+    );
 
     if (!nome.trim()) {
       setErro("Informe o nome da despesa.");
@@ -126,19 +178,27 @@ export default function DespesaForm({
       return;
     }
 
+    if (membrosComValor.length === 0) {
+      setErro("Informe pelo menos um membro com valor.");
+      return;
+    }
+
     if (Math.round(soma * 100) !== Math.round(totalNum * 100)) {
       setErro("A soma dos valores dos membros precisa ser igual ao valor total.");
       return;
     }
 
     onSave({
+      id: initialData?.id,
       nome: nome.trim(),
       total: totalNum,
-      membros: membros.map((m) => ({
-        nome: m.nome,
-        valor: Number(m.valor || 0),
-        percentual: Number(m.percentual || 0),
-        pago: Boolean(m.pago),
+      membros: membrosComValor.map((membro) => ({
+        email: membro.email,
+        nome: membro.nome,
+        valor: Number(membro.valor || 0),
+        percentual: Number(membro.percentual || 0),
+        pago: Boolean(membro.pago),
+        cor: membro.cor,
       })),
     });
   }
@@ -181,24 +241,31 @@ export default function DespesaForm({
 
         {membros.map((m, i) => (
           <div key={i} className={styles.memberRow}>
-
-
             <div className={styles.avatar}>
               {m.nome ? m.nome.charAt(0) : "?"}
             </div>
 
             <select
               className={styles.select}
-              value={m.nome}
+              value={m.email}
               onChange={(e) => {
                 const novos = [...membros];
-                novos[i].nome = e.target.value;
+                const membroSelecionado = opcoesMembros.find(
+                  (opcao) => opcao.email === e.target.value
+                );
+                if (!membroSelecionado) return;
+                novos[i] = {
+                  ...novos[i],
+                  email: membroSelecionado.email,
+                  nome: membroSelecionado.nome,
+                  cor: membroSelecionado.cor,
+                };
                 setMembros(novos);
               }}
             >
               <option value="">Selecionar</option>
-              {membrosMock.map((membro) => (
-                <option key={membro.id} value={membro.nome}>
+              {opcoesMembros.map((membro) => (
+                <option key={membro.email} value={membro.email}>
                   {membro.nome}
                 </option>
               ))}
@@ -229,7 +296,7 @@ export default function DespesaForm({
               onClick={() => removerMembro(i)}
               type="button"
             >
-              ❌
+              X
             </button>
             {modo === "edit" && (
               <label className={styles.pagoCheckbox}>
@@ -249,8 +316,12 @@ export default function DespesaForm({
             Cancelar
           </Button>
 
-          <Button onClick={salvar}>
-            {modo === "edit" ? "Salvar alterações" : "Salvar"}
+          <Button onClick={salvar} disabled={salvando}>
+            {salvando
+              ? "Salvando..."
+              : modo === "edit"
+                ? "Salvar alterações"
+                : "Salvar"}
           </Button>
         </div>
       </div>

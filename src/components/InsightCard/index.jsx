@@ -1,5 +1,6 @@
 // InsightCard — análise automática do período gerada por regras simples, sem IA.
 // Compara totalAtual com totalAnterior e escolhe a frase/descrição adequada.
+import { calcularVariacaoPercentual } from '../../utils/variacaoFinanceira'
 import styles from './InsightCard.module.css'
 
 function formatarMoeda(valor) {
@@ -15,8 +16,31 @@ const labelPorPeriodo = {
   '1a':  'Total no ano',
 }
 
+function gerarTopicoCategoria(maiorCategoria) {
+  if (!maiorCategoria) return 'Cadastre despesas para gerar comparações nos próximos períodos.'
+  return `${maiorCategoria} concentra a maior parte dos gastos até agora.`
+}
+
 // Gera frase e lista de tópicos com base na variação percentual
-function gerarTextoInsight(variacaoPct, maiorCategoria) {
+function gerarTextoInsight(variacaoPct, maiorCategoria, totalAtual) {
+  if (variacaoPct === null) {
+    if (!totalAtual) return {
+      frase: 'Ainda não há gastos neste período.',
+      topicos: [
+        'Sem gastos registrados, a visão geral ainda não tem histórico para comparar.',
+        'Cadastre despesas para gerar o primeiro insight do grupo.',
+      ],
+    }
+
+    return {
+      frase: 'Ainda não há histórico suficiente para comparar.',
+      topicos: [
+        'Este é o primeiro período com registros para esta visão.',
+        gerarTopicoCategoria(maiorCategoria),
+      ],
+    }
+  }
+
   const abs = Math.abs(variacaoPct).toFixed(1)
 
   if (variacaoPct <= -15) return {
@@ -57,21 +81,25 @@ function gerarTextoInsight(variacaoPct, maiorCategoria) {
 }
 
 export default function InsightCard({ totalAtual, totalAnterior, categorias, periodo }) {
-  // Calcula variação percentual: negativo = gastou menos (bom)
-  const variacaoPct = ((totalAtual - totalAnterior) / totalAnterior) * 100
-  const gastouMenos = variacaoPct < 0
+  // Calcula variação percentual: negativo = gastou menos (bom). Null = sem base anterior.
+  const variacaoPct = calcularVariacaoPercentual(totalAtual, totalAnterior)
+  const temComparacao = variacaoPct !== null
+  const gastouMenos = temComparacao && variacaoPct < 0
 
   // Maior categoria já vem ordenada por valor no mock/API
   const maiorCategoria = categorias?.[0]
 
-  const { frase, topicos } = gerarTextoInsight(variacaoPct, maiorCategoria?.nome ?? '')
+  const { frase, topicos } = gerarTextoInsight(variacaoPct, maiorCategoria?.nome ?? '', totalAtual)
 
   // Classe de cor e seta da variação calculados antes do JSX
-  let classeVariacao = styles.positivo
-  let seta = '↓'
-  if (!gastouMenos) {
+  let classeVariacao = styles.neutro
+  let textoVariacao = 'Sem histórico'
+  if (temComparacao && gastouMenos) {
+    classeVariacao = styles.positivo
+    textoVariacao = `↓ ${Math.abs(variacaoPct).toFixed(1)}%`
+  } else if (temComparacao) {
     classeVariacao = styles.negativo
-    seta = '↑'
+    textoVariacao = `↑ ${Math.abs(variacaoPct).toFixed(1)}%`
   }
 
   return (
@@ -98,7 +126,7 @@ export default function InsightCard({ totalAtual, totalAnterior, categorias, per
         <div className={styles.mini}>
           <div className={styles.miniLabel}>Vs. período anterior</div>
           <div className={`${styles.miniValor} ${classeVariacao}`}>
-            {seta} {Math.abs(variacaoPct).toFixed(1)}%
+            {textoVariacao}
           </div>
         </div>
 

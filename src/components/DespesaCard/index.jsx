@@ -1,8 +1,7 @@
 import { useMemo } from "react";
-import styles from "./DespesaCard.module.css";
-import Button from "../Button";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-
+import Button from "../Button";
+import styles from "./DespesaCard.module.css";
 
 const CORES_FALLBACK = [
   "#1f7a63",
@@ -13,6 +12,13 @@ const CORES_FALLBACK = [
   "#14b8a6",
 ];
 
+function formatarMoeda(valor) {
+  return Number(valor || 0).toLocaleString("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  });
+}
+
 export default function DespesaCard({
   despesa,
   aberto,
@@ -21,7 +27,10 @@ export default function DespesaCard({
   onEdit,
   onDelete,
 }) {
-  const membros = Array.isArray(despesa?.membros) ? despesa.membros : [];
+  const membros = useMemo(
+    () => (Array.isArray(despesa?.membros) ? despesa.membros : []),
+    [despesa]
+  );
   const total = Number(despesa?.total ?? 0) || 0;
 
   const membrosColoridos = useMemo(
@@ -34,11 +43,11 @@ export default function DespesaCard({
   );
 
   const pagoTotal = useMemo(() => {
-    return membros.reduce((acc, m) => {
+    return membrosColoridos.reduce((acc, m) => {
       if (m.pago) return acc + Number(m.valor || 0);
       return acc;
     }, 0);
-  }, [membros]);
+  }, [membrosColoridos]);
 
   const percentualPago = total > 0 ? (pagoTotal / total) * 100 : 0;
 
@@ -64,7 +73,7 @@ export default function DespesaCard({
         <div className={styles.cardTop}>
           <div>
             <h4 className={styles.cardTitle}>{despesa?.nome ?? "Despesa"}</h4>
-            <p className={styles.cardSubtitle}>R$ {total.toFixed(2)}</p>
+            <p className={styles.cardSubtitle}>{formatarMoeda(total)}</p>
           </div>
         </div>
       </button>
@@ -76,7 +85,7 @@ export default function DespesaCard({
               <div>
                 <h3 className={styles.modalTitle}>{despesa?.nome ?? "Despesa"}</h3>
                 <p className={styles.modalSubtitle}>
-                  R$ {total.toFixed(2)} • {percentualPago.toFixed(0)}% pago
+                  {formatarMoeda(total)} • {percentualPago.toFixed(0)}% pago
                 </p>
               </div>
 
@@ -85,7 +94,7 @@ export default function DespesaCard({
                 className={styles.closeBtn}
                 onClick={onClose}
               >
-                ✕
+                X
               </button>
             </div>
 
@@ -141,7 +150,7 @@ export default function DespesaCard({
 
                             <div>
                               <strong>{m.nome}</strong>
-                              <p>Deve R$ {valor.toFixed(2)}</p>
+                              <p>Deve {formatarMoeda(valor)}</p>
                             </div>
                           </div>
 
@@ -172,8 +181,8 @@ export default function DespesaCard({
                         </div>
 
                         <div className={styles.memberAmounts}>
-                          <span>Pago: R$ {pago.toFixed(2)}</span>
-                          <span>Falta: R$ {restante.toFixed(2)}</span>
+                          <span>Pago: {formatarMoeda(pago)}</span>
+                          <span>Falta: {formatarMoeda(restante)}</span>
                         </div>
                       </div>
                     );
