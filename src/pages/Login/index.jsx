@@ -1,17 +1,40 @@
 // Página de login — autenticação por e-mail/senha ou Google
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import styles from "./Login.module.css";
+import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { useUser } from '../../hooks/useUser'
+import { getGoogleLoginUrl, loginWithEmail } from '../../services/auth'
+import styles from './Login.module.css'
 
 export function Login() {
-  const navigate = useNavigate();
-  const [email, setEmail] = useState("");
-  const [senha, setSenha] = useState("");
+  const navigate = useNavigate()
+  const location = useLocation()
+  const { salvarToken } = useUser()
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+  const [erro, setErro] = useState('')
+  const [carregando, setCarregando] = useState(false)
 
-  function handleLogin(e) {
-    e.preventDefault();
-    // TODO: integrar com API de autenticação
-    navigate("/grupos");
+  async function handleLogin(e) {
+    e.preventDefault()
+    setErro('')
+    setCarregando(true)
+
+    try {
+      const resposta = await loginWithEmail({
+        email,
+        password: senha,
+      })
+      salvarToken(resposta.token)
+      navigate(location.state?.from?.pathname || '/grupos', { replace: true })
+    } catch (error) {
+      setErro(error.response?.data?.error || 'Não foi possível entrar.')
+    } finally {
+      setCarregando(false)
+    }
+  }
+
+  function handleGoogleLogin() {
+    window.location.href = getGoogleLoginUrl()
   }
 
   return (
@@ -26,7 +49,7 @@ export function Login() {
           Entre na sua conta preenchendo os campos abaixo
         </p>
 
-        <button type="button" className={styles.googleBtn}>
+        <button type="button" className={styles.googleBtn} onClick={handleGoogleLogin}>
           <img src="/google-icon.png" alt="" className={styles.googleIcon} />
           Entre com o Google
         </button>
@@ -48,26 +71,22 @@ export function Login() {
             onChange={(e) => setSenha(e.target.value)}
             required
           />
+          {erro && <p className={styles.errorMessage}>{erro}</p>}
+          <button type="submit" className={styles.submitBtn} disabled={carregando}>
+            {carregando ? 'Entrando...' : 'Entrar'}
+          </button>
         </form>
-
-        <button
-          type="submit"
-          className={styles.submitBtn}
-          onClick={handleLogin}
-        >
-          Entrar
-        </button>
 
         <p className={styles.or}>OU</p>
 
         <button
           type="button"
           className={styles.linkBtn}
-          onClick={() => navigate("/cadastro")}
+          onClick={() => navigate('/cadastro')}
         >
           Cadastre-se agora
         </button>
       </div>
     </div>
-  );
+  )
 }

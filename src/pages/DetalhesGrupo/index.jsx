@@ -1,11 +1,12 @@
 // Página detalhada do grupo (dashboard compartilhado entre membros)
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { VisaoGeral } from './abas/VisaoGeral'
 import { Despesas } from './abas/Despesas'
 import { Metas } from './abas/Metas'
 import CabecalhoGrupo from '../../components/CabecalhoGrupo'
 import { useVisaoGeral } from '../../hooks/useVisaoGeral'
+import { buscarGrupo } from '../../services/groupService'
 import styles from './DetalhesGrupo.module.css'
 
 export function DetalhesGrupo() {
@@ -15,9 +16,23 @@ export function DetalhesGrupo() {
 
   // busca os dados do grupo (mock por enquanto, troca pela API depois)
   const { data } = useVisaoGeral(id)
+  const [grupo, setGrupo] = useState(null)
 
   // controla qual aba esta visivel
   const [abaAtiva, setAbaAtiva] = useState('visaoGeral')
+
+  useEffect(() => {
+    async function carregarGrupo() {
+      try {
+        const grupoCarregado = await buscarGrupo(id)
+        setGrupo(grupoCarregado)
+      } catch {
+        setGrupo(null)
+      }
+    }
+
+    carregarGrupo()
+  }, [id])
 
   // renderiza o conteudo conforme a aba selecionada
   function renderizaAba() {
@@ -36,7 +51,7 @@ export function DetalhesGrupo() {
     <div className={styles.pagina}>
 
       {/* cabeçalho com nome do grupo, botão voltar e avatares dos membros */}
-      <CabecalhoGrupo grupo={data?.grupo} />
+      <CabecalhoGrupo grupo={grupo || data?.grupo} />
 
       {/* navegação entre abas */}
       <div className={styles.tabs}>
