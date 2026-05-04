@@ -33,6 +33,7 @@ export function normalizarGrupo(grupo) {
     nome: grupo.name,
     desc: grupo.description || `${membros.length} membros`,
     descricao: grupo.description,
+    created_by: grupo.created_by,
     membros: membros.map(normalizarMembro),
     imagem,
     raw: grupo,
@@ -54,12 +55,13 @@ export async function criarGrupo({ nome, membros, descricao, imagem }) {
   return response.data
 }
 
-export async function atualizarGrupo(groupId, { nome, membros, descricao, imagem }) {
+export async function atualizarGrupo(groupId, { nome, membros, descricao, imagem, created_by }) {
   const response = await api.put(`/group/${groupId}`, {
     name: nome,
     members: membros,
     description: descricao,
     image: imagem,
+    created_by,
   })
   return response.data
 }
