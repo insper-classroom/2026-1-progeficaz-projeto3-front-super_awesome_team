@@ -1,5 +1,8 @@
 /* Estilo do layout principal */
 .main {
+  --negative: #d64545;
+  --negative-hover: #be3434;
+
   margin-left: 60px; /* igual à largura da sidebar */
   overflow-x: hidden;
 }

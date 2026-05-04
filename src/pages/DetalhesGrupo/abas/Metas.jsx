@@ -1,6 +1,6 @@
 // Aba de metas do grupo: resumo, carrossel de metas e registro de aportes.
 import { useEffect, useRef, useState } from 'react'
-import { FiEdit2 } from 'react-icons/fi'
+import { FiAlertTriangle, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import { useMetas } from '../../../hooks/useMetas'
 import GraficoAportes from '../../../components/GraficoAportes'
 import IconeMeta from '../../../components/IconeMeta'
@@ -111,7 +111,7 @@ function idsIguais(idA, idB) {
 }
 
 export function Metas({ grupoId, metaInicialId = null }) {
-  const { data, loading, error, criarMeta, atualizarMeta, registrarAporte } = useMetas(grupoId)
+  const { data, loading, error, criarMeta, atualizarMeta, deletarMeta, registrarAporte, usandoMock } = useMetas(grupoId)
   const destaqueRef = useRef(null)
 
   // Guarda a meta escolhida para destacar o card e alimentar as próximas seções.
@@ -123,7 +123,9 @@ export function Metas({ grupoId, metaInicialId = null }) {
   // Controla qual modal está aberto e qual meta está sendo manipulada.
   const [modalAberto, setModalAberto] = useState(null) // 'novaMeta' | 'editarMeta' | 'aporte'
   const [metaDoModal, setMetaDoModal] = useState(null)
+  const [metaConfirmacaoExclusao, setMetaConfirmacaoExclusao] = useState(null)
   const [erroOperacao, setErroOperacao] = useState('')
+  const [metaExcluindoId, setMetaExcluindoId] = useState(null)
 
   useEffect(() => {
     if (metaInicialId && data?.metas?.length) {
@@ -159,6 +161,22 @@ export function Metas({ grupoId, metaInicialId = null }) {
     setMetaDoModal(null)
   }
 
+  function abrirConfirmacaoExclusao(meta) {
+    setErroOperacao('')
+
+    if (usandoMock) {
+      setErroOperacao('Endpoint de metas indisponível. Exibindo dados mockados.')
+      return
+    }
+
+    setMetaConfirmacaoExclusao(meta)
+  }
+
+  function fecharConfirmacaoExclusao() {
+    if (metaExcluindoId) return
+    setMetaConfirmacaoExclusao(null)
+  }
+
   async function handleSalvarMeta(meta) {
     setErroOperacao('')
 
@@ -182,6 +200,29 @@ export function Metas({ grupoId, metaInicialId = null }) {
       fecharModal()
     } catch (error) {
       setErroOperacao(error.response?.data?.error || 'Não foi possível registrar o aporte.')
+    }
+  }
+
+  async function handleExcluirMeta() {
+    setErroOperacao('')
+
+    const meta = metaConfirmacaoExclusao
+    if (!meta?.id) return
+
+    setMetaExcluindoId(meta.id)
+
+    try {
+      await deletarMeta(meta.id)
+      if (idsIguais(metaSelecionadaId, meta.id)) {
+        setMetaSelecionadaId(null)
+      }
+      setMetaConfirmacaoExclusao(null)
+      fecharModal()
+    } catch (error) {
+      setMetaConfirmacaoExclusao(null)
+      setErroOperacao(error.response?.data?.error || 'Não foi possível excluir a meta.')
+    } finally {
+      setMetaExcluindoId(null)
     }
   }
 
@@ -221,7 +262,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
   const indiceMaximo = Math.max(0, metas.length - totalVisivel)
   const indiceMetaSelecionada = metas.findIndex((meta) => idsIguais(meta.id, metaSelecionadaIdAtual))
 
-  let indiceCarrosselAtual = indiceCarrossel
+  let indiceCarrosselAtual = Math.min(indiceCarrossel, indiceMaximo)
   const metaSelecionadaForaDaJanela = indiceMetaSelecionada < indiceCarrossel ||
     indiceMetaSelecionada >= indiceCarrossel + totalVisivel
   if (metaInicialId && !usuarioMoveuCarrossel && metaSelecionadaForaDaJanela) {
@@ -251,6 +292,20 @@ export function Metas({ grupoId, metaInicialId = null }) {
   if (metaSelecionada.aporteIdeal) {
     textoAporteIdeal = `${formatarMoeda(metaSelecionada.aporteIdeal)}/mês`
   }
+
+  const percentualConfirmacaoExclusao = metaConfirmacaoExclusao
+    ? calcularPercentual(metaConfirmacaoExclusao)
+    : 0
+  const membrosConfirmacaoExclusao = metaConfirmacaoExclusao
+    ? buscarMembrosDaMeta(metaConfirmacaoExclusao, membros)
+    : []
+  const totalAportesConfirmacao = metaConfirmacaoExclusao?.raw?.contributions?.length ?? 0
+  const textoAportesConfirmacao = pluralizar(
+    totalAportesConfirmacao,
+    'aporte registrado',
+    'aportes registrados',
+  )
+  const excluindoMetaConfirmacao = idsIguais(metaExcluindoId, metaConfirmacaoExclusao?.id)
 
   // Fecha sobre metaSelecionadaIdAtual, por isso fica dentro do componente.
   function classeCardMeta(meta) {
@@ -326,6 +381,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
               {metasVisiveis.map((meta) => {
                 const percentual = calcularPercentual(meta)
                 const membrosDaMeta = buscarMembrosDaMeta(meta, membros)
+                const excluindoMeta = idsIguais(metaExcluindoId, meta.id)
 
                 return (
                   // div com role="button" para permitir botões internos sem violar HTML semântico
@@ -370,6 +426,15 @@ export function Metas({ grupoId, metaInicialId = null }) {
                           aria-label={`Editar meta ${meta.nome}`}
                         >
                           <FiEdit2 />
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.botaoEditar} ${styles.botaoExcluir}`}
+                          onClick={(e) => { e.stopPropagation(); abrirConfirmacaoExclusao(meta) }}
+                          aria-label={`Excluir meta ${meta.nome}`}
+                          disabled={excluindoMeta}
+                        >
+                          <FiTrash2 />
                         </button>
                       </div>
                     </div>
@@ -438,14 +503,25 @@ export function Metas({ grupoId, metaInicialId = null }) {
                 <h2 className={styles.tituloDestaque}>{metaSelecionada.nome}</h2>
                 <p className={styles.descricaoDestaque}>{obterDescricaoMeta(metaSelecionada, percentualSelecionada)}</p>
               </div>
-              <button
-                type="button"
-                className={styles.botaoEditarDestaque}
-                onClick={() => abrirEditarMeta(metaSelecionada)}
-                aria-label={`Editar meta ${metaSelecionada.nome}`}
-              >
-                <FiEdit2 />
-              </button>
+              <div className={styles.acoesDestaque}>
+                <button
+                  type="button"
+                  className={styles.botaoEditarDestaque}
+                  onClick={() => abrirEditarMeta(metaSelecionada)}
+                  aria-label={`Editar meta ${metaSelecionada.nome}`}
+                >
+                  <FiEdit2 />
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.botaoEditarDestaque} ${styles.botaoExcluirDestaque}`}
+                  onClick={() => abrirConfirmacaoExclusao(metaSelecionada)}
+                  aria-label={`Excluir meta ${metaSelecionada.nome}`}
+                  disabled={idsIguais(metaExcluindoId, metaSelecionada.id)}
+                >
+                  <FiTrash2 />
+                </button>
+              </div>
             </div>
 
             <div className={styles.progressoMeta}>
@@ -588,6 +664,102 @@ export function Metas({ grupoId, metaInicialId = null }) {
           onSalvar={handleSalvarAporte}
           onFechar={fecharModal}
         />
+      )}
+
+      {metaConfirmacaoExclusao && (
+        <div className={styles.overlayConfirmacao} onClick={fecharConfirmacaoExclusao}>
+          <div
+            className={styles.modalConfirmacao}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-confirmacao-exclusao"
+          >
+            <div className={styles.confirmacaoTopo}>
+              <span className={styles.iconeAlerta}>
+                <FiAlertTriangle />
+              </span>
+              <div>
+                <span className={styles.kickerConfirmacao}>Exclusão permanente</span>
+                <h2 id="titulo-confirmacao-exclusao" className={styles.tituloConfirmacao}>
+                  Excluir meta?
+                </h2>
+              </div>
+            </div>
+
+            <p className={styles.textoConfirmacao}>
+              Você está prestes a excluir esta meta do grupo. Todos os dados vinculados a ela
+              serão perdidos.
+            </p>
+
+            <div className={styles.cardMetaConfirmacao}>
+              <div className={styles.cabecalhoMetaConfirmacao}>
+                <span className={styles.iconeMetaConfirmacao}>
+                  <IconeMeta meta={metaConfirmacaoExclusao} />
+                </span>
+                <div className={styles.infoMetaConfirmacao}>
+                  <strong>{metaConfirmacaoExclusao.nome}</strong>
+                  <span>Prazo: {metaConfirmacaoExclusao.prazo}</span>
+                </div>
+              </div>
+
+              <div className={styles.gradeDadosConfirmacao}>
+                <div>
+                  <span>Guardado</span>
+                  <strong>{formatarMoeda(metaConfirmacaoExclusao.alcancado)}</strong>
+                </div>
+                <div>
+                  <span>Meta total</span>
+                  <strong>{formatarMoeda(metaConfirmacaoExclusao.total)}</strong>
+                </div>
+                <div>
+                  <span>Progresso</span>
+                  <strong>{percentualConfirmacaoExclusao}%</strong>
+                </div>
+              </div>
+
+              <div className={styles.linhaConfirmacao}>
+                <span>{totalAportesConfirmacao} {textoAportesConfirmacao}</span>
+                <div className={styles.avataresConfirmacao}>
+                  {membrosConfirmacaoExclusao.map((membro) => (
+                    <span
+                      key={membro.id}
+                      className={styles.avatarMeta}
+                      style={{ backgroundColor: membro.cor }}
+                      title={membro.nome}
+                    >
+                      {membro.iniciais}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.alertaConfirmacao}>
+              Esta ação não pode ser desfeita. Os aportes registrados nessa meta também serão
+              removidos.
+            </div>
+
+            <div className={styles.rodapeConfirmacao}>
+              <button
+                type="button"
+                className={styles.botaoCancelarConfirmacao}
+                onClick={fecharConfirmacaoExclusao}
+                disabled={excluindoMetaConfirmacao}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                className={styles.botaoConfirmarExclusao}
+                onClick={handleExcluirMeta}
+                disabled={excluindoMetaConfirmacao}
+              >
+                {excluindoMetaConfirmacao ? 'Excluindo...' : 'Excluir meta'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
     </div>
