@@ -23,6 +23,7 @@ export default function ModalAporte({
   membros,
   metaInicial,
   aporteInicial = null,
+  erro = '',
   onSalvar,
   onFechar,
 }) {
@@ -182,6 +183,12 @@ export default function ModalAporte({
               <FiCalendar className={styles.iconeCalendario} aria-hidden="true" />
             </div>
           </div>
+
+          {erro && (
+            <div className={styles.erro} role="alert">
+              {erro}
+            </div>
+          )}
 
           <div className={styles.rodape}>
             <button type="button" className={styles.botaoCancelar} onClick={onFechar}>

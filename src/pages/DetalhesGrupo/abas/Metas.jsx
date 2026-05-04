@@ -148,6 +148,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
   const [aporteDoModal, setAporteDoModal] = useState(null)
   const [metaConfirmacaoExclusao, setMetaConfirmacaoExclusao] = useState(null)
   const [erroOperacao, setErroOperacao] = useState('')
+  const [erroAporte, setErroAporte] = useState('')
   const [metaExcluindoId, setMetaExcluindoId] = useState(null)
 
   useEffect(() => {
@@ -163,18 +164,21 @@ export function Metas({ grupoId, metaInicialId = null }) {
 
   function abrirNovaMeta() {
     setErroOperacao('')
+    setErroAporte('')
     setModalAberto('novaMeta')
     setMetaDoModal(null)
   }
 
   function abrirEditarMeta(meta) {
     setErroOperacao('')
+    setErroAporte('')
     setModalAberto('editarMeta')
     setMetaDoModal(meta)
   }
 
   function abrirAporte(meta = null) {
     setErroOperacao('')
+    setErroAporte('')
     setModalAberto('aporte')
     setMetaDoModal(meta)
     setAporteDoModal(null)
@@ -183,6 +187,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
   function abrirEditarAporte(movimentacao) {
     const meta = metas.find((item) => idsIguais(item.id, movimentacao.metaId)) || null
     setErroOperacao('')
+    setErroAporte('')
     setModalAberto('aporte')
     setMetaDoModal(meta)
     setAporteDoModal(movimentacao)
@@ -192,6 +197,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
     setModalAberto(null)
     setMetaDoModal(null)
     setAporteDoModal(null)
+    setErroAporte('')
   }
 
   function abrirConfirmacaoExclusao(meta) {
@@ -227,6 +233,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
 
   async function handleSalvarAporte(aporte) {
     setErroOperacao('')
+    setErroAporte('')
 
     try {
       if (aporteDoModal) {
@@ -236,7 +243,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
       }
       fecharModal()
     } catch (error) {
-      setErroOperacao(error.response?.data?.error || 'Não foi possível salvar o aporte.')
+      setErroAporte(error.response?.data?.error || 'Não foi possível salvar o aporte.')
     }
   }
 
@@ -709,6 +716,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
           membros={membros}
           metaInicial={metaDoModal}
           aporteInicial={aporteDoModal}
+          erro={erroAporte}
           onSalvar={handleSalvarAporte}
           onFechar={fecharModal}
         />

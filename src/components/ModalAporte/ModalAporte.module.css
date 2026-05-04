@@ -312,6 +312,16 @@
   flex-shrink: 0;
 }
 
+.erro {
+  border: 1px solid color-mix(in srgb, var(--negative) 28%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--negative) 10%, transparent);
+  color: var(--negative);
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 11px 13px;
+}
+
 /* ── Rodapé ── */
 
 .rodape {
