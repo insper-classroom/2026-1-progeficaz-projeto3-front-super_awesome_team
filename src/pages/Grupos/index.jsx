@@ -112,10 +112,13 @@ export function Grupos() {
     setErro('')
 
     try {
+      const imagemFinal = imgUpload || imgSelecionada
+
       const payload = {
         nome: nomeGrupo.trim(),
         membros,
         descricao: descricaoGrupo.trim() || 'Novo grupo',
+        imagem: imagemFinal,
       }
 
       if (modoModal === 'edit' && grupoEditando) {

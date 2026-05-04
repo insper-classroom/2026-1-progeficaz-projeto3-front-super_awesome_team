@@ -30,7 +30,7 @@ export function normalizarGrupo(grupo) {
     desc: grupo.description || `${membros.length} membros`,
     descricao: grupo.description,
     membros: membros.map(normalizarMembro),
-    imagem: '/casa.jpg',
+    imagem: grupo.image || grupo.imagem || '/casa.jpg',
     raw: grupo,
   }
 }
@@ -40,20 +40,22 @@ export async function listarGrupos() {
   return (response.data.groups || []).map(normalizarGrupo)
 }
 
-export async function criarGrupo({ nome, membros, descricao }) {
+export async function criarGrupo({ nome, membros, descricao, imagem }) {
   const response = await api.post('/group', {
     name: nome,
     members: membros,
     description: descricao,
+    image: imagem,
   })
   return response.data
 }
 
-export async function atualizarGrupo(groupId, { nome, membros, descricao }) {
+export async function atualizarGrupo(groupId, { nome, membros, descricao, imagem }) {
   const response = await api.put(`/group/${groupId}`, {
     name: nome,
     members: membros,
     description: descricao,
+    image: imagem,
   })
   return response.data
 }
