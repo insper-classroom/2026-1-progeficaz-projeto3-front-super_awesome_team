@@ -226,6 +226,199 @@
   border-color: var(--negative);
 }
 
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: rgba(0, 0, 0, 0.58);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.modal {
+  width: 100%;
+  max-width: 460px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--text);
+  padding: 28px;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.28);
+}
+
+.modalCabecalho {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.modalTituloGrupo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.iconeAlerta {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--negative) 14%, transparent);
+  color: var(--negative);
+  border: 1px solid color-mix(in srgb, var(--negative) 28%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.iconeAlerta svg {
+  width: 22px;
+  height: 22px;
+}
+
+.kickerExclusao {
+  display: block;
+  color: var(--negative);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+}
+
+.modalTitulo {
+  color: var(--text);
+  font-size: 21px;
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.botaoFecharModal {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  padding: 0;
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.botaoFecharModal:hover {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+
+.formModal {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.textoConfirmacao {
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.grupoModal {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rotuloModal {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.inputModal {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  font-family: inherit;
+  padding: 11px 14px;
+  transition: border-color 0.15s;
+}
+
+.inputModal:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.mensagemModal {
+  border: 1px solid color-mix(in srgb, var(--negative) 28%, var(--border));
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--negative) 10%, transparent);
+  color: var(--negative);
+  font-size: 13px;
+  line-height: 1.45;
+  padding: 11px 13px;
+}
+
+.modalAcoes {
+  display: flex;
+  gap: 12px;
+  padding-top: 4px;
+}
+
+.botaoCancelarModal,
+.botaoExcluirModal {
+  flex: 1;
+  min-height: 40px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.botaoCancelarModal {
+  border: 1px solid color-mix(in srgb, var(--text-muted) 65%, var(--border));
+  background: transparent;
+  color: var(--text);
+}
+
+.botaoCancelarModal:hover {
+  border-color: var(--text-muted);
+}
+
+.botaoExcluirModal {
+  border: 1px solid var(--negative);
+  background: var(--negative);
+  color: #fff;
+}
+
+.botaoExcluirModal:hover {
+  background: var(--negative-hover, var(--negative));
+  border-color: var(--negative-hover, var(--negative));
+}
+
 @media (max-width: 760px) {
   .pagina {
     padding: 48px 18px 28px;
@@ -246,7 +439,8 @@
   }
 
   .senhaResumo,
-  .acoesSenha {
+  .acoesSenha,
+  .modalAcoes {
     align-items: stretch;
     flex-direction: column;
   }
@@ -254,7 +448,9 @@
   .botaoPrimario,
   .botaoSecundario,
   .botaoTexto,
-  .botaoSair {
+  .botaoSair,
+  .botaoCancelarModal,
+  .botaoExcluirModal {
     width: 100%;
   }
 }

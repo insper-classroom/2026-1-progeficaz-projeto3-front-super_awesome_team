@@ -15,6 +15,24 @@ export async function registerUser({ name, email, password, confirmPassword }) {
   return response.data
 }
 
+export async function requestPasswordReset({ email }) {
+  const response = await api.post('/auth/forgot-password', { email })
+  return response.data
+}
+
+export async function verifyResetCode({ email, code }) {
+  const response = await api.post('/auth/verify-reset-code', { email, code })
+  return response.data
+}
+
+export async function resetPassword({ resetToken, newPassword }) {
+  const response = await api.post('/auth/reset-password', {
+    reset_token: resetToken,
+    new_password: newPassword,
+  })
+  return response.data
+}
+
 export function getGoogleLoginUrl() {
   return `${api.defaults.baseURL}/auth/google`
 }

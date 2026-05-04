@@ -1,28 +1,31 @@
 import api from './api'
+import { decodeImageFromBase64 } from '../utils/imageUtils'
 
 const coresMembros = ['#ff2d87', '#7c2fff', '#ff9f00', '#03fc83', '#2d9cff']
-
-function iniciaisDoEmail(email) {
-  return email.slice(0, 2).toUpperCase()
-}
 
 function nomeDoEmail(email) {
   return email.split('@')[0]
 }
 
-function normalizarMembro(email, index) {
+function normalizarMembro(membro, index) {
+  const email = typeof membro === 'string' ? membro : membro.email
+  const nome =
+    typeof membro === 'string'
+      ? nomeDoEmail(email)
+      : membro.name || membro.nome || nomeDoEmail(email)
+
   return {
     id: email,
     email,
-    nome: nomeDoEmail(email),
-    iniciais: iniciaisDoEmail(email),
+    nome,
+    iniciais: nome.slice(0, 2).toUpperCase(),
     cor: coresMembros[index % coresMembros.length],
-    foto: null,
+    foto: typeof membro === 'string' ? null : membro.image || membro.foto || null,
   }
 }
 
 export function normalizarGrupo(grupo) {
-  const membros = grupo.members || []
+  const membros = grupo.member_details || grupo.members || []
 
   return {
     id: grupo._id,
@@ -31,6 +34,7 @@ export function normalizarGrupo(grupo) {
     descricao: grupo.description,
     membros: membros.map(normalizarMembro),
     imagem: grupo.image || grupo.imagem || '/casa.jpg',
+    imagem: decodeImageFromBase64(grupo.image) || '/casa.jpg',
     raw: grupo,
   }
 }
@@ -40,11 +44,12 @@ export async function listarGrupos() {
   return (response.data.groups || []).map(normalizarGrupo)
 }
 
-export async function criarGrupo({ nome, membros, descricao }) {
+export async function criarGrupo({ nome, membros, descricao, imagem }) {
   const response = await api.post('/group', {
     name: nome,
     members: membros,
     description: descricao,
+    image: imagem || null,
   })
   return response.data
 }

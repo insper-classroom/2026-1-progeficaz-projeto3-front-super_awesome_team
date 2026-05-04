@@ -66,3 +66,13 @@ export async function registrarAporteMeta({ metaId, membroId, valor, data }) {
 
   return response.data
 }
+
+export async function atualizarAporteMeta({ metaId, contributionIndex, membroId, valor, data }) {
+  const response = await api.put(`/goal/${metaId}/contribution/${contributionIndex}`, {
+    value: numeroSeguro(valor),
+    member_email: membroId,
+    contributed_at: dataParaAporte(data),
+  })
+
+  return response.data
+}

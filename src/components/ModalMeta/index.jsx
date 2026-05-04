@@ -1,6 +1,6 @@
 // Modal de criação e edição de meta.
 // meta=null → nova meta; meta={...} → editar existente.
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { FiCalendar, FiX } from 'react-icons/fi'
 import IconeMeta from '../IconeMeta'
 import styles from './ModalMeta.module.css'
@@ -91,6 +91,7 @@ function calcularAporteIdeal(form, meta) {
 
 export default function ModalMeta({ meta, membros, onSalvar, onFechar }) {
   const [form, setForm] = useState(() => valorInicial(meta))
+  const inputPrazoRef = useRef(null)
 
   const editando = meta != null
 
@@ -130,6 +131,16 @@ export default function ModalMeta({ meta, membros, onSalvar, onFechar }) {
       total: Number(form.total),
       aporteIdeal: aporteIdealCalculado,
     })
+  }
+
+  function abrirCalendarioPrazo() {
+    const input = inputPrazoRef.current
+    if (!input) return
+
+    input.focus()
+    if (typeof input.showPicker === 'function') {
+      input.showPicker()
+    }
   }
 
   const formularioValido =
@@ -220,8 +231,9 @@ export default function ModalMeta({ meta, membros, onSalvar, onFechar }) {
           {/* Prazo */}
           <div className={styles.grupo}>
             <label className={styles.rotulo}>Prazo</label>
-            <div className={styles.inputComIconeData}>
+            <div className={styles.inputComIconeData} onClick={abrirCalendarioPrazo}>
               <input
+                ref={inputPrazoRef}
                 className={`${styles.input} ${styles.inputData}`}
                 type="month"
                 min={MES_ATUAL}

@@ -8,6 +8,7 @@ import {
   atualizarGrupo as atualizarGrupoApi,
   listarGrupos,
 } from '../../services/groupService'
+import { encodeImageToBase64 } from '../../utils/imageUtils'
 
 export function Grupos() {
   const navigate = useNavigate()
@@ -15,16 +16,19 @@ export function Grupos() {
   const [modalAberto, setModalAberto] = useState(false)
   const [modoModal, setModoModal] = useState('create') // create | edit
   const [grupoEditando, setGrupoEditando] = useState(null)
-
-  const [nomeGrupo, setNomeGrupo] = useState('')
+  const navigate = useNavigate() // hook para navegar entre páginas
+  const [grupos, setGrupos] = useState([]) // lista de grupos criados pelo usuario
+  const [modalAberto, setModalAberto] = useState(false) // controla a visibilidade do modal
+  const [nomeGrupo, setNomeGrupo] = useState('') // nome digitado para o novo grupo
+  const [emailMembro, setEmailMembro ] = useState('') // e-mail digitado para adicionar membro
+  const [membros, setMembros] = useState([]) // lista de e-mails dos membros adicionados
+  const [imgSelecionada, setImgSelecionada] = useState('/casa.jpg') // imagem escolhida para o grupo
+  const [imgUpload, setImgUpload] = useState(null) // url temporária da imagem enviada pelo usuário
   const [descricaoGrupo, setDescricaoGrupo] = useState('')
-  const [emailMembro, setEmailMembro] = useState('')
-  const [membros, setMembros] = useState([])
-  const [imgSelecionada, setImgSelecionada] = useState('/casa.jpg')
-  const [imgUpload, setImgUpload] = useState(null)
+  const [arquivoUpload, setArquivoUpload] = useState(null) // arquivo original para codificação
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
-  const inputUploadRef = useRef(null)
+  const inputUploadRef = useRef(null) // referência ao input de arquivo oculto
 
   const imagens = [
     { src: '/casa.jpg', label: 'Casa' },
@@ -59,6 +63,15 @@ export function Grupos() {
     setImgUpload(null)
     setGrupoEditando(null)
   }
+    // converte o arquivo enviado em url temporária e seleciona como imagem do grupo
+    function handleUpload(e) {
+      const arquivo = e.target.files[0]
+      if (!arquivo) return
+      const url = URL.createObjectURL(arquivo)
+      setImgUpload(url)
+      setImgSelecionada(url)
+      setArquivoUpload(arquivo)
+    }
 
   function abrirCriarGrupo() {
     setModoModal('create')
@@ -85,6 +98,9 @@ export function Grupos() {
     if (email && !membros.includes(email)) {
       setMembros([...membros, email])
       setEmailMembro('')
+      setImgSelecionada('/casa.jpg')
+      setImgUpload(null)
+      setArquivoUpload(null)
     }
   }
 
@@ -118,6 +134,19 @@ export function Grupos() {
         nome: nomeGrupo.trim(),
         membros,
         descricao: descricaoGrupo.trim() || 'Novo grupo',
+      try {
+        const imagem = arquivoUpload ? await encodeImageToBase64(arquivoUpload) : null
+        await criarGrupoApi({
+          nome: nomeGrupo,
+          membros,
+          descricao: 'Novo grupo',
+          imagem,
+        })
+        const gruposAtualizados = await listarGrupos()
+        setGrupos(gruposAtualizados)
+        fecharModal()
+      } catch (error) {
+        setErro(error.response?.data?.error || 'Não foi possível criar o grupo.')
       }
 
       if (modoModal === 'edit' && grupoEditando) {

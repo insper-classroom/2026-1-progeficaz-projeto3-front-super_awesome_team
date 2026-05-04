@@ -135,10 +135,16 @@
   padding: 18px;
 }
 
+.chartCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .chartBox {
   position: relative;
   width: 100%;
-  height: 220px;
+  height: 200px;
 }
 
 .chartCenter {
@@ -231,12 +237,14 @@
 
 .badgePago {
   color: var(--positive);
-  background: var(--primary-muted);
+  background: color-mix(in srgb, var(--positive) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--positive) 24%, transparent);
 }
 
 .badgePendente {
-  color: #b45309;
-  background: rgba(245, 158, 11, 0.12);
+  color: var(--negative);
+  background: color-mix(in srgb, var(--negative) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--negative) 22%, transparent);
 }
 
 .progressBar {
@@ -262,6 +270,136 @@
   color: var(--text-muted);
 }
 
+.pixBox {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+}
+
+.pixInfo {
+  min-width: 0;
+}
+
+.pixInfo span,
+.pixInfo small {
+  display: block;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pixInfo strong {
+  display: block;
+  margin: 4px 0;
+  color: var(--text);
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.pixQrRow {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pixQr {
+  width: 112px;
+  height: 112px;
+  padding: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: #fff;
+  box-sizing: border-box;
+  object-fit: contain;
+}
+
+.pixCopyButton {
+  border: 1px solid var(--primary);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--primary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 8px 12px;
+  white-space: nowrap;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.pixCopyButton:hover {
+  background: var(--primary-muted);
+  transform: translateY(-1px);
+}
+
+.confirmationRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.confirmacaoOk,
+.confirmacaoPendente {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 8px;
+}
+
+.confirmacaoOk small,
+.confirmacaoPendente small {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.confirmacaoOk {
+  color: var(--positive);
+  background: var(--primary-muted);
+}
+
+.confirmacaoPendente {
+  color: var(--text-muted);
+  background: var(--bg);
+}
+
+.memberAction {
+  width: 100%;
+  border: 1px solid var(--primary);
+  border-radius: 999px;
+  background: var(--primary);
+  color: white;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 12px;
+  padding: 8px 12px;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.memberAction:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+.memberAction:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+  transform: none;
+}
+
 .actions {
   display: flex;
   gap: 10px;
@@ -271,6 +409,16 @@
 @media (max-width: 900px) {
   .modalGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .pixBox {
+    grid-template-columns: 1fr;
+  }
+
+  .pixQrRow {
+    justify-content: flex-start;
   }
 }
 

@@ -1,10 +1,11 @@
 // Pagina de perfil: exibe dados do usuario, edicao basica e acao de sair da conta.
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FiCamera, FiEdit2, FiLock, FiLogOut, FiSave, FiX } from 'react-icons/fi'
+import { FiAlertTriangle, FiCamera, FiEdit2, FiLock, FiLogOut, FiSave, FiX } from 'react-icons/fi'
 import styles from './Perfil.module.css'
 import { useUser } from '../../hooks/useUser'
-import { updateUser } from '../../services/userService'
+import { updateUser, deleteUser } from '../../services/userService'
+import { decodeImageFromBase64, encodeImageToBase64 } from '../../utils/imageUtils'
 
 function obterTextoNascimento(nascimento) {
   if (nascimento) return nascimento
@@ -25,21 +26,46 @@ export function Perfil() {
   const [confirmarNovaSenha, setConfirmarNovaSenha] = useState('')
   const [mensagemSenha, setMensagemSenha] = useState('')
   const [mensagemPerfil, setMensagemPerfil] = useState('')
+  const [confirmandoDelete, setConfirmandoDelete] = useState(false)
+  const [senhaDelete, setSenhaDelete] = useState('')
+  const [mensagemDelete, setMensagemDelete] = useState('')
 
   const email = usuario?.email || ''
   const nomeExibido = usuario?.name || 'Nome do usuario'
   const textoNascimento = obterTextoNascimento(nascimento)
+  const isGoogleUser = usuario?.auth_provider === 'google'
 
   let srcFoto = '/imagem_padrao_perfil.png'
   if (foto) {
     srcFoto = foto
   }
 
-  function aoEscolherFoto(e) {
+  useEffect(() => {
+    if (!confirmandoDelete) return undefined
+
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        setMensagemDelete('')
+        setSenhaDelete('')
+        setConfirmandoDelete(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [confirmandoDelete])
+
+  async function aoEscolherFoto(e) {
     const arquivo = e.target.files[0]
     if (!arquivo) return
 
-    setFoto(URL.createObjectURL(arquivo))
+    const encoded = await encodeImageToBase64(arquivo)
+    setFoto(decodeImageFromBase64(encoded))
+    try {
+      await updateUser({ image: encoded })
+    } catch (error) {
+      setMensagemPerfil(error.response?.data?.error || 'Não foi possível salvar a foto.')
+    }
   }
 
   function abrirSeletorFoto() {
@@ -113,6 +139,31 @@ export function Perfil() {
     navigate('/login')
   }
 
+  function abrirExcluirConta() {
+    setMensagemDelete('')
+    setSenhaDelete('')
+    setConfirmandoDelete(true)
+  }
+
+  function cancelarExclusao() {
+    setMensagemDelete('')
+    setSenhaDelete('')
+    setConfirmandoDelete(false)
+  }
+
+  async function excluirConta(e) {
+    e?.preventDefault()
+    setMensagemDelete('')
+
+    try {
+      await deleteUser(isGoogleUser ? {} : { password: senhaDelete })
+      sair()
+      navigate('/login')
+    } catch (error) {
+      setMensagemDelete(error.response?.data?.error || 'Não foi possível excluir a conta.')
+    }
+  }
+
   function renderizarCampoNome() {
     if (editando) {
       return (
@@ -144,6 +195,10 @@ export function Perfil() {
   }
 
   function renderizarCampoSenha() {
+    if (isGoogleUser) {
+    return <span className={styles.valorCampo}>Conta vinculada ao Google</span>
+  }
+
     if (alterandoSenha) {
       return (
         <div className={styles.formSenha}>
@@ -275,10 +330,12 @@ export function Perfil() {
             <span className={styles.valorCampo}>{email}</span>
           </div>
 
-          <div className={styles.campo}>
-            <label>Senha</label>
-            {renderizarCampoSenha()}
-          </div>
+          {!isGoogleUser && (
+            <div className={styles.campo}>
+              <label>Senha</label>
+              {renderizarCampoSenha()}
+            </div>
+          )}
         </div>
 
         <div className={styles.rodapePerfil}>
@@ -288,8 +345,75 @@ export function Perfil() {
             <FiLogOut />
             Sair da conta
           </button>
+
+          <button type="button" className={styles.botaoSair} onClick={abrirExcluirConta}>
+            Excluir conta
+          </button>
         </div>
       </section>
+
+      {confirmandoDelete && (
+        <div className={styles.modalOverlay} onClick={cancelarExclusao}>
+          <div
+            className={styles.modal}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-exclusao-conta"
+          >
+            <div className={styles.modalCabecalho}>
+              <div className={styles.modalTituloGrupo}>
+                <span className={styles.iconeAlerta}>
+                  <FiAlertTriangle />
+                </span>
+                <div>
+                  <span className={styles.kickerExclusao}>Exclusão permanente</span>
+                  <h3 id="titulo-exclusao-conta" className={styles.modalTitulo}>Excluir conta?</h3>
+                </div>
+              </div>
+              <button type="button" className={styles.botaoFecharModal} onClick={cancelarExclusao} aria-label="Fechar">
+                <FiX />
+              </button>
+            </div>
+            <form className={styles.formModal} onSubmit={excluirConta}>
+              <p className={styles.textoConfirmacao}>
+                Essa ação não pode ser desfeita. Seus dados de perfil serão removidos da aplicação.
+              </p>
+
+              {!isGoogleUser && (
+                <div className={styles.grupoModal}>
+                  <label className={styles.rotuloModal}>Senha atual</label>
+                  <input
+                    type="password"
+                    placeholder="Digite sua senha"
+                    value={senhaDelete}
+                    onChange={(e) => setSenhaDelete(e.target.value)}
+                    className={styles.inputModal}
+                    autoFocus
+                    required
+                  />
+                </div>
+              )}
+
+              {mensagemDelete && (
+                <span className={styles.mensagemModal} role="alert">
+                  {mensagemDelete}
+                </span>
+              )}
+
+              <div className={styles.modalAcoes}>
+                <button type="button" className={styles.botaoCancelarModal} onClick={cancelarExclusao}>
+                  Cancelar
+                </button>
+
+                <button type="submit" className={styles.botaoExcluirModal}>
+                  Confirmar exclusão
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
