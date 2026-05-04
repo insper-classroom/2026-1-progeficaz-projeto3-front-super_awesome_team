@@ -604,6 +604,13 @@
   white-space: nowrap;
 }
 
+.tagAporteEmDia,
+.tagAporteSaudavel {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 12%, transparent);
+  border-color: color-mix(in srgb, var(--primary) 30%, transparent);
+}
+
 .linhasAporte {
   display: flex;
   flex-direction: column;
@@ -734,6 +741,33 @@
   color: var(--positive);
   flex-shrink: 0;
   white-space: nowrap;
+}
+
+.botaoEditarMovimentacao {
+  width: 30px;
+  height: 30px;
+  border: 1px solid color-mix(in srgb, var(--text-muted) 65%, var(--border));
+  border-radius: 9px;
+  background: transparent;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  padding: 0;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.botaoEditarMovimentacao:hover {
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--primary);
+}
+
+.botaoEditarMovimentacao svg {
+  width: 13px;
+  height: 13px;
 }
 
 .overlayConfirmacao {

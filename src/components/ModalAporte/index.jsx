@@ -1,6 +1,6 @@
 // Modal para registrar um aporte em uma meta.
 // metaInicial pre-seleciona a meta; se null, usa a primeira da lista.
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { FiCalendar, FiX } from 'react-icons/fi'
 import IconeMeta from '../IconeMeta'
 import styles from './ModalAporte.module.css'
@@ -9,13 +9,26 @@ function formatarMoeda(valor) {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 })
 }
 
-export default function ModalAporte({ metas, membros, metaInicial, onSalvar, onFechar }) {
-  const [form, setForm] = useState({
-    metaId:    metaInicial?.id ?? metas[0]?.id ?? '',
-    membroId:  membros[0]?.id ?? '',
-    valor:     '',
-    data:      new Date().toISOString().slice(0, 10),
-  })
+function valorInicial({ metas, membros, metaInicial, aporteInicial }) {
+  return {
+    metaId:    aporteInicial?.metaId ?? metaInicial?.id ?? metas[0]?.id ?? '',
+    membroId:  aporteInicial?.membroId ?? membros[0]?.id ?? '',
+    valor:     aporteInicial?.valor ?? '',
+    data:      aporteInicial?.dataValor ?? '',
+  }
+}
+
+export default function ModalAporte({
+  metas,
+  membros,
+  metaInicial,
+  aporteInicial = null,
+  onSalvar,
+  onFechar,
+}) {
+  const inputDataRef = useRef(null)
+  const [form, setForm] = useState(() => valorInicial({ metas, membros, metaInicial, aporteInicial }))
+  const editando = aporteInicial != null
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -31,7 +44,21 @@ export default function ModalAporte({ metas, membros, metaInicial, onSalvar, onF
 
   function handleSubmit(e) {
     e.preventDefault()
-    onSalvar({ ...form, valor: Number(form.valor) })
+    onSalvar({
+      ...form,
+      contributionIndex: aporteInicial?.contributionIndex,
+      valor: Number(form.valor),
+    })
+  }
+
+  function abrirCalendarioData() {
+    const input = inputDataRef.current
+    if (!input) return
+
+    input.focus()
+    if (typeof input.showPicker === 'function') {
+      input.showPicker()
+    }
   }
 
   const formularioValido =
@@ -49,11 +76,11 @@ export default function ModalAporte({ metas, membros, metaInicial, onSalvar, onF
         onClick={(e) => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label="Registrar aporte"
+        aria-label={editando ? 'Editar aporte' : 'Registrar aporte'}
       >
 
         <div className={styles.cabecalho}>
-          <h2 className={styles.titulo}>Registrar aporte</h2>
+          <h2 className={styles.titulo}>{editando ? 'Editar aporte' : 'Registrar aporte'}</h2>
           <button type="button" className={styles.botaoFechar} onClick={onFechar} aria-label="Fechar">
             <FiX />
           </button>
@@ -68,6 +95,7 @@ export default function ModalAporte({ metas, membros, metaInicial, onSalvar, onF
               className={styles.select}
               value={form.metaId}
               onChange={(e) => atualizar('metaId', e.target.value)}
+              disabled={editando}
               required
             >
               {metas.map((meta) => (
@@ -142,8 +170,9 @@ export default function ModalAporte({ metas, membros, metaInicial, onSalvar, onF
           {/* Data */}
           <div className={styles.grupo}>
             <label className={styles.rotulo}>Data</label>
-            <div className={styles.inputComIconeData}>
+            <div className={styles.inputComIconeData} onClick={abrirCalendarioData}>
               <input
+                ref={inputDataRef}
                 className={`${styles.input} ${styles.inputData}`}
                 type="date"
                 value={form.data}
@@ -159,7 +188,7 @@ export default function ModalAporte({ metas, membros, metaInicial, onSalvar, onF
               Cancelar
             </button>
             <button type="submit" className={styles.botaoConfirmar} disabled={!formularioValido}>
-              Registrar aporte
+              {editando ? 'Salvar alterações' : 'Registrar aporte'}
             </button>
           </div>
 
