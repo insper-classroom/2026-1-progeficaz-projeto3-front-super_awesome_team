@@ -107,7 +107,7 @@ function obterDescricaoMeta(meta, percentual) {
 }
 
 export function Metas({ grupoId }) {
-  const { data, loading } = useMetas(grupoId)
+  const { data, loading, criarMeta, atualizarMeta, registrarAporte, usandoMock } = useMetas(grupoId)
 
   // Guarda a meta escolhida para destacar o card e alimentar as próximas seções.
   const [metaSelecionadaId, setMetaSelecionadaId] = useState(null)
@@ -117,15 +117,90 @@ export function Metas({ grupoId }) {
   // Controla qual modal está aberto e qual meta está sendo manipulada.
   const [modalAberto, setModalAberto] = useState(null) // 'novaMeta' | 'editarMeta' | 'aporte'
   const [metaDoModal, setMetaDoModal] = useState(null)
+  const [erroOperacao, setErroOperacao] = useState('')
 
   if (loading || !data) return <div className={styles.carregando}>Carregando...</div>
 
   const { metas, membros, movimentacoes } = data
 
+  function abrirNovaMeta() {
+    setErroOperacao('')
+    setModalAberto('novaMeta')
+    setMetaDoModal(null)
+  }
+
+  function abrirEditarMeta(meta) {
+    setErroOperacao('')
+    setModalAberto('editarMeta')
+    setMetaDoModal(meta)
+  }
+
+  function abrirAporte(meta = null) {
+    setErroOperacao('')
+    setModalAberto('aporte')
+    setMetaDoModal(meta)
+  }
+
+  function fecharModal() {
+    setModalAberto(null)
+    setMetaDoModal(null)
+  }
+
+  async function handleSalvarMeta(meta) {
+    setErroOperacao('')
+
+    if (usandoMock) {
+      setErroOperacao('Endpoint de metas indisponível. Exibindo dados mockados.')
+      fecharModal()
+      return
+    }
+
+    try {
+      if (metaDoModal?.id) {
+        await atualizarMeta(metaDoModal.id, meta)
+      } else {
+        await criarMeta(meta)
+      }
+      fecharModal()
+    } catch (error) {
+      setErroOperacao(error.response?.data?.error || 'Não foi possível salvar a meta.')
+    }
+  }
+
+  async function handleSalvarAporte(aporte) {
+    setErroOperacao('')
+
+    if (usandoMock) {
+      setErroOperacao('Endpoint de metas indisponível. Exibindo dados mockados.')
+      fecharModal()
+      return
+    }
+
+    try {
+      await registrarAporte(aporte)
+      fecharModal()
+    } catch (error) {
+      setErroOperacao(error.response?.data?.error || 'Não foi possível registrar o aporte.')
+    }
+  }
+
   if (!metas.length) {
     return (
       <div className={styles.container}>
+        {erroOperacao && <div className={styles.vazio}>{erroOperacao}</div>}
         <div className={styles.vazio}>Nenhuma meta cadastrada.</div>
+        <button type="button" className={styles.botaoPrimario} onClick={abrirNovaMeta}>
+          Criar meta
+        </button>
+
+        {modalAberto === 'novaMeta' && (
+          <ModalMeta
+            meta={null}
+            membros={membros}
+            onSalvar={handleSalvarMeta}
+            onFechar={fecharModal}
+          />
+        )}
       </div>
     )
   }
@@ -170,38 +245,9 @@ export function Metas({ grupoId }) {
     return styles.cardMeta
   }
 
-  function abrirNovaMeta() {
-    setModalAberto('novaMeta')
-    setMetaDoModal(null)
-  }
-
-  function abrirEditarMeta(meta) {
-    setModalAberto('editarMeta')
-    setMetaDoModal(meta)
-  }
-
-  function abrirAporte(meta = null) {
-    setModalAberto('aporte')
-    setMetaDoModal(meta)
-  }
-
-  function fecharModal() {
-    setModalAberto(null)
-    setMetaDoModal(null)
-  }
-
-  function handleSalvarMeta() {
-    // TODO: integrar com backend: criar ou atualizar meta e recarregar lista.
-    fecharModal()
-  }
-
-  function handleSalvarAporte() {
-    // TODO: integrar com backend: registrar aporte e recarregar metas/movimentações.
-    fecharModal()
-  }
-
   return (
     <div className={styles.container}>
+      {erroOperacao && <div className={styles.vazio}>{erroOperacao}</div>}
 
       {/* Cards de resumo da aba de metas */}
       <section className={styles.resumoGrid} aria-label="Resumo das metas">

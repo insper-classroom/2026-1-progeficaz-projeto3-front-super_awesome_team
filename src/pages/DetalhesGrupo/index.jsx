@@ -37,7 +37,7 @@ export function DetalhesGrupo() {
   // renderiza o conteudo conforme a aba selecionada
   function renderizaAba() {
     if (abaAtiva === 'visaoGeral') return <VisaoGeral grupoId={id} onVerMetas={() => setAbaAtiva('metas')} onVerDespesas={() => setAbaAtiva('despesas')} />
-    if (abaAtiva === 'despesas') return <Despesas />
+    if (abaAtiva === 'despesas') return <Despesas grupoId={id} grupo={grupo || data?.grupo} />
     if (abaAtiva === 'metas') return <Metas grupoId={id} />
   }
 

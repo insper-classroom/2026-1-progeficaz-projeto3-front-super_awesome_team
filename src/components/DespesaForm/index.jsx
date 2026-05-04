@@ -1,13 +1,57 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styles from "./DespesaForm.module.css";
 
-export default function DespesaForm({ onAdd, onClose }) {
+const membrosFallback = [
+  { email: "joao@example.com", nome: "João" },
+  { email: "maria@example.com", nome: "Maria" },
+  { email: "pedro@example.com", nome: "Pedro" },
+];
+const membrosVazios = [];
+
+function nomeDoEmail(email) {
+  if (!email) return "Membro";
+  return email.split("@")[0];
+}
+
+function normalizarOpcaoMembro(membro, index) {
+  const email = membro.email || membro.id || membro.nome || `membro-${index + 1}`;
+  return {
+    email,
+    nome: membro.nome || nomeDoEmail(email),
+  };
+}
+
+function criarLinhaMembro(membro) {
+  return {
+    email: membro.email,
+    nome: membro.nome,
+    valor: "",
+    percentual: "",
+  };
+}
+
+export default function DespesaForm({ membrosDoGrupo = membrosVazios, onAdd, onClose, salvando = false }) {
   const [nome, setNome] = useState("");
   const [total, setTotal] = useState(0);
+  const opcoesMembros = useMemo(() => {
+    const origem = membrosDoGrupo.length ? membrosDoGrupo : membrosFallback;
+    return origem.map(normalizarOpcaoMembro);
+  }, [membrosDoGrupo]);
 
   const [membros, setMembros] = useState([
-    { nome: "Membro 1", valor: "", percentual: "" }
+    criarLinhaMembro(normalizarOpcaoMembro(membrosFallback[0], 0))
   ]);
+
+  useEffect(() => {
+    Promise.resolve().then(() => setMembros((membrosAtuais) => {
+      const membroExisteNasOpcoes = membrosAtuais.some((membro) =>
+        opcoesMembros.some((opcao) => opcao.email === membro.email)
+      );
+
+      if (membroExisteNasOpcoes) return membrosAtuais;
+      return [criarLinhaMembro(opcoesMembros[0])];
+    }));
+  }, [opcoesMembros]);
 
   // VALOR → %
   function handleValor(i, valor) {
@@ -35,13 +79,16 @@ export default function DespesaForm({ onAdd, onClose }) {
 
   // ADICIONAR MEMBRO
   function adicionarMembro() {
+    const emailsSelecionados = membros.map((membro) => membro.email);
+    const proximoMembro = opcoesMembros.find(
+      (membro) => !emailsSelecionados.includes(membro.email)
+    );
+
+    if (!proximoMembro) return;
+
     setMembros([
       ...membros,
-      {
-        nome: `Membro ${membros.length + 1}`,
-        valor: "",
-        percentual: ""
-      }
+      criarLinhaMembro(proximoMembro)
     ]);
   }
 
@@ -70,7 +117,7 @@ export default function DespesaForm({ onAdd, onClose }) {
     onAdd({
       nome,
       total,
-      membros
+      membros: membros.filter((membro) => membro.email && Number(membro.valor) > 0)
     });
   }
 
@@ -122,17 +169,25 @@ return (
 
             <select
             className={styles.select}
-            value={m.nome}
+            value={m.email}
             onChange={(e) => {
                 const novos = [...membros];
-                novos[i].nome = e.target.value;
+                const membroSelecionado = opcoesMembros.find((opcao) => opcao.email === e.target.value);
+                if (!membroSelecionado) return;
+                novos[i] = {
+                  ...novos[i],
+                  email: membroSelecionado.email,
+                  nome: membroSelecionado.nome,
+                };
                 setMembros(novos);
             }}
             >
             <option value="">Selecionar</option>
-            <option value="João">João</option>
-            <option value="Maria">Maria</option>
-            <option value="Pedro">Pedro</option>
+            {opcoesMembros.map((membro) => (
+              <option key={membro.email} value={membro.email}>
+                {membro.nome}
+              </option>
+            ))}
             </select>
 
           <div className={styles.field}>
@@ -169,8 +224,8 @@ return (
           Cancelar
         </button>
 
-        <button className={styles.primary} onClick={salvar}>
-          Salvar
+        <button className={styles.primary} onClick={salvar} disabled={salvando}>
+          {salvando ? "Salvando..." : "Salvar"}
         </button>
       </div>
 

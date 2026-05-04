@@ -7,6 +7,15 @@ function formatarMoeda(valor) {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 })
 }
 
+function calcularVariacaoPct(totalAtual, totalAnterior) {
+  if (!totalAnterior) {
+    if (!totalAtual) return 0
+    return 100
+  }
+
+  return ((totalAtual - totalAnterior) / totalAnterior) * 100
+}
+
 // Textos do cabeçalho conforme o período selecionado
 const textoPorPeriodo = {
   '7d':  { atual: 'esta semana',    anterior: 'semana anterior'    },
@@ -54,7 +63,7 @@ export default function GraficoGastos({ evolucao, totalAtual, totalAnterior, per
   // ?? significa: se o período não existir no mapa, usa '30d' como padrão
   const textos = textoPorPeriodo[periodo] ?? textoPorPeriodo['30d']
 
-  const variacaoPct = ((totalAtual - totalAnterior) / totalAnterior) * 100
+  const variacaoPct = calcularVariacaoPct(totalAtual, totalAnterior)
   const gastouMenos = variacaoPct < 0
 
   // Classe e sinal do badge calculados antes do JSX

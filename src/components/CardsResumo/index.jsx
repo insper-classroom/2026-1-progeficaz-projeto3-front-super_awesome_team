@@ -6,6 +6,15 @@ function formatarMoeda(valor) {
   return valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0 })
 }
 
+function calcularVariacaoPct(totalAtual, totalAnterior) {
+  if (!totalAnterior) {
+    if (!totalAtual) return 0
+    return 100
+  }
+
+  return Math.round(((totalAtual - totalAnterior) / totalAnterior) * 100)
+}
+
 // Subtítulo do card de gastos conforme o período selecionado
 const subtituloPorPeriodo = {
   '7d':  'últimos 7 dias',
@@ -17,7 +26,7 @@ const subtituloPorPeriodo = {
 
 export default function CardsResumo({ totalAtual, totalAnterior, voceDeVe, periodo }) {
   // Calcula variação percentual em relação ao período anterior
-  const variacaoPct = Math.round(((totalAtual - totalAnterior) / totalAnterior) * 100)
+  const variacaoPct = calcularVariacaoPct(totalAtual, totalAnterior)
 
   // Negativo = gastou menos que antes (bom), positivo = gastou mais (ruim)
   const gastouMenos = variacaoPct < 0
