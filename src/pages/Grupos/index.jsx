@@ -1,34 +1,34 @@
-import { useEffect, useState, useRef } from 'react'
-import styles from './Grupos.module.css'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import GrupoCard from '../../components/GrupoCard'
 import Button from '../../components/Button'
+import GrupoCard from '../../components/GrupoCard'
 import {
-  criarGrupo as criarGrupoApi,
   atualizarGrupo as atualizarGrupoApi,
+  criarGrupo as criarGrupoApi,
   listarGrupos,
 } from '../../services/groupService'
 import { encodeImageToBase64 } from '../../utils/imageUtils'
+import styles from './Grupos.module.css'
+
+const IMAGEM_PADRAO = '/casa.jpg'
 
 export function Grupos() {
   const navigate = useNavigate()
+  const inputUploadRef = useRef(null)
+
   const [grupos, setGrupos] = useState([])
   const [modalAberto, setModalAberto] = useState(false)
-  const [modoModal, setModoModal] = useState('create') // create | edit
+  const [modoModal, setModoModal] = useState('create')
   const [grupoEditando, setGrupoEditando] = useState(null)
-  const navigate = useNavigate() // hook para navegar entre páginas
-  const [grupos, setGrupos] = useState([]) // lista de grupos criados pelo usuario
-  const [modalAberto, setModalAberto] = useState(false) // controla a visibilidade do modal
-  const [nomeGrupo, setNomeGrupo] = useState('') // nome digitado para o novo grupo
-  const [emailMembro, setEmailMembro ] = useState('') // e-mail digitado para adicionar membro
-  const [membros, setMembros] = useState([]) // lista de e-mails dos membros adicionados
-  const [imgSelecionada, setImgSelecionada] = useState('/casa.jpg') // imagem escolhida para o grupo
-  const [imgUpload, setImgUpload] = useState(null) // url temporária da imagem enviada pelo usuário
+  const [nomeGrupo, setNomeGrupo] = useState('')
   const [descricaoGrupo, setDescricaoGrupo] = useState('')
-  const [arquivoUpload, setArquivoUpload] = useState(null) // arquivo original para codificação
+  const [emailMembro, setEmailMembro] = useState('')
+  const [membros, setMembros] = useState([])
+  const [imgSelecionada, setImgSelecionada] = useState(IMAGEM_PADRAO)
+  const [imgUpload, setImgUpload] = useState(null)
+  const [arquivoUpload, setArquivoUpload] = useState(null)
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
-  const inputUploadRef = useRef(null) // referência ao input de arquivo oculto
 
   const imagens = [
     { src: '/casa.jpg', label: 'Casa' },
@@ -36,22 +36,22 @@ export function Grupos() {
     { src: '/estudo.jpg', label: 'Estudos' },
   ]
 
-  useEffect(() => {
-    async function carregarGrupos() {
-      setCarregando(true)
-      setErro('')
+  async function carregarGrupos() {
+    setCarregando(true)
+    setErro('')
 
-      try {
-        const gruposCarregados = await listarGrupos()
-        setGrupos(gruposCarregados)
-      } catch {
-        setErro('Não foi possível carregar seus grupos.')
-      } finally {
-        setCarregando(false)
-      }
+    try {
+      const gruposCarregados = await listarGrupos()
+      setGrupos(gruposCarregados)
+    } catch {
+      setErro('Não foi possível carregar seus grupos.')
+    } finally {
+      setCarregando(false)
     }
+  }
 
-    carregarGrupos()
+  useEffect(() => {
+    Promise.resolve().then(carregarGrupos)
   }, [])
 
   function limparFormulario() {
@@ -59,37 +59,38 @@ export function Grupos() {
     setDescricaoGrupo('')
     setMembros([])
     setEmailMembro('')
-    setImgSelecionada('/casa.jpg')
+    setImgSelecionada(IMAGEM_PADRAO)
     setImgUpload(null)
+    setArquivoUpload(null)
     setGrupoEditando(null)
   }
-    // converte o arquivo enviado em url temporária e seleciona como imagem do grupo
-    function handleUpload(e) {
-      const arquivo = e.target.files[0]
-      if (!arquivo) return
-      const url = URL.createObjectURL(arquivo)
-      setImgUpload(url)
-      setImgSelecionada(url)
-      setArquivoUpload(arquivo)
-    }
 
   function abrirCriarGrupo() {
     setModoModal('create')
+    setErro('')
     limparFormulario()
     setModalAberto(true)
   }
 
   function abrirEditarGrupo(grupo) {
     setModoModal('edit')
+    setErro('')
     setGrupoEditando(grupo)
-
     setNomeGrupo(grupo.nome || '')
     setDescricaoGrupo(grupo.descricao || '')
-    setMembros((grupo.membros || []).map((m) => m.email))
+    setMembros((grupo.membros || []).map((membro) => membro.email))
     setEmailMembro('')
-    setImgSelecionada(grupo.imagem || '/casa.jpg')
+    setImgSelecionada(grupo.imagem || IMAGEM_PADRAO)
     setImgUpload(null)
+    setArquivoUpload(null)
     setModalAberto(true)
+  }
+
+  function fecharModal() {
+    setModalAberto(false)
+    setModoModal('create')
+    setErro('')
+    limparFormulario()
   }
 
   function adicionarMembro() {
@@ -98,9 +99,6 @@ export function Grupos() {
     if (email && !membros.includes(email)) {
       setMembros([...membros, email])
       setEmailMembro('')
-      setImgSelecionada('/casa.jpg')
-      setImgUpload(null)
-      setArquivoUpload(null)
     }
   }
 
@@ -108,45 +106,37 @@ export function Grupos() {
     setMembros(membros.filter((email) => email !== emailParaRemover))
   }
 
+  function selecionarImagemPadrao(src) {
+    setImgSelecionada(src)
+    setImgUpload(null)
+    setArquivoUpload(null)
+  }
+
   function handleUpload(e) {
-    const arquivo = e.target.files[0]
+    const arquivo = e.target.files?.[0]
     if (!arquivo) return
+
     const url = URL.createObjectURL(arquivo)
     setImgUpload(url)
     setImgSelecionada(url)
-  }
-
-  function fecharModal() {
-    setModalAberto(false)
-    setModoModal('create')
-    limparFormulario()
-    setErro('')
+    setArquivoUpload(arquivo)
   }
 
   async function salvarGrupo() {
     if (!nomeGrupo.trim()) return
+
     setErro('')
 
     try {
-      const imagemFinal = imgUpload || imgSelecionada
+      const imagem = arquivoUpload
+        ? await encodeImageToBase64(arquivoUpload)
+        : imgSelecionada
 
       const payload = {
         nome: nomeGrupo.trim(),
         membros,
         descricao: descricaoGrupo.trim() || 'Novo grupo',
-      try {
-        const imagem = arquivoUpload ? await encodeImageToBase64(arquivoUpload) : null
-        await criarGrupoApi({
-          nome: nomeGrupo,
-          membros,
-          descricao: 'Novo grupo',
-          imagem,
-        })
-        const gruposAtualizados = await listarGrupos()
-        setGrupos(gruposAtualizados)
-        fecharModal()
-      } catch (error) {
-        setErro(error.response?.data?.error || 'Não foi possível criar o grupo.')
+        imagem,
       }
 
       if (modoModal === 'edit' && grupoEditando) {
@@ -155,8 +145,7 @@ export function Grupos() {
         await criarGrupoApi(payload)
       }
 
-      const gruposAtualizados = await listarGrupos()
-      setGrupos(gruposAtualizados)
+      await carregarGrupos()
       fecharModal()
     } catch (error) {
       setErro(error.response?.data?.error || 'Não foi possível salvar o grupo.')
@@ -164,8 +153,8 @@ export function Grupos() {
   }
 
   return (
-    <div className={styles.pagina}>
-      <div className={styles.content}> 
+    <div className={styles.page}>
+      <div className={styles.content}>
         <div className={styles.header}>
           <div>
             <h1>Meus Grupos</h1>
@@ -176,7 +165,7 @@ export function Grupos() {
         </div>
 
         {carregando && <p>Carregando grupos...</p>}
-        {erro && <p>{erro}</p>}
+        {erro && !modalAberto && <p>{erro}</p>}
 
         <div className={styles.grid}>
           {grupos.map((grupo) => (
@@ -197,7 +186,7 @@ export function Grupos() {
         <div className={styles.overlay}>
           <div className={styles.modal}>
             <h2 className={styles.modalTitle}>
-              {modoModal === "edit" ? "Editar grupo" : "Novo grupo"}
+              {modoModal === 'edit' ? 'Editar grupo' : 'Novo grupo'}
             </h2>
 
             {erro && <p className={styles.erro}>{erro}</p>}
@@ -230,9 +219,9 @@ export function Grupos() {
                 value={emailMembro}
                 onChange={(e) => setEmailMembro(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    adicionarMembro();
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    adicionarMembro()
                   }
                 }}
               />
@@ -266,7 +255,7 @@ export function Grupos() {
                   className={
                     imgSelecionada === img.src ? styles.imgSelecionada : styles.imgOpcao
                   }
-                  onClick={() => setImgSelecionada(img.src)}
+                  onClick={() => selecionarImagemPadrao(img.src)}
                 >
                   <img src={img.src} alt={img.label} />
                   <span>{img.label}</span>
@@ -304,7 +293,7 @@ export function Grupos() {
               </Button>
 
               <Button onClick={salvarGrupo}>
-                {modoModal === "edit" ? "Salvar alterações" : "Criar grupo"}
+                {modoModal === 'edit' ? 'Salvar alterações' : 'Criar grupo'}
               </Button>
             </div>
           </div>
