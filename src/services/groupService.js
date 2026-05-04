@@ -49,6 +49,15 @@ export async function criarGrupo({ nome, membros, descricao }) {
   return response.data
 }
 
+export async function atualizarGrupo(groupId, { nome, membros, descricao }) {
+  const response = await api.put(`/group/${groupId}`, {
+    name: nome,
+    members: membros,
+    description: descricao,
+  })
+  return response.data
+}
+
 export async function buscarGrupo(groupId) {
   const response = await api.get(`/group/${groupId}`)
   return normalizarGrupo(response.data)
