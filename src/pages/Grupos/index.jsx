@@ -118,7 +118,6 @@ export function Grupos() {
         nome: nomeGrupo.trim(),
         membros,
         descricao: descricaoGrupo.trim() || 'Novo grupo',
-        imagem: imagemFinal,
       }
 
       if (modoModal === 'edit' && grupoEditando) {

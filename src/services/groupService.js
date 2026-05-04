@@ -40,12 +40,11 @@ export async function listarGrupos() {
   return (response.data.groups || []).map(normalizarGrupo)
 }
 
-export async function criarGrupo({ nome, membros, descricao, imagem }) {
+export async function criarGrupo({ nome, membros, descricao }) {
   const response = await api.post('/group', {
     name: nome,
     members: membros,
     description: descricao,
-    image: imagem,
   })
   return response.data
 }
