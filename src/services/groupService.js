@@ -1,4 +1,5 @@
 import api from './api'
+import { decodeImageFromBase64 } from '../utils/imageUtils'
 
 const coresMembros = ['#ff2d87', '#7c2fff', '#ff9f00', '#03fc83', '#2d9cff']
 
@@ -30,7 +31,7 @@ export function normalizarGrupo(grupo) {
     desc: grupo.description || `${membros.length} membros`,
     descricao: grupo.description,
     membros: membros.map(normalizarMembro),
-    imagem: '/casa.jpg',
+    imagem: decodeImageFromBase64(grupo.image) || '/casa.jpg',
     raw: grupo,
   }
 }
@@ -40,11 +41,12 @@ export async function listarGrupos() {
   return (response.data.groups || []).map(normalizarGrupo)
 }
 
-export async function criarGrupo({ nome, membros, descricao }) {
+export async function criarGrupo({ nome, membros, descricao, imagem }) {
   const response = await api.post('/group', {
     name: nome,
     members: membros,
     description: descricao,
+    image: imagem || null,
   })
   return response.data
 }

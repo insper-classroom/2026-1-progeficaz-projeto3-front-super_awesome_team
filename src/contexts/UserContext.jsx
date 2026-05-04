@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { UsuarioContext } from './UsuarioContext'
 import { clearAuthToken, getAuthToken, setAuthToken } from '../services/authToken'
 import { getCurrentUser } from '../services/userService'
+import { decodeImageFromBase64 } from '../utils/imageUtils'
 
 export function UserProvider({ children }) {
   const [foto, setFoto] = useState(null) // foto de perfil do usuário
@@ -34,6 +35,7 @@ export function UserProvider({ children }) {
     try {
       const dadosUsuario = await getCurrentUser()
       setUsuario(dadosUsuario)
+      setFoto(decodeImageFromBase64(dadosUsuario.image))
       return dadosUsuario
     } catch {
       setUsuario(null)
