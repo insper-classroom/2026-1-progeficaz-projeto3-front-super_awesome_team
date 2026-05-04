@@ -21,11 +21,12 @@
   filter: brightness(0.9);
 }
 .primary {
-  background: #1f7a63;
-  color: white;
+  background: var(--primary);
+  color: var(--bg);
 }
 
 .secondary {
   background: transparent;
-  color: #6b7280;
+  color: var(--text-muted);
+  border: 1px solid color-mix(in srgb, var(--text-muted) 65%, var(--border));
 }

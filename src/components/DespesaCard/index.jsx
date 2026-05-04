@@ -4,12 +4,12 @@ import Button from "../Button";
 import styles from "./DespesaCard.module.css";
 
 const CORES_FALLBACK = [
-  "#1f7a63",
-  "#2563eb",
-  "#f59e0b",
-  "#8b5cf6",
-  "#ef4444",
-  "#14b8a6",
+  "var(--primary)",
+  "var(--positive)",
+  "var(--negative)",
+  "var(--text-muted)",
+  "var(--primary)",
+  "var(--positive)",
 ];
 
 function formatarMoeda(valor) {
@@ -17,6 +17,10 @@ function formatarMoeda(valor) {
     style: "currency",
     currency: "BRL",
   });
+}
+
+function corSuave(cor) {
+  return `color-mix(in srgb, ${cor} 14%, transparent)`;
 }
 
 export default function DespesaCard({
@@ -61,7 +65,7 @@ export default function DespesaCard({
       }));
 
     if (pagos.length === 0) {
-      return [{ name: "Não pago", value: total || 1, cor: "#d1d5db" }];
+      return [{ name: "Não pago", value: total || 1, cor: "var(--border)" }];
     }
 
     return pagos;
@@ -175,7 +179,7 @@ export default function DespesaCard({
                             className={styles.progressPendente}
                             style={{
                               width: `${m.pago ? 0 : 100}%`,
-                              backgroundColor: `${m.cor}22`,
+                              backgroundColor: corSuave(m.cor),
                             }}
                           />
                         </div>
