@@ -58,10 +58,21 @@
   justify-content: space-between;
   gap: 12px;
   align-items: center;
+  width: 100%;
   background: var(--card-2);
   border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.historicoItem:hover {
+  border-color: var(--primary);
+  transform: translateY(-1px);
 }
 
 .historicoNome {
@@ -74,6 +85,12 @@
   margin: 4px 0 0;
   color: var(--text-muted);
   font-size: 12px;
+}
+
+.historicoPrazo {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: 11px;
 }
 
 .historicoVazio {

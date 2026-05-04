@@ -19,6 +19,32 @@ function formatarMoeda(valor) {
   });
 }
 
+function formatarData(data) {
+  if (!data) return null;
+  const dataObj = new Date(data);
+  if (Number.isNaN(dataObj.getTime())) return null;
+
+  return dataObj.toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+}
+
+function formatarDataHora(data) {
+  if (!data) return null;
+  const dataObj = new Date(data);
+  if (Number.isNaN(dataObj.getTime())) return null;
+
+  return dataObj.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 export default function DespesaCard({
   despesa,
   aberto,
@@ -30,13 +56,16 @@ export default function DespesaCard({
   usuarioEmail,
   confirmandoPendenciaId,
   concluindoDespesaId,
+  somenteModal = false,
 }) {
   const membros = useMemo(
     () => (Array.isArray(despesa?.membros) ? despesa.membros : []),
     [despesa]
   );
   const total = Number(despesa?.total ?? 0) || 0;
-  const podeEditar = usuarioEmail && usuarioEmail === despesa?.credorEmail;
+  const prazoFormatado = formatarData(despesa?.dueDate);
+  const podeEditar = usuarioEmail && usuarioEmail === despesa?.credorEmail && !despesa?.concluida;
+  const podeConcluir = usuarioEmail && usuarioEmail === despesa?.credorEmail && !despesa?.concluida;
   const concluindoDespesa = concluindoDespesaId === despesa?.id;
 
   const membrosColoridos = useMemo(
@@ -94,14 +123,16 @@ export default function DespesaCard({
 
   return (
     <>
-      <button type="button" className={styles.card} onClick={onOpen}>
-        <div className={styles.cardTop}>
-          <div>
-            <h4 className={styles.cardTitle}>{despesa?.nome ?? "Despesa"}</h4>
-            <p className={styles.cardSubtitle}>{formatarMoeda(total)}</p>
+      {!somenteModal && (
+        <button type="button" className={styles.card} onClick={onOpen}>
+          <div className={styles.cardTop}>
+            <div>
+              <h4 className={styles.cardTitle}>{despesa?.nome ?? "Despesa"}</h4>
+              <p className={styles.cardSubtitle}>{formatarMoeda(total)}</p>
+            </div>
           </div>
-        </div>
-      </button>
+        </button>
+      )}
 
       {aberto && (
         <div className={styles.overlay} onClick={onClose}>
@@ -116,6 +147,9 @@ export default function DespesaCard({
                   <p className={styles.modalSubtitle}>
                     Credor: {despesa.credorNome || despesa.credorEmail}
                   </p>
+                )}
+                {prazoFormatado && (
+                  <p className={styles.modalSubtitle}>Pagar até {prazoFormatado}</p>
                 )}
               </div>
 
@@ -210,6 +244,9 @@ export default function DespesaCard({
                               }
                             >
                               Devedor
+                              {m.devedorConfirmouEm && (
+                                <small>{formatarDataHora(m.devedorConfirmouEm)}</small>
+                              )}
                             </span>
                             <span
                               className={
@@ -219,6 +256,9 @@ export default function DespesaCard({
                               }
                             >
                               Credor
+                              {m.credorConfirmouEm && (
+                                <small>{formatarDataHora(m.credorConfirmouEm)}</small>
+                              )}
                             </span>
                           </div>
                         )}
@@ -260,16 +300,18 @@ export default function DespesaCard({
                   })}
                 </div>
 
-                {podeEditar && (
+                {(podeEditar || podeConcluir) && (
                   <div className={styles.actions}>
-                    <Button onClick={onEdit}>Editar</Button>
-                    <Button
-                      variant="secondary"
-                      onClick={() => onConcluirDespesa(despesa)}
-                      disabled={concluindoDespesa}
-                    >
-                      {concluindoDespesa ? "Concluindo..." : "Concluir despesa"}
-                    </Button>
+                    {podeEditar && <Button onClick={onEdit}>Editar</Button>}
+                    {podeConcluir && (
+                      <Button
+                        variant="secondary"
+                        onClick={() => onConcluirDespesa(despesa)}
+                        disabled={concluindoDespesa}
+                      >
+                        {concluindoDespesa ? "Concluindo..." : "Concluir despesa"}
+                      </Button>
+                    )}
                   </div>
                 )}
               </div>

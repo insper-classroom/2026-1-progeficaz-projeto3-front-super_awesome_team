@@ -35,7 +35,9 @@ function criarHistorico(despesas) {
       valor: despesa.total,
       status: calcularStatus(despesa),
       criadaEm: despesa.criadaEm,
+      dueDate: despesa.dueDate,
       ordemOriginal: index,
+      despesa,
     }))
     .sort((a, b) => {
       const dataA = new Date(a.criadaEm).getTime();
@@ -110,6 +112,8 @@ function aplicarPendenciasNaDespesa(despesa, pendencias) {
       credorEmail,
       devedorConfirmou: pendencia?.devedorConfirmou ?? false,
       credorConfirmou: pendencia?.credorConfirmou ?? false,
+      devedorConfirmouEm: pendencia?.devedorConfirmouEm,
+      credorConfirmouEm: pendencia?.credorConfirmouEm,
       resolvida,
       pago: resolvida,
     };
@@ -203,6 +207,16 @@ export function Despesas({ grupoId, grupo }) {
     });
   }
 
+  function abrirDetalheHistorico(despesa) {
+    const indiceAberta = despesas.findIndex((item) => item.id === despesa.id);
+    setModal({
+      aberto: true,
+      tipo: "detalhe",
+      despesa,
+      indice: indiceAberta >= 0 ? indiceAberta : null,
+    });
+  }
+
   function abrirEdicao(despesa, indice) {
     setErro("");
     setModal({
@@ -239,6 +253,7 @@ export function Despesas({ grupoId, grupo }) {
           grupoId,
           nome: despesaSalva.nome,
           total: despesaSalva.total,
+          dueDate: despesaSalva.dueDate,
           membros: despesaSalva.membros,
         });
       }
@@ -351,6 +366,21 @@ export function Despesas({ grupoId, grupo }) {
             />
           ))}
         </div>
+
+        {modal.aberto && modal.tipo === "detalhe" && modal.indice === null && (
+          <DespesaCard
+            despesa={modal.despesa}
+            aberto={modal.aberto}
+            somenteModal
+            onClose={fecharModal}
+            onEdit={() => abrirEdicao(modal.despesa, null)}
+            onConfirmarPagamento={confirmarPagamentoMembro}
+            onConcluirDespesa={concluirDespesaComoCredor}
+            usuarioEmail={usuario?.email}
+            confirmandoPendenciaId={confirmandoPendenciaId}
+            concluindoDespesaId={concluindoDespesaId}
+          />
+        )}
       </main>
 
       <aside className={styles.historico}>
@@ -359,12 +389,22 @@ export function Despesas({ grupoId, grupo }) {
         <div className={styles.historicoLista}>
           {historico.length > 0 ? (
             historico.map((item) => (
-              <div key={item.id} className={styles.historicoItem}>
+              <button
+                key={item.id}
+                type="button"
+                className={styles.historicoItem}
+                onClick={() => abrirDetalheHistorico(item.despesa)}
+              >
                 <div>
                   <strong className={styles.historicoNome}>{item.nome}</strong>
                   <p className={styles.historicoValor}>
                     R$ {Number(item.valor).toFixed(2)}
                   </p>
+                  {item.dueDate && (
+                    <p className={styles.historicoPrazo}>
+                      Prazo: {String(item.dueDate).split("T")[0]}
+                    </p>
+                  )}
                 </div>
 
                 <span
@@ -376,7 +416,7 @@ export function Despesas({ grupoId, grupo }) {
                 >
                   {item.status === "concluida" ? "Concluída" : "Não concluída"}
                 </span>
-              </div>
+              </button>
             ))
           ) : (
             <p className={styles.historicoVazio}>Nenhuma despesa registrada.</p>

@@ -15,6 +15,8 @@ export function normalizarPendencia(pendencia) {
     valor: numeroSeguro(pendencia.value),
     devedorConfirmou: Boolean(pendencia.debtor_confirmed),
     credorConfirmou: Boolean(pendencia.creditor_confirmed),
+    devedorConfirmouEm: pendencia.debtor_confirmed_at ?? null,
+    credorConfirmouEm: pendencia.creditor_confirmed_at ?? null,
     resolvida: Boolean(pendencia.is_resolved),
     criadaEm: pendencia.created_at,
     resolvidaEm: pendencia.resolved_at,

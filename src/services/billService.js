@@ -11,6 +11,12 @@ function nomeDoEmail(email) {
   return email.split('@')[0]
 }
 
+function normalizarDataParaApi(data) {
+  if (!data) return null
+  if (String(data).includes('T')) return data
+  return `${data}T00:00:00`
+}
+
 function normalizarMembroParaPagamento(membro) {
   const email = membro.email || membro.id || membro.nome
   const valor = numeroSeguro(membro.valor ?? membro.value)
@@ -44,6 +50,7 @@ export function normalizarConta(conta) {
     paga: Boolean(conta.is_paid),
     criadaPor: conta.created_by,
     criadaEm: conta.created_at,
+    dueDate: conta.due_date ?? conta.dueDate ?? null,
     raw: conta,
   }
 }
@@ -53,7 +60,7 @@ export async function listarContasDoGrupo(groupId) {
   return (response.data.bills || []).map(normalizarConta)
 }
 
-export async function criarContaGrupo({ grupoId, nome, total, membros }) {
+export async function criarContaGrupo({ grupoId, nome, total, membros, dueDate }) {
   const membersToPay = membros
     .map(normalizarMembroParaPagamento)
     .filter((membro) => membro.email && membro.valor > 0)
@@ -67,12 +74,13 @@ export async function criarContaGrupo({ grupoId, nome, total, membros }) {
     total_value: numeroSeguro(total),
     group_id: grupoId,
     members_to_pay: membersToPay,
+    due_date: normalizarDataParaApi(dueDate),
   })
 
   return response.data
 }
 
-export async function atualizarContaGrupo(contaId, { nome, total, membros }) {
+export async function atualizarContaGrupo(contaId, { nome, total, membros, dueDate }) {
   const membersToPay = membros
     .map(normalizarMembroParaPagamento)
     .filter((membro) => membro.email && membro.valor > 0)
@@ -85,6 +93,7 @@ export async function atualizarContaGrupo(contaId, { nome, total, membros }) {
     bill_type: nome,
     total_value: numeroSeguro(total),
     members_to_pay: membersToPay,
+    due_date: normalizarDataParaApi(dueDate),
   })
 
   return response.data
