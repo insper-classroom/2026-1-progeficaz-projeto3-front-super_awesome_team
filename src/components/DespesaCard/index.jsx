@@ -21,6 +21,8 @@ function formatarMoeda(valor) {
 
 function corSuave(cor) {
   return `color-mix(in srgb, ${cor} 14%, transparent)`;
+}
+
 function formatarData(data) {
   if (!data) return null;
   const dataObj = new Date(data);
