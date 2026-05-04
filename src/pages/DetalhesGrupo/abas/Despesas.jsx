@@ -21,12 +21,23 @@ function calcularStatus(despesa) {
 function criarHistorico(despesas) {
   return despesas
     .map((despesa, index) => ({
-      id: despesa.id || index + 1,
+      id: despesa.id || `historico-${index}`,
       nome: despesa.nome,
       valor: despesa.total,
       status: calcularStatus(despesa),
+      criadaEm: despesa.criadaEm,
+      ordemOriginal: index,
     }))
-    .reverse();
+    .sort((a, b) => {
+      const dataA = new Date(a.criadaEm).getTime();
+      const dataB = new Date(b.criadaEm).getTime();
+
+      if (Number.isFinite(dataA) && Number.isFinite(dataB)) {
+        return dataB - dataA;
+      }
+
+      return b.ordemOriginal - a.ordemOriginal;
+    });
 }
 
 function normalizarDespesaComGrupo(despesa, grupo) {
@@ -76,12 +87,13 @@ export function Despesas({ grupoId, grupo }) {
 
     try {
       const contas = await listarContasDoGrupo(grupoId);
-      const contasAbertas = contas
-        .filter((conta) => !conta.paga)
-        .map((conta) => normalizarDespesaComGrupo(conta, grupo));
+      const contasNormalizadas = contas.map((conta) =>
+        normalizarDespesaComGrupo(conta, grupo)
+      );
+      const contasAbertas = contasNormalizadas.filter((conta) => !conta.paga);
 
       setDespesas(contasAbertas);
-      setHistorico(criarHistorico(contasAbertas));
+      setHistorico(criarHistorico(contasNormalizadas));
     } catch (error) {
       setDespesas([]);
       setHistorico([]);
@@ -223,26 +235,30 @@ export function Despesas({ grupoId, grupo }) {
         <h3 className={styles.historicoTitle}>Histórico de despesas</h3>
 
         <div className={styles.historicoLista}>
-          {historico.map((item) => (
-            <div key={item.id} className={styles.historicoItem}>
-              <div>
-                <strong className={styles.historicoNome}>{item.nome}</strong>
-                <p className={styles.historicoValor}>
-                  R$ {Number(item.valor).toFixed(2)}
-                </p>
-              </div>
+          {historico.length > 0 ? (
+            historico.map((item) => (
+              <div key={item.id} className={styles.historicoItem}>
+                <div>
+                  <strong className={styles.historicoNome}>{item.nome}</strong>
+                  <p className={styles.historicoValor}>
+                    R$ {Number(item.valor).toFixed(2)}
+                  </p>
+                </div>
 
-              <span
-                className={
-                  item.status === "concluida"
-                    ? styles.badgeConcluida
-                    : styles.badgePendente
-                }
-              >
-                {item.status === "concluida" ? "Concluída" : "Não concluída"}
-              </span>
-            </div>
-          ))}
+                <span
+                  className={
+                    item.status === "concluida"
+                      ? styles.badgeConcluida
+                      : styles.badgePendente
+                  }
+                >
+                  {item.status === "concluida" ? "Concluída" : "Não concluída"}
+                </span>
+              </div>
+            ))
+          ) : (
+            <p className={styles.historicoVazio}>Nenhuma despesa registrada.</p>
+          )}
         </div>
       </aside>
     </div>
