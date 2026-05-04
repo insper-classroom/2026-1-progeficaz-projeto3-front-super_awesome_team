@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { FiCamera, FiEdit2, FiLock, FiLogOut, FiSave, FiX } from 'react-icons/fi'
 import styles from './Perfil.module.css'
 import { useUser } from '../../hooks/useUser'
-import { updateUser } from '../../services/userService'
+import { updateUser, deleteUser } from '../../services/userService'
 import { decodeImageFromBase64, encodeImageToBase64 } from '../../utils/imageUtils'
 
 function obterTextoNascimento(nascimento) {
@@ -26,10 +26,14 @@ export function Perfil() {
   const [confirmarNovaSenha, setConfirmarNovaSenha] = useState('')
   const [mensagemSenha, setMensagemSenha] = useState('')
   const [mensagemPerfil, setMensagemPerfil] = useState('')
+  const [confirmandoDelete, setConfirmandoDelete] = useState(false)
+  const [senhaDelete, setSenhaDelete] = useState('')
+  const [mensagemDelete, setMensagemDelete] = useState('')
 
   const email = usuario?.email || ''
   const nomeExibido = usuario?.name || 'Nome do usuario'
   const textoNascimento = obterTextoNascimento(nascimento)
+  const isGoogleUser = usuario?.auth_provider === 'google'
 
   let srcFoto = '/imagem_padrao_perfil.png'
   if (foto) {
@@ -120,6 +124,30 @@ export function Perfil() {
     navigate('/login')
   }
 
+  function abrirExcluirConta() {
+    setMensagemDelete('')
+    setSenhaDelete('')
+    setConfirmandoDelete(true)
+  }
+
+  function cancelarExclusao() {
+    setMensagemDelete('')
+    setSenhaDelete('')
+    setConfirmandoDelete(false)
+  }
+
+  async function excluirConta() {
+    setMensagemDelete('')
+
+    try {
+      await deleteUser(isGoogleUser ? {} : { password: senhaDelete })
+      sair()
+      navigate('/login')
+    } catch (error) {
+      setMensagemDelete(error.response?.data?.error || 'Não foi possível excluir a conta.')
+    }
+  }
+
   function renderizarCampoNome() {
     if (editando) {
       return (
@@ -151,6 +179,10 @@ export function Perfil() {
   }
 
   function renderizarCampoSenha() {
+    if (isGoogleUser) {
+    return <span className={styles.valorCampo}>Conta vinculada ao Google</span>
+  }
+
     if (alterandoSenha) {
       return (
         <div className={styles.formSenha}>
@@ -282,10 +314,12 @@ export function Perfil() {
             <span className={styles.valorCampo}>{email}</span>
           </div>
 
-          <div className={styles.campo}>
-            <label>Senha</label>
-            {renderizarCampoSenha()}
-          </div>
+          {!isGoogleUser && (
+            <div className={styles.campo}>
+              <label>Senha</label>
+              {renderizarCampoSenha()}
+            </div>
+          )}
         </div>
 
         <div className={styles.rodapePerfil}>
@@ -295,8 +329,43 @@ export function Perfil() {
             <FiLogOut />
             Sair da conta
           </button>
+
+          <button type="button" className={styles.botaoSair} onClick={abrirExcluirConta}>
+            Excluir conta
+          </button>
         </div>
       </section>
+
+      {confirmandoDelete && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modal}>
+            <h3>Excluir conta</h3>
+            <p>Essa ação não pode ser desfeita.</p>
+
+            {!isGoogleUser && (
+              <input
+                type="password"
+                placeholder="Digite sua senha"
+                value={senhaDelete}
+                onChange={(e) => setSenhaDelete(e.target.value)}
+                className={styles.input}
+              />
+            )}
+
+            <div className={styles.modalAcoes}>
+              <button type="button" className={styles.botaoSecundario} onClick={cancelarExclusao}>
+                Cancelar
+              </button>
+
+              <button type="button" className={styles.botaoSair} onClick={excluirConta}>
+                Confirmar exclusão
+              </button>
+            </div>
+
+            {mensagemDelete && <span className={styles.mensagemSenha}>{mensagemDelete}</span>}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
