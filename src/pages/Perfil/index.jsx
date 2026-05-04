@@ -5,6 +5,7 @@ import { FiCamera, FiEdit2, FiLock, FiLogOut, FiSave, FiX } from 'react-icons/fi
 import styles from './Perfil.module.css'
 import { useUser } from '../../hooks/useUser'
 import { updateUser, deleteUser } from '../../services/userService'
+import { decodeImageFromBase64, encodeImageToBase64 } from '../../utils/imageUtils'
 
 function obterTextoNascimento(nascimento) {
   if (nascimento) return nascimento
@@ -39,11 +40,17 @@ export function Perfil() {
     srcFoto = foto
   }
 
-  function aoEscolherFoto(e) {
+  async function aoEscolherFoto(e) {
     const arquivo = e.target.files[0]
     if (!arquivo) return
 
-    setFoto(URL.createObjectURL(arquivo))
+    const encoded = await encodeImageToBase64(arquivo)
+    setFoto(decodeImageFromBase64(encoded))
+    try {
+      await updateUser({ image: encoded })
+    } catch (error) {
+      setMensagemPerfil(error.response?.data?.error || 'Não foi possível salvar a foto.')
+    }
   }
 
   function abrirSeletorFoto() {

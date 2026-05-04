@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import GrupoCard from '../../components/GrupoCard'
 import Button from '../../components/Button'
 import { criarGrupo as criarGrupoApi, listarGrupos } from '../../services/groupService'
+import { encodeImageToBase64 } from '../../utils/imageUtils'
 
 export function Grupos() {
 
@@ -16,6 +17,7 @@ export function Grupos() {
     const [membros, setMembros] = useState([]) // lista de e-mails dos membros adicionados
     const [imgSelecionada, setImgSelecionada] = useState('/casa.jpg') // imagem escolhida para o grupo
     const [imgUpload, setImgUpload] = useState(null) // url temporária da imagem enviada pelo usuário
+    const [arquivoUpload, setArquivoUpload] = useState(null) // arquivo original para codificação
     const [carregando, setCarregando] = useState(true)
     const [erro, setErro] = useState('')
     const inputUploadRef = useRef(null) // referência ao input de arquivo oculto
@@ -59,6 +61,7 @@ export function Grupos() {
       const url = URL.createObjectURL(arquivo)
       setImgUpload(url)
       setImgSelecionada(url)
+      setArquivoUpload(arquivo)
     }
 
     // fecha o modal e limpa os campos do formulário
@@ -69,6 +72,7 @@ export function Grupos() {
       setEmailMembro('')
       setImgSelecionada('/casa.jpg')
       setImgUpload(null)
+      setArquivoUpload(null)
     }
 
     // cria grupo
@@ -77,10 +81,12 @@ export function Grupos() {
       setErro('')
 
       try {
+        const imagem = arquivoUpload ? await encodeImageToBase64(arquivoUpload) : null
         await criarGrupoApi({
           nome: nomeGrupo,
           membros,
           descricao: 'Novo grupo',
+          imagem,
         })
         const gruposAtualizados = await listarGrupos()
         setGrupos(gruposAtualizados)
