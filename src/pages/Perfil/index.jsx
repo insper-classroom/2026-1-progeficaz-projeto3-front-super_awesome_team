@@ -1,7 +1,7 @@
 // Pagina de perfil: exibe dados do usuario, edicao basica e acao de sair da conta.
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { FiCamera, FiEdit2, FiLock, FiLogOut, FiSave, FiX } from 'react-icons/fi'
+import { FiAlertTriangle, FiCamera, FiEdit2, FiLock, FiLogOut, FiSave, FiX } from 'react-icons/fi'
 import styles from './Perfil.module.css'
 import { useUser } from '../../hooks/useUser'
 import { updateUser, deleteUser } from '../../services/userService'
@@ -39,6 +39,21 @@ export function Perfil() {
   if (foto) {
     srcFoto = foto
   }
+
+  useEffect(() => {
+    if (!confirmandoDelete) return undefined
+
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') {
+        setMensagemDelete('')
+        setSenhaDelete('')
+        setConfirmandoDelete(false)
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [confirmandoDelete])
 
   async function aoEscolherFoto(e) {
     const arquivo = e.target.files[0]
@@ -136,7 +151,8 @@ export function Perfil() {
     setConfirmandoDelete(false)
   }
 
-  async function excluirConta() {
+  async function excluirConta(e) {
+    e?.preventDefault()
     setMensagemDelete('')
 
     try {
@@ -337,32 +353,64 @@ export function Perfil() {
       </section>
 
       {confirmandoDelete && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <h3>Excluir conta</h3>
-            <p>Essa ação não pode ser desfeita.</p>
-
-            {!isGoogleUser && (
-              <input
-                type="password"
-                placeholder="Digite sua senha"
-                value={senhaDelete}
-                onChange={(e) => setSenhaDelete(e.target.value)}
-                className={styles.input}
-              />
-            )}
-
-            <div className={styles.modalAcoes}>
-              <button type="button" className={styles.botaoSecundario} onClick={cancelarExclusao}>
-                Cancelar
-              </button>
-
-              <button type="button" className={styles.botaoSair} onClick={excluirConta}>
-                Confirmar exclusão
+        <div className={styles.modalOverlay} onClick={cancelarExclusao}>
+          <div
+            className={styles.modal}
+            onClick={(e) => e.stopPropagation()}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="titulo-exclusao-conta"
+          >
+            <div className={styles.modalCabecalho}>
+              <div className={styles.modalTituloGrupo}>
+                <span className={styles.iconeAlerta}>
+                  <FiAlertTriangle />
+                </span>
+                <div>
+                  <span className={styles.kickerExclusao}>Exclusão permanente</span>
+                  <h3 id="titulo-exclusao-conta" className={styles.modalTitulo}>Excluir conta?</h3>
+                </div>
+              </div>
+              <button type="button" className={styles.botaoFecharModal} onClick={cancelarExclusao} aria-label="Fechar">
+                <FiX />
               </button>
             </div>
+            <form className={styles.formModal} onSubmit={excluirConta}>
+              <p className={styles.textoConfirmacao}>
+                Essa ação não pode ser desfeita. Seus dados de perfil serão removidos da aplicação.
+              </p>
 
-            {mensagemDelete && <span className={styles.mensagemSenha}>{mensagemDelete}</span>}
+              {!isGoogleUser && (
+                <div className={styles.grupoModal}>
+                  <label className={styles.rotuloModal}>Senha atual</label>
+                  <input
+                    type="password"
+                    placeholder="Digite sua senha"
+                    value={senhaDelete}
+                    onChange={(e) => setSenhaDelete(e.target.value)}
+                    className={styles.inputModal}
+                    autoFocus
+                    required
+                  />
+                </div>
+              )}
+
+              {mensagemDelete && (
+                <span className={styles.mensagemModal} role="alert">
+                  {mensagemDelete}
+                </span>
+              )}
+
+              <div className={styles.modalAcoes}>
+                <button type="button" className={styles.botaoCancelarModal} onClick={cancelarExclusao}>
+                  Cancelar
+                </button>
+
+                <button type="submit" className={styles.botaoExcluirModal}>
+                  Confirmar exclusão
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
