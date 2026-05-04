@@ -220,48 +220,6 @@ export default function DespesaForm({
   }
 
   const mensagemErro = erroExterno || erro;
-  return (
-    <div className={styles.overlay}>
-      <div className={styles.container}>
-        <h3 className={styles.title}>
-          {modo === "edit" ? "Editar despesa" : "Nova despesa"}
-        </h3>
-
-        {erro && <p className={styles.erro}>{erro}</p>}
-        {opcoesMembros.length === 0 && (
-          <p className={styles.erro}>Carregue os membros do grupo antes de criar despesas.</p>
-        )}
-
-        <input
-          className={styles.input}
-          placeholder="Nome da despesa"
-          value={nome}
-          onChange={(e) => setNome(e.target.value)}
-        />
-
-        <div className={styles.field}>
-          <span className={styles.prefix}>R$</span>
-          <input
-            className={`${styles.input} ${styles.inputPrefix}`}
-            type="number"
-            placeholder="Valor total"
-            value={total}
-            onChange={(e) => setTotal(e.target.value)}
-          />
-        </div>
-
-        <label className={styles.dateField}>
-          <span>Pagar até</span>
-          <input
-            className={styles.input}
-            type="date"
-            value={dueDate}
-            onChange={(e) => setDueDate(e.target.value)}
-          />
-        </label>
-
-        <div className={styles.membersHeader}>
-          <h4>Membros</h4>
 
   return (
     <div className={styles.overlay} onClick={onClose}>
@@ -276,7 +234,12 @@ export default function DespesaForm({
           <h2 className={styles.title}>
             {modo === "edit" ? "Editar despesa" : "Nova despesa"}
           </h2>
-          <button type="button" className={styles.botaoFechar} onClick={onClose} aria-label="Fechar">
+          <button
+            type="button"
+            className={styles.botaoFechar}
+            onClick={onClose}
+            aria-label="Fechar"
+          >
             <FiX />
           </button>
         </div>
@@ -320,6 +283,16 @@ export default function DespesaForm({
                 required
               />
             </div>
+          </div>
+
+          <div className={styles.grupo}>
+            <label className={styles.rotulo}>Pagar até</label>
+            <input
+              className={styles.input}
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
           </div>
 
           <div className={styles.membersHeader}>
@@ -411,17 +384,6 @@ export default function DespesaForm({
                     />
                   </div>
                 </div>
-
-                {modo === "edit" && (
-                  <label className={styles.pagoCheckbox}>
-                    <input
-                      type="checkbox"
-                      checked={m.pago || false}
-                      onChange={(e) => togglePago(i, e.target.checked)}
-                    />
-                    Pago
-                  </label>
-                )}
 
                 <button
                   className={styles.removeBtn}
