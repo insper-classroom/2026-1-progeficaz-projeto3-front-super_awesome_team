@@ -13,8 +13,8 @@ export function Home() {
         <nav className={styles.navbar}>
           <img src="/logo-white.png" alt="Adapte" className={styles.navLogo} />
           <div className={styles.navLinks}>
-            <a className={styles.navLink}>Quem somos</a>
-            <a className={styles.navLink}>Como funciona</a>
+            <a href="#quem-somos" className={styles.navLink}>Quem somos</a>
+            <a href="#como-funciona" className={styles.navLink}>Como funciona</a>
           </div>
           <button className={styles.btnEntrar} onClick={() => navigate('/login')}>
             Entrar
@@ -34,6 +34,46 @@ export function Home() {
           Comece agora
         </button>
       </div>
+
+      <section id="quem-somos" className={styles.section}>
+        <h2>Quem somos</h2>
+        <p>
+          O Adapte nasceu para simplificar a forma como você organiza suas finanças em grupo.
+          Sabemos que dividir contas pode gerar confusão, esquecimentos e até conflitos.
+        </p>
+
+        <p>
+          Nossa proposta é trazer clareza, organização e transparência para que você e seu grupo
+          possam focar no que realmente importa, sem dor de cabeça com dinheiro.
+        </p>
+      </section>
+
+      <section id="como-funciona" className={styles.section}>
+        <h2>Como funciona</h2>
+        <p className={styles.sectionIntro}>
+          Em três passos, tudo fica claro.
+        </p>
+
+        <div className={styles.stepsGrid}>
+          <article className={styles.stepCard}>
+            <h3>Crie um grupo</h3>
+            <p>Monte um grupo para amigos, família ou colegas e centralize tudo em um só lugar.</p>
+          </article>
+
+          <article className={styles.stepCard}>
+            <h3>Registre os gastos</h3>
+            <p>Adicione despesas e indique quem participou para manter o controle organizado.</p>
+          </article>
+
+          <article className={styles.stepCard}>
+            <h3>Realize sonhos</h3>
+            <p>Registre suas metas e acompanhe a realização de seus sonhos passo a passo</p>
+          </article>
+        </div>
+      </section>
+
+
+
     </div>
   )
 }
