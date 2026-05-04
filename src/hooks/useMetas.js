@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import {
   atualizarMetaGrupo,
   criarMetaGrupo,
+  deletarMetaGrupo,
   listarMetasDoGrupo,
   registrarAporteMeta,
 } from '../services/goalService'
@@ -245,6 +246,14 @@ export function useMetas(grupoId) {
     [carregarMetas],
   )
 
+  const deletarMeta = useCallback(
+    async (metaId) => {
+      await deletarMetaGrupo(metaId)
+      return carregarMetas()
+    },
+    [carregarMetas],
+  )
+
   const registrarAporte = useCallback(
     async (aporte) => {
       await registrarAporteMeta(aporte)
@@ -260,6 +269,7 @@ export function useMetas(grupoId) {
     recarregar: carregarMetas,
     criarMeta,
     atualizarMeta,
+    deletarMeta,
     registrarAporte,
   }
 }
