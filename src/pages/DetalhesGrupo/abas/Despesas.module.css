@@ -18,6 +18,7 @@
 
 .title {
   margin: 0;
+  color: var(--text);
 }
 
 .gridDespesas {
@@ -30,11 +31,11 @@
 .historico {
   position: sticky;
   top: 20px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: 18px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
   min-height: 300px;
 }
 
@@ -42,7 +43,7 @@
   margin: 0;
   font-size: 18px;
   font-weight: 800;
-  color: #1e293b;
+  color: var(--text);
 }
 
 .historicoLista {
@@ -57,21 +58,21 @@
   justify-content: space-between;
   gap: 12px;
   align-items: center;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--card-2);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px;
 }
 
 .historicoNome {
   display: block;
-  color: #1e293b;
+  color: var(--text);
   font-size: 14px;
 }
 
 .historicoValor {
   margin: 4px 0 0;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
 }
 
@@ -85,8 +86,8 @@
 }
 
 .badgeConcluida {
-  color: #1f7a63;
-  background: rgba(31, 122, 99, 0.12);
+  color: var(--positive);
+  background: var(--primary-muted);
 }
 
 .badgePendente {

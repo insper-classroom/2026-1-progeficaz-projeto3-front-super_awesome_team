@@ -1,20 +1,21 @@
 .card {
   width: 100%;
   max-width: 100%;
-  border: none;
-  background: white;
+  border: 1px solid var(--border);
+  background: var(--surface);
   border-radius: 16px;
   padding: 16px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.08);
   cursor: pointer;
   text-align: left;
   margin-top: 0;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .card:hover {
   transform: translateY(-4px);
   box-shadow: 0 14px 28px rgba(0,0,0,0.12);
+  border-color: var(--primary);
 }
 
 .header {
@@ -33,13 +34,13 @@
   margin: 0;
   font-size: 18px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text);
 }
 
 .total {
   font-size: 14px;
   font-weight: 600;
-  color: #1f7a63;
+  color: var(--primary);
 }
 
 .membrosResumo {
@@ -64,7 +65,7 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.55);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -73,13 +74,15 @@
 }
 
 .modal {
-  background: white;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 20px;
   padding: 24px;
   width: 760px;
   max-width: 92%;
   max-height: 90vh;
   overflow: auto;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.25);
 }
 
 .modalHeader {
@@ -92,23 +95,29 @@
   margin: 0;
   font-size: 24px;
   font-weight: 800;
-  color: #1e293b;
+  color: var(--text);
 }
 
 .modalSubtitle {
   margin: 6px 0 0;
   font-size: 14px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .closeBtn {
   border: none;
-  background: #f1f5f9;
-  color: #334155;
+  background: var(--bg);
+  color: var(--text);
   width: 36px;
   height: 36px;
   border-radius: 999px;
   cursor: pointer;
+  transition: transform 0.2s ease, background 0.2s ease;
+}
+
+.closeBtn:hover {
+  transform: translateY(-1px);
+  background: var(--primary-muted);
 }
 
 .modalGrid {
@@ -120,8 +129,8 @@
 
 .chartCard,
 .detailCard {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--card-2);
+  border: 1px solid var(--border);
   border-radius: 18px;
   padding: 18px;
 }
@@ -144,21 +153,21 @@
 
 .chartLabel {
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted);
   font-weight: 600;
 }
 
 .chartValue {
   font-size: 28px;
   font-weight: 800;
-  color: #1f7a63;
+  color: var(--primary);
 }
 
 .detailTitle {
   margin: 0 0 14px;
   font-size: 16px;
   font-weight: 800;
-  color: #1e293b;
+  color: var(--text);
 }
 
 .memberList {
@@ -168,8 +177,8 @@
 }
 
 .memberRow {
-  background: white;
-  border: 1px solid #e2e8f0;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 14px;
   padding: 12px;
 }
@@ -189,13 +198,13 @@
 
 .memberInfo strong {
   display: block;
-  color: #1e293b;
+  color: var(--text);
   font-size: 14px;
 }
 
 .memberInfo p {
   margin: 2px 0 0;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12px;
 }
 
@@ -221,8 +230,8 @@
 }
 
 .badgePago {
-  color: #1f7a63;
-  background: rgba(31, 122, 99, 0.12);
+  color: var(--positive);
+  background: var(--primary-muted);
 }
 
 .badgePendente {
@@ -237,7 +246,7 @@
   border-radius: 999px;
   overflow: hidden;
   margin: 10px 0 8px;
-  background: #e2e8f0;
+  background: var(--border);
 }
 
 .progressPago,
@@ -250,12 +259,12 @@
   justify-content: space-between;
   gap: 12px;
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .actions {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   margin-top: 24px;
 }
 
@@ -263,4 +272,12 @@
   .modalGrid {
     grid-template-columns: 1fr;
   }
+}
+
+.cardTitle {
+  color: var(--text);
+}
+
+.cardSubtitle {
+  color: var(--text-muted);
 }
