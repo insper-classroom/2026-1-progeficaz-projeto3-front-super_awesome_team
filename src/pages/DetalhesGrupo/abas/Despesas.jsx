@@ -8,7 +8,6 @@ import {
   listarContasDoGrupo,
   marcarContaComoPaga,
 } from "../../../services/billService";
-import { despesasMock } from "../../../mocks/despesasMock.js";
 import styles from "./Despesas.module.css";
 
 function calcularStatus(despesa) {
@@ -68,7 +67,6 @@ export function Despesas({ grupoId, grupo }) {
   const [carregando, setCarregando] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState("");
-  const [modoLocal, setModoLocal] = useState(false);
 
   const carregarContas = useCallback(async () => {
     if (!grupoId) return;
@@ -84,15 +82,10 @@ export function Despesas({ grupoId, grupo }) {
 
       setDespesas(contasAbertas);
       setHistorico(criarHistorico(contasAbertas));
-      setModoLocal(false);
-    } catch {
-      const dadosMockados = despesasMock.map((despesa) =>
-        normalizarDespesaComGrupo(despesa, grupo)
-      );
-      setDespesas(dadosMockados);
-      setHistorico(criarHistorico(dadosMockados));
-      setModoLocal(true);
-      setErro("Não foi possível carregar as contas do backend. Usando dados locais nesta sessão.");
+    } catch (error) {
+      setDespesas([]);
+      setHistorico([]);
+      setErro(error.response?.data?.error || "Não foi possível carregar as contas do backend.");
     } finally {
       setCarregando(false);
     }
@@ -140,28 +133,11 @@ export function Despesas({ grupoId, grupo }) {
     });
   }
 
-  function salvarDespesaLocal(despesaSalva) {
-    const despesaNormalizada = normalizarDespesaComGrupo(despesaSalva, grupo);
-
-    if (modal.indice !== null) {
-      const novas = [...despesas];
-      novas[modal.indice] = despesaNormalizada;
-      setDespesas(novas);
-      setHistorico(criarHistorico(novas));
-    } else {
-      const novas = [...despesas, despesaNormalizada];
-      setDespesas(novas);
-      setHistorico(criarHistorico(novas));
-    }
-
-    fecharModal();
-  }
-
   async function salvarDespesa(despesaSalva) {
     setErro("");
 
-    if (modoLocal || !grupoId) {
-      salvarDespesaLocal(despesaSalva);
+    if (!grupoId) {
+      setErro("Grupo não encontrado para salvar a conta.");
       return;
     }
 
@@ -191,14 +167,8 @@ export function Despesas({ grupoId, grupo }) {
     const despesa = despesas[indice];
     setErro("");
 
-    if (modoLocal || !despesa?.id) {
-      const novas = despesas.filter((_, i) => i !== indice);
-      setDespesas(novas);
-      setHistorico(criarHistorico(novas));
-
-      if (modal.indice === indice) {
-        fecharModal();
-      }
+    if (!despesa?.id) {
+      setErro("Conta não encontrada para concluir.");
       return;
     }
 
