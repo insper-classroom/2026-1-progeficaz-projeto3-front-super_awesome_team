@@ -1,110 +1,280 @@
-import { useCallback, useEffect, useState } from 'react'
-import DespesaForm from '../../../components/DespesaForm'
-import DespesaCard from '../../../components/DespesaCard'
+import { useCallback, useEffect, useState } from "react";
+import DespesaForm from "../../../components/DespesaForm";
+import DespesaCard from "../../../components/DespesaCard";
+import Button from "../../../components/Button";
 import {
+  atualizarContaGrupo,
   criarContaGrupo,
   listarContasDoGrupo,
   marcarContaComoPaga,
-} from '../../../services/billService'
+} from "../../../services/billService";
+import { despesasMock } from "../../../mocks/despesasMock.js";
+import styles from "./Despesas.module.css";
+
+function calcularStatus(despesa) {
+  if (despesa?.paga) return "concluida";
+
+  const membros = Array.isArray(despesa?.membros) ? despesa.membros : [];
+  if (membros.length === 0) return "nao_concluida";
+  return membros.every((m) => m.pago) ? "concluida" : "nao_concluida";
+}
+
+function criarHistorico(despesas) {
+  return despesas
+    .map((despesa, index) => ({
+      id: despesa.id || index + 1,
+      nome: despesa.nome,
+      valor: despesa.total,
+      status: calcularStatus(despesa),
+    }))
+    .reverse();
+}
+
+function normalizarDespesaComGrupo(despesa, grupo) {
+  const membrosGrupo = grupo?.membros || [];
+
+  return {
+    ...despesa,
+    membros: (despesa.membros || []).map((membro, index) => {
+      const membroGrupo = membrosGrupo.find(
+        (item) =>
+          item.email === membro.email ||
+          item.id === membro.email ||
+          item.nome === membro.nome
+      );
+
+      return {
+        ...membro,
+        email: membro.email || membroGrupo?.email || membroGrupo?.id || membro.nome,
+        nome: membroGrupo?.nome || membro.nome,
+        cor: membro.cor || membroGrupo?.cor,
+        percentual: membro.percentual || (despesa.total ? (membro.valor / despesa.total) * 100 : 0),
+        pago: Boolean(despesa.paga || membro.pago),
+        id: membro.id || membro.email || index,
+      };
+    }),
+  };
+}
 
 export function Despesas({ grupoId, grupo }) {
-  const [despesas, setDespesas] = useState([])
-  const [mostrarForm, setMostrarForm] = useState(false)
-  const [carregando, setCarregando] = useState(false)
-  const [salvando, setSalvando] = useState(false)
-  const [erro, setErro] = useState('')
-  const [modoLocal, setModoLocal] = useState(false)
+  const [despesas, setDespesas] = useState([]);
+  const [historico, setHistorico] = useState([]);
+  const [modal, setModal] = useState({
+    aberto: false,
+    tipo: null,
+    despesa: null,
+    indice: null,
+  });
+  const [carregando, setCarregando] = useState(false);
+  const [salvando, setSalvando] = useState(false);
+  const [erro, setErro] = useState("");
+  const [modoLocal, setModoLocal] = useState(false);
 
   const carregarContas = useCallback(async () => {
-    if (!grupoId) return
+    if (!grupoId) return;
 
-    setCarregando(true)
-    setErro('')
+    setCarregando(true);
+    setErro("");
 
     try {
-      const contas = await listarContasDoGrupo(grupoId)
-      setDespesas(contas.filter((conta) => !conta.paga))
-      setModoLocal(false)
+      const contas = await listarContasDoGrupo(grupoId);
+      const contasAbertas = contas
+        .filter((conta) => !conta.paga)
+        .map((conta) => normalizarDespesaComGrupo(conta, grupo));
+
+      setDespesas(contasAbertas);
+      setHistorico(criarHistorico(contasAbertas));
+      setModoLocal(false);
     } catch {
-      // Fallback local preservado para manter a aba testavel sem apagar os mocks.
-      setModoLocal(true)
-      setErro('Não foi possível carregar as contas do backend. Usando dados locais nesta sessão.')
+      const dadosMockados = despesasMock.map((despesa) =>
+        normalizarDespesaComGrupo(despesa, grupo)
+      );
+      setDespesas(dadosMockados);
+      setHistorico(criarHistorico(dadosMockados));
+      setModoLocal(true);
+      setErro("Não foi possível carregar as contas do backend. Usando dados locais nesta sessão.");
     } finally {
-      setCarregando(false)
+      setCarregando(false);
     }
-  }, [grupoId])
+  }, [grupo, grupoId]);
 
   useEffect(() => {
-    Promise.resolve().then(carregarContas)
-  }, [carregarContas])
+    Promise.resolve().then(carregarContas);
+  }, [carregarContas]);
 
-  async function adicionarDespesa(despesa) {
-    setErro('')
+  function abrirNovaDespesa() {
+    setErro("");
+    setModal({
+      aberto: true,
+      tipo: "form",
+      despesa: null,
+      indice: null,
+    });
+  }
 
-    if (modoLocal || !grupoId) {
-      setDespesas([...despesas, despesa])
-      setMostrarForm(false)
-      return
+  function abrirDetalhe(despesa, indice) {
+    setModal({
+      aberto: true,
+      tipo: "detalhe",
+      despesa,
+      indice,
+    });
+  }
+
+  function abrirEdicao(despesa, indice) {
+    setErro("");
+    setModal({
+      aberto: true,
+      tipo: "form",
+      despesa,
+      indice,
+    });
+  }
+
+  function fecharModal() {
+    setModal({
+      aberto: false,
+      tipo: null,
+      despesa: null,
+      indice: null,
+    });
+  }
+
+  function salvarDespesaLocal(despesaSalva) {
+    const despesaNormalizada = normalizarDespesaComGrupo(despesaSalva, grupo);
+
+    if (modal.indice !== null) {
+      const novas = [...despesas];
+      novas[modal.indice] = despesaNormalizada;
+      setDespesas(novas);
+      setHistorico(criarHistorico(novas));
+    } else {
+      const novas = [...despesas, despesaNormalizada];
+      setDespesas(novas);
+      setHistorico(criarHistorico(novas));
     }
 
-    setSalvando(true)
+    fecharModal();
+  }
+
+  async function salvarDespesa(despesaSalva) {
+    setErro("");
+
+    if (modoLocal || !grupoId) {
+      salvarDespesaLocal(despesaSalva);
+      return;
+    }
+
+    setSalvando(true);
     try {
-      await criarContaGrupo({
-        grupoId,
-        nome: despesa.nome,
-        total: despesa.total,
-        membros: despesa.membros,
-      })
-      await carregarContas()
-      setMostrarForm(false)
+      if (modal.indice !== null && modal.despesa?.id) {
+        await atualizarContaGrupo(modal.despesa.id, despesaSalva);
+      } else {
+        await criarContaGrupo({
+          grupoId,
+          nome: despesaSalva.nome,
+          total: despesaSalva.total,
+          membros: despesaSalva.membros,
+        });
+      }
+
+      await carregarContas();
+      fecharModal();
     } catch (error) {
-      setErro(error.response?.data?.error || 'Não foi possível criar a conta.')
+      setErro(error.response?.data?.error || "Não foi possível salvar a conta.");
     } finally {
-      setSalvando(false)
+      setSalvando(false);
     }
   }
 
-  async function concluirDespesa(despesa, index) {
-    setErro('')
+  async function concluirDespesa(indice) {
+    const despesa = despesas[indice];
+    setErro("");
 
-    if (modoLocal || !despesa.id) {
-      setDespesas(despesas.filter((_, despesaIndex) => despesaIndex !== index))
-      return
+    if (modoLocal || !despesa?.id) {
+      const novas = despesas.filter((_, i) => i !== indice);
+      setDespesas(novas);
+      setHistorico(criarHistorico(novas));
+
+      if (modal.indice === indice) {
+        fecharModal();
+      }
+      return;
     }
 
     try {
-      await marcarContaComoPaga(despesa.id)
-      setDespesas(despesas.filter((conta) => conta.id !== despesa.id))
+      await marcarContaComoPaga(despesa.id);
+      await carregarContas();
+      fecharModal();
     } catch (error) {
-      setErro(error.response?.data?.error || 'Não foi possível concluir a conta.')
+      setErro(error.response?.data?.error || "Não foi possível concluir a conta.");
     }
   }
 
   return (
-    <div>
-      <h2>Despesas</h2>
+    <div className={styles.page}>
+      <main className={styles.main}>
+        <div className={styles.topArea}>
+          <h2 className={styles.title}>Despesas</h2>
 
-      <button onClick={() => setMostrarForm(true)}>+ Nova despesa</button>
+          <Button onClick={abrirNovaDespesa}>+ Nova despesa</Button>
+        </div>
 
-      {carregando && <p>Carregando despesas...</p>}
-      {erro && <p>{erro}</p>}
+        {carregando && <p>Carregando despesas...</p>}
+        {erro && <p>{erro}</p>}
 
-      {mostrarForm && (
-        <DespesaForm
-          membrosDoGrupo={grupo?.membros}
-          onAdd={adicionarDespesa}
-          onClose={() => setMostrarForm(false)}
-          salvando={salvando}
-        />
-      )}
+        {modal.aberto && modal.tipo === "form" && (
+          <DespesaForm
+            initialData={modal.despesa}
+            modo={modal.indice !== null ? "edit" : "create"}
+            membrosDoGrupo={grupo?.membros}
+            onSave={salvarDespesa}
+            onClose={fecharModal}
+            salvando={salvando}
+          />
+        )}
 
-      {despesas.map((d, i) => (
-        <DespesaCard
-          key={i}
-          despesa={d}
-          onDelete={() => concluirDespesa(d, i)}
-        />
-      ))}
+        <div className={styles.gridDespesas}>
+          {despesas.map((d, i) => (
+            <DespesaCard
+              key={d.id || i}
+              despesa={d}
+              aberto={modal.aberto && modal.tipo === "detalhe" && modal.indice === i}
+              onOpen={() => abrirDetalhe(d, i)}
+              onClose={fecharModal}
+              onEdit={() => abrirEdicao(d, i)}
+              onDelete={() => concluirDespesa(i)}
+            />
+          ))}
+        </div>
+      </main>
+
+      <aside className={styles.historico}>
+        <h3 className={styles.historicoTitle}>Histórico de despesas</h3>
+
+        <div className={styles.historicoLista}>
+          {historico.map((item) => (
+            <div key={item.id} className={styles.historicoItem}>
+              <div>
+                <strong className={styles.historicoNome}>{item.nome}</strong>
+                <p className={styles.historicoValor}>
+                  R$ {Number(item.valor).toFixed(2)}
+                </p>
+              </div>
+
+              <span
+                className={
+                  item.status === "concluida"
+                    ? styles.badgeConcluida
+                    : styles.badgePendente
+                }
+              >
+                {item.status === "concluida" ? "Concluída" : "Não concluída"}
+              </span>
+            </div>
+          ))}
+        </div>
+      </aside>
     </div>
-  )
+  );
 }

@@ -1,11 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import Button from "../Button";
+import { membrosMock } from "../../mocks/membrosMock";
 import styles from "./DespesaForm.module.css";
 
-const membrosFallback = [
-  { email: "joao@example.com", nome: "João" },
-  { email: "maria@example.com", nome: "Maria" },
-  { email: "pedro@example.com", nome: "Pedro" },
-];
 const membrosVazios = [];
 
 function nomeDoEmail(email) {
@@ -18,66 +15,115 @@ function normalizarOpcaoMembro(membro, index) {
   return {
     email,
     nome: membro.nome || nomeDoEmail(email),
+    cor: membro.cor,
   };
 }
 
-function criarLinhaMembro(membro) {
+function criarMembroVazio(membro = {}) {
   return {
-    email: membro.email,
-    nome: membro.nome,
+    email: membro.email || "",
+    nome: membro.nome || "",
     valor: "",
     percentual: "",
+    pago: false,
+    cor: membro.cor,
   };
 }
 
-export default function DespesaForm({ membrosDoGrupo = membrosVazios, onAdd, onClose, salvando = false }) {
+function normalizarMembroInicial(membro, opcoesMembros) {
+  const opcao = opcoesMembros.find(
+    (item) => item.email === membro.email || item.nome === membro.nome
+  );
+
+  return {
+    email: opcao?.email || membro.email || membro.nome || "",
+    nome: opcao?.nome || membro.nome || nomeDoEmail(membro.email),
+    valor: membro.valor ?? "",
+    percentual: membro.percentual ?? "",
+    pago: membro.pago ?? false,
+    cor: opcao?.cor || membro.cor,
+  };
+}
+
+export default function DespesaForm({
+  membrosDoGrupo = membrosVazios,
+  onSave,
+  onClose,
+  initialData,
+  modo = "create",
+  salvando = false,
+}) {
   const [nome, setNome] = useState("");
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState("");
+  const [membros, setMembros] = useState([criarMembroVazio()]);
+  const [erro, setErro] = useState("");
+
   const opcoesMembros = useMemo(() => {
-    const origem = membrosDoGrupo.length ? membrosDoGrupo : membrosFallback;
+    const origem = membrosDoGrupo.length ? membrosDoGrupo : membrosMock;
     return origem.map(normalizarOpcaoMembro);
   }, [membrosDoGrupo]);
 
-  const [membros, setMembros] = useState([
-    criarLinhaMembro(normalizarOpcaoMembro(membrosFallback[0], 0))
-  ]);
-
   useEffect(() => {
-    Promise.resolve().then(() => setMembros((membrosAtuais) => {
-      const membroExisteNasOpcoes = membrosAtuais.some((membro) =>
-        opcoesMembros.some((opcao) => opcao.email === membro.email)
-      );
+    Promise.resolve().then(() => {
+      if (initialData) {
+        setNome(initialData.nome ?? "");
+        setTotal(initialData.total ?? "");
 
-      if (membroExisteNasOpcoes) return membrosAtuais;
-      return [criarLinhaMembro(opcoesMembros[0])];
-    }));
-  }, [opcoesMembros]);
+        const membrosIniciais =
+          Array.isArray(initialData.membros) && initialData.membros.length > 0
+            ? initialData.membros.map((membro) =>
+                normalizarMembroInicial(membro, opcoesMembros)
+              )
+            : [criarMembroVazio(opcoesMembros[0])];
 
-  // VALOR → %
+        setMembros(membrosIniciais);
+      } else {
+        setNome("");
+        setTotal("");
+        setMembros([criarMembroVazio(opcoesMembros[0])]);
+      }
+
+      setErro("");
+    });
+  }, [initialData, modo, opcoesMembros]);
+
   function handleValor(i, valor) {
+    const totalNum = Number(total);
     const novos = [...membros];
-    novos[i].valor = Number(valor);
+    const valorNum = valor === "" ? "" : Number(valor);
 
-    novos[i].percentual = total
-      ? ((valor / total) * 100).toFixed(2)
-      : "";
+    novos[i].valor = valorNum;
+    novos[i].percentual =
+      totalNum && valorNum !== ""
+        ? ((Number(valorNum) / totalNum) * 100).toFixed(2)
+        : "";
 
     setMembros(novos);
+    setErro("");
   }
 
-  // % → VALOR
   function handlePercentual(i, percentual) {
+    const totalNum = Number(total);
     const novos = [...membros];
-    novos[i].percentual = Number(percentual);
+    const percentualNum = percentual === "" ? "" : Number(percentual);
 
-    novos[i].valor = total
-      ? ((percentual / 100) * total).toFixed(2)
-      : "";
+    novos[i].percentual = percentualNum;
+    novos[i].valor =
+      totalNum && percentualNum !== ""
+        ? ((Number(percentualNum) / 100) * totalNum).toFixed(2)
+        : "";
 
     setMembros(novos);
+    setErro("");
   }
 
-  // ADICIONAR MEMBRO
+  function togglePago(i, checked) {
+    const novos = [...membros];
+    novos[i].pago = checked;
+    setMembros(novos);
+    setErro("");
+  }
+
   function adicionarMembro() {
     const emailsSelecionados = membros.map((membro) => membro.email);
     const proximoMembro = opcoesMembros.find(
@@ -86,150 +132,199 @@ export default function DespesaForm({ membrosDoGrupo = membrosVazios, onAdd, onC
 
     if (!proximoMembro) return;
 
-    setMembros([
-      ...membros,
-      criarLinhaMembro(proximoMembro)
-    ]);
+    setMembros([...membros, criarMembroVazio(proximoMembro)]);
   }
 
-  // REMOVER MEMBRO
   function removerMembro(index) {
+    if (membros.length === 1) return;
     const novos = membros.filter((_, i) => i !== index);
     setMembros(novos);
   }
 
-  // DIVIDIR IGUAL
   function dividirIgual() {
-    if (!total || membros.length === 0) return;
+    const totalNum = Number(total);
+    if (!totalNum || membros.length === 0) return;
 
-    const valorPorPessoa = total / membros.length;
+    const valorPorPessoa = totalNum / membros.length;
 
     const novos = membros.map((m) => ({
       ...m,
       valor: valorPorPessoa.toFixed(2),
-      percentual: (100 / membros.length).toFixed(2)
+      percentual: (100 / membros.length).toFixed(2),
+      pago: m.pago ?? false,
     }));
 
     setMembros(novos);
+    setErro("");
   }
 
   function salvar() {
-    onAdd({
-      nome,
-      total,
-      membros: membros.filter((membro) => membro.email && Number(membro.valor) > 0)
+    const totalNum = Number(total) || 0;
+    const membrosComValor = membros.filter(
+      (membro) => membro.email && Number(membro.valor || 0) > 0
+    );
+    const soma = membrosComValor.reduce(
+      (acc, membro) => acc + Number(membro.valor || 0),
+      0
+    );
+
+    if (!nome.trim()) {
+      setErro("Informe o nome da despesa.");
+      return;
+    }
+
+    if (totalNum <= 0) {
+      setErro("Informe um valor total válido.");
+      return;
+    }
+
+    if (membrosComValor.length === 0) {
+      setErro("Informe pelo menos um membro com valor.");
+      return;
+    }
+
+    if (Math.round(soma * 100) !== Math.round(totalNum * 100)) {
+      setErro("A soma dos valores dos membros precisa ser igual ao valor total.");
+      return;
+    }
+
+    onSave({
+      id: initialData?.id,
+      nome: nome.trim(),
+      total: totalNum,
+      membros: membrosComValor.map((membro) => ({
+        email: membro.email,
+        nome: membro.nome,
+        valor: Number(membro.valor || 0),
+        percentual: Number(membro.percentual || 0),
+        pago: Boolean(membro.pago),
+        cor: membro.cor,
+      })),
     });
   }
 
+  return (
+    <div className={styles.overlay}>
+      <div className={styles.container}>
+        <h3 className={styles.title}>
+          {modo === "edit" ? "Editar despesa" : "Nova despesa"}
+        </h3>
 
-return (
-  <div className={styles.overlay}>
-    <div className={styles.container}>
+        {erro && <p className={styles.erro}>{erro}</p>}
 
-      <h3 className={styles.title}>Nova despesa</h3>
-
-      <input
-        className={styles.input}
-        placeholder="Nome da despesa"
-        value={nome}
-        onChange={(e) => setNome(e.target.value)}
-      />
-
-      <div className={styles.field}>
-        <span className={styles.prefix}>R$</span>
         <input
-          className={`${styles.input} ${styles.inputPrefix}`}
-          type="number"
-          placeholder="Valor total"
-          onChange={(e) => setTotal(Number(e.target.value))}
+          className={styles.input}
+          placeholder="Nome da despesa"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
         />
-      </div>
 
-      <div className={styles.membersHeader}>
-        <h4>Membros</h4>
-
-        <div className={styles.membersActions}>
-            <button className={styles.primary} onClick={adicionarMembro}>
-            + Adicionar
-            </button>
-
-            <button className={styles.primary} onClick={dividirIgual}>
-            Dividir igualmente
-            </button>
-        </div>
+        <div className={styles.field}>
+          <span className={styles.prefix}>R$</span>
+          <input
+            className={`${styles.input} ${styles.inputPrefix}`}
+            type="number"
+            placeholder="Valor total"
+            value={total}
+            onChange={(e) => setTotal(e.target.value)}
+          />
         </div>
 
-      {membros.map((m, i) => (
-        <div key={i} className={styles.memberRow}>
+        <div className={styles.membersHeader}>
+          <h4>Membros</h4>
 
-          {/* avatar */}
-          <div className={styles.avatar}>
-            {m.nome ? m.nome.charAt(0) : "?"}
+          <div className={styles.membersActions}>
+            <Button onClick={adicionarMembro}>+ Adicionar</Button>
+            <Button onClick={dividirIgual}>Dividir igualmente</Button>
+          </div>
+        </div>
+
+        {membros.map((m, i) => (
+          <div key={i} className={styles.memberRow}>
+            <div className={styles.avatar}>
+              {m.nome ? m.nome.charAt(0) : "?"}
             </div>
 
             <select
-            className={styles.select}
-            value={m.email}
-            onChange={(e) => {
+              className={styles.select}
+              value={m.email}
+              onChange={(e) => {
                 const novos = [...membros];
-                const membroSelecionado = opcoesMembros.find((opcao) => opcao.email === e.target.value);
+                const membroSelecionado = opcoesMembros.find(
+                  (opcao) => opcao.email === e.target.value
+                );
                 if (!membroSelecionado) return;
                 novos[i] = {
                   ...novos[i],
                   email: membroSelecionado.email,
                   nome: membroSelecionado.nome,
+                  cor: membroSelecionado.cor,
                 };
                 setMembros(novos);
-            }}
+              }}
             >
-            <option value="">Selecionar</option>
-            {opcoesMembros.map((membro) => (
-              <option key={membro.email} value={membro.email}>
-                {membro.nome}
-              </option>
-            ))}
+              <option value="">Selecionar</option>
+              {opcoesMembros.map((membro) => (
+                <option key={membro.email} value={membro.email}>
+                  {membro.nome}
+                </option>
+              ))}
             </select>
 
-          <div className={styles.field}>
-            <span className={styles.prefix}>R$</span>
-            <input
-              className={`${styles.input} ${styles.inputPrefix}`}
-              type="number"
-              value={m.valor || ""}
-              onChange={(e) => handleValor(i, e.target.value)}
-            />
-          </div>
+            <div className={styles.field}>
+              <span className={styles.prefix}>R$</span>
+              <input
+                className={`${styles.input} ${styles.inputPrefix}`}
+                type="number"
+                value={m.valor || ""}
+                onChange={(e) => handleValor(i, e.target.value)}
+              />
+            </div>
 
-          <div className={styles.field}>
-            <span className={styles.prefix}>%</span>
-            <input
-              className={`${styles.input} ${styles.inputPrefix}`}
-              type="number"
-              value={m.percentual || ""}
-              onChange={(e) => handlePercentual(i, e.target.value)}
-            />
-          </div>
+            <div className={styles.field}>
+              <span className={styles.prefix}>%</span>
+              <input
+                className={`${styles.input} ${styles.inputPrefix}`}
+                type="number"
+                value={m.percentual || ""}
+                onChange={(e) => handlePercentual(i, e.target.value)}
+              />
+            </div>
 
-          <button
-            className={styles.removeBtn}
-            onClick={() => removerMembro(i)}
-          >
-            ❌
-          </button>
+            <button
+              className={styles.removeBtn}
+              onClick={() => removerMembro(i)}
+              type="button"
+            >
+              X
+            </button>
+            {modo === "edit" && (
+              <label className={styles.pagoCheckbox}>
+                <input
+                  type="checkbox"
+                  checked={m.pago || false}
+                  onChange={(e) => togglePago(i, e.target.checked)}
+                />
+                Pago
+              </label>
+            )}
+          </div>
+        ))}
+
+        <div className={styles.actions}>
+          <Button variant="secondary" onClick={onClose}>
+            Cancelar
+          </Button>
+
+          <Button onClick={salvar} disabled={salvando}>
+            {salvando
+              ? "Salvando..."
+              : modo === "edit"
+                ? "Salvar alterações"
+                : "Salvar"}
+          </Button>
         </div>
-      ))}
-
-      <div className={styles.actions}>
-        <button className={styles.secondary} onClick={onClose}>
-          Cancelar
-        </button>
-
-        <button className={styles.primary} onClick={salvar} disabled={salvando}>
-          {salvando ? "Salvando..." : "Salvar"}
-        </button>
       </div>
-
     </div>
-  </div>
-);
+  );
 }

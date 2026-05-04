@@ -1,0 +1,96 @@
+.page {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 28px;
+  align-items: start;
+}
+
+.main {
+  min-width: 0;
+}
+
+.topArea {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.title {
+  margin: 0;
+  color: var(--text);
+}
+
+.gridDespesas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.historico {
+  position: sticky;
+  top: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.06);
+  min-height: 300px;
+}
+
+.historicoTitle {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--text);
+}
+
+.historicoLista {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.historicoItem {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.historicoNome {
+  display: block;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.historicoValor {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.badgeConcluida,
+.badgePendente {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.badgeConcluida {
+  color: var(--positive);
+  background: var(--primary-muted);
+}
+
+.badgePendente {
+  color: #b45309;
+  background: rgba(245, 158, 11, 0.12);
+}

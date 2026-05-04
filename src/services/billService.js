@@ -13,23 +13,34 @@ function nomeDoEmail(email) {
 
 function normalizarMembroParaPagamento(membro) {
   const email = membro.email || membro.id || membro.nome
+  const valor = numeroSeguro(membro.valor)
 
   return {
     email,
     nome: membro.nome || nomeDoEmail(email),
-    valor: numeroSeguro(membro.valor),
+    valor,
     percentual: membro.percentual,
+    pago: Boolean(membro.pago),
+    cor: membro.cor,
   }
 }
 
 export function normalizarConta(conta) {
   const membros = conta.members_to_pay || conta.membros || []
+  const total = numeroSeguro(conta.total_value ?? conta.total)
 
   return {
     id: conta._id || conta.id || conta.bill_id,
     nome: conta.bill_type || conta.nome || 'Conta sem nome',
-    total: numeroSeguro(conta.total_value ?? conta.total),
-    membros: membros.map(normalizarMembroParaPagamento),
+    total,
+    membros: membros.map((membro) => {
+      const membroNormalizado = normalizarMembroParaPagamento(membro)
+      return {
+        ...membroNormalizado,
+        percentual: total ? (membroNormalizado.valor / total) * 100 : 0,
+        pago: Boolean(conta.is_paid || membroNormalizado.pago),
+      }
+    }),
     paga: Boolean(conta.is_paid),
     criadaPor: conta.created_by,
     criadaEm: conta.created_at,
@@ -55,6 +66,24 @@ export async function criarContaGrupo({ grupoId, nome, total, membros }) {
     bill_type: nome,
     total_value: numeroSeguro(total),
     group_id: grupoId,
+    members_to_pay: membersToPay,
+  })
+
+  return response.data
+}
+
+export async function atualizarContaGrupo(contaId, { nome, total, membros }) {
+  const membersToPay = membros
+    .map(normalizarMembroParaPagamento)
+    .filter((membro) => membro.email && membro.valor > 0)
+    .map((membro) => ({
+      email: membro.email,
+      value: membro.valor,
+    }))
+
+  const response = await api.put(`/bill/${contaId}`, {
+    bill_type: nome,
+    total_value: numeroSeguro(total),
     members_to_pay: membersToPay,
   })
 
