@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import {
+  atualizarAporteMeta,
   atualizarMetaGrupo,
   criarMetaGrupo,
   deletarMetaGrupo,
@@ -53,6 +54,21 @@ function converterData(data) {
   return dataConvertida
 }
 
+function inicioDoMes(data) {
+  return new Date(data.getFullYear(), data.getMonth(), 1)
+}
+
+function diferencaMeses(inicio, fim) {
+  return (fim.getFullYear() - inicio.getFullYear()) * 12 + fim.getMonth() - inicio.getMonth()
+}
+
+function obterPrimeiraDataAporte(goal) {
+  return (goal.contributions || [])
+    .map((aporte) => converterData(aporte.contributed_at))
+    .filter(Boolean)
+    .sort((dataA, dataB) => dataA - dataB)[0] || null
+}
+
 function obterPrazoData(dueDate) {
   const data = converterData(dueDate)
   if (!data) return ''
@@ -72,10 +88,50 @@ function obterPrazoTexto(prazoData) {
   })
 }
 
+function obterDataPrazo(prazoData) {
+  if (!prazoData) return null
+
+  const [ano, mes] = prazoData.split('-').map(Number)
+  if (!ano || !mes) return null
+
+  return new Date(ano, mes - 1, 1)
+}
+
+function calcularPercentualEsperado(meta) {
+  if (!meta.total || !meta.prazoData) return null
+
+  const dataPrazo = obterDataPrazo(meta.prazoData)
+  if (!dataPrazo) return null
+
+  const dataInicio = converterData(meta.criadaEm) || meta.primeiroAporteEm || new Date()
+  const mesInicio = inicioDoMes(dataInicio)
+  const mesAtual = inicioDoMes(new Date())
+  const mesPrazo = inicioDoMes(dataPrazo)
+
+  if (mesPrazo < mesInicio) return 100
+
+  const totalMeses = diferencaMeses(mesInicio, mesPrazo) + 1
+  const mesesDecorridos = Math.min(
+    Math.max(diferencaMeses(mesInicio, mesAtual) + 1, 0),
+    totalMeses,
+  )
+
+  return (mesesDecorridos / totalMeses) * 100
+}
+
 function calcularSituacao(meta) {
   if (!meta.total) return 'atencao'
 
   const percentual = (meta.alcancado / meta.total) * 100
+  if (percentual >= 100) return 'noRitmo'
+
+  const percentualEsperado = calcularPercentualEsperado(meta)
+  if (percentualEsperado != null) {
+    if (percentual >= percentualEsperado) return 'noRitmo'
+    if (percentual >= percentualEsperado * 0.8) return 'saudavel'
+    return 'atencao'
+  }
+
   if (percentual >= 80) return 'noRitmo'
   if (percentual >= 50) return 'saudavel'
   return 'atencao'
@@ -147,9 +203,12 @@ function normalizarMeta(goal) {
     tipo: 'grupo',
     membrosIds: goal.members || [],
     descricao: goal.description,
+    criadaEm: goal.created_at,
+    primeiroAporteEm: obterPrimeiraDataAporte(goal),
     raw: goal,
   }
 
+  meta.percentualEsperado = calcularPercentualEsperado(meta)
   meta.situacao = calcularSituacao(meta)
   meta.aporteIdeal = calcularAporteIdeal(meta)
   meta.proximoAporte = montarProximoAporte(meta)
@@ -159,7 +218,7 @@ function normalizarMeta(goal) {
   return meta
 }
 
-function normalizarMovimentacao(aporte, meta) {
+function normalizarMovimentacao(aporte, meta, contributionIndex) {
   const data = converterData(aporte.contributed_at)
   const dataTexto = data
     ? data.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
@@ -167,11 +226,13 @@ function normalizarMovimentacao(aporte, meta) {
   const membroId = aporte.member_email
 
   return {
-    id: `${meta.id}-${membroId}-${aporte.contributed_at}-${aporte.value}`,
+    id: `${meta.id}-${contributionIndex}-${membroId}-${aporte.contributed_at}-${aporte.value}`,
     membroId,
     nomeMembro: nomeDoEmail(membroId),
     metaId: meta.id,
     nomeMeta: meta.nome,
+    contributionIndex,
+    dataValor: data ? data.toISOString().slice(0, 10) : '',
     tipo: 'aporte',
     valor: numeroSeguro(aporte.value),
     data: dataTexto,
@@ -183,7 +244,9 @@ export function normalizarDadosMetas(grupo, goals) {
   const metas = goals.map(normalizarMeta)
   const movimentacoes = metas
     .flatMap((meta) =>
-      (meta.raw.contributions || []).map((aporte) => normalizarMovimentacao(aporte, meta))
+      (meta.raw.contributions || []).map((aporte, index) =>
+        normalizarMovimentacao(aporte, meta, index)
+      )
     )
     .slice(-8)
     .reverse()
@@ -262,6 +325,14 @@ export function useMetas(grupoId) {
     [carregarMetas],
   )
 
+  const atualizarAporte = useCallback(
+    async (aporte) => {
+      await atualizarAporteMeta(aporte)
+      return carregarMetas()
+    },
+    [carregarMetas],
+  )
+
   return {
     data,
     loading,
@@ -271,5 +342,6 @@ export function useMetas(grupoId) {
     atualizarMeta,
     deletarMeta,
     registrarAporte,
+    atualizarAporte,
   }
 }

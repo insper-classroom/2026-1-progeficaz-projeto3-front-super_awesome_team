@@ -83,7 +83,19 @@ function classeBarraMeta(meta) {
 function obterKickerMeta(meta) {
   if (meta.situacao === 'atencao') return 'Meta com atenção'
   if (meta.situacao === 'saudavel') return 'Meta saudável'
-  return 'Meta no ritmo'
+  return 'Meta em dia'
+}
+
+function obterTextoTagAporte(meta) {
+  if (meta.situacao === 'noRitmo') return 'em dia'
+  if (meta.situacao === 'saudavel') return 'saudável'
+  return 'pendente'
+}
+
+function classeTagAporte(meta) {
+  if (meta.situacao === 'noRitmo') return `${styles.tagAporte} ${styles.tagAporteEmDia}`
+  if (meta.situacao === 'saudavel') return `${styles.tagAporte} ${styles.tagAporteSaudavel}`
+  return styles.tagAporte
 }
 
 function obterTituloMovimentacao(mov) {
@@ -111,7 +123,17 @@ function idsIguais(idA, idB) {
 }
 
 export function Metas({ grupoId, metaInicialId = null }) {
-  const { data, loading, error, criarMeta, atualizarMeta, deletarMeta, registrarAporte, usandoMock } = useMetas(grupoId)
+  const {
+    data,
+    loading,
+    error,
+    criarMeta,
+    atualizarMeta,
+    deletarMeta,
+    registrarAporte,
+    atualizarAporte,
+    usandoMock,
+  } = useMetas(grupoId)
   const destaqueRef = useRef(null)
 
   // Guarda a meta escolhida para destacar o card e alimentar as próximas seções.
@@ -123,6 +145,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
   // Controla qual modal está aberto e qual meta está sendo manipulada.
   const [modalAberto, setModalAberto] = useState(null) // 'novaMeta' | 'editarMeta' | 'aporte'
   const [metaDoModal, setMetaDoModal] = useState(null)
+  const [aporteDoModal, setAporteDoModal] = useState(null)
   const [metaConfirmacaoExclusao, setMetaConfirmacaoExclusao] = useState(null)
   const [erroOperacao, setErroOperacao] = useState('')
   const [metaExcluindoId, setMetaExcluindoId] = useState(null)
@@ -154,11 +177,21 @@ export function Metas({ grupoId, metaInicialId = null }) {
     setErroOperacao('')
     setModalAberto('aporte')
     setMetaDoModal(meta)
+    setAporteDoModal(null)
+  }
+
+  function abrirEditarAporte(movimentacao) {
+    const meta = metas.find((item) => idsIguais(item.id, movimentacao.metaId)) || null
+    setErroOperacao('')
+    setModalAberto('aporte')
+    setMetaDoModal(meta)
+    setAporteDoModal(movimentacao)
   }
 
   function fecharModal() {
     setModalAberto(null)
     setMetaDoModal(null)
+    setAporteDoModal(null)
   }
 
   function abrirConfirmacaoExclusao(meta) {
@@ -196,10 +229,14 @@ export function Metas({ grupoId, metaInicialId = null }) {
     setErroOperacao('')
 
     try {
-      await registrarAporte(aporte)
+      if (aporteDoModal) {
+        await atualizarAporte(aporte)
+      } else {
+        await registrarAporte(aporte)
+      }
       fecharModal()
     } catch (error) {
-      setErroOperacao(error.response?.data?.error || 'Não foi possível registrar o aporte.')
+      setErroOperacao(error.response?.data?.error || 'Não foi possível salvar o aporte.')
     }
   }
 
@@ -275,7 +312,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
 
   const textoMetasAtivas = pluralizar(metas.length, 'meta ativa', 'metas ativas')
   const textoMembros = pluralizar(membros.length, 'membro', 'membros')
-  const textoNoRitmo = pluralizar(resumo.metasNoRitmo, 'meta no ritmo', 'metas no ritmo')
+  const textoNoRitmo = pluralizar(resumo.metasNoRitmo, 'meta em dia', 'metas em dia')
 
   // Nome da meta com prazo mais próximo para o card de resumo.
   let nomeProximaMeta = 'Sem prazo definido'
@@ -565,7 +602,9 @@ export function Metas({ grupoId, metaInicialId = null }) {
           <div className={styles.cardProximoAporte}>
             <div className={styles.cabecalhoProximoAporte}>
               <span className={styles.nomeProximoAporte}>{metaSelecionada.nome}</span>
-              <span className={styles.tagAporte}>pendente</span>
+              <span className={classeTagAporte(metaSelecionada)}>
+                {obterTextoTagAporte(metaSelecionada)}
+              </span>
             </div>
 
             {/* Total combinado e divisão por membro */}
@@ -637,6 +676,14 @@ export function Metas({ grupoId, metaInicialId = null }) {
                     {mov.valor != null && (
                       <span className={styles.valorMovimentacao}>+{formatarMoeda(mov.valor)}</span>
                     )}
+                    <button
+                      type="button"
+                      className={styles.botaoEditarMovimentacao}
+                      onClick={() => abrirEditarAporte(mov)}
+                      aria-label={`Editar aporte em ${mov.nomeMeta}`}
+                    >
+                      <FiEdit2 />
+                    </button>
                   </div>
                 )
               })}
@@ -661,6 +708,7 @@ export function Metas({ grupoId, metaInicialId = null }) {
           metas={metas}
           membros={membros}
           metaInicial={metaDoModal}
+          aporteInicial={aporteDoModal}
           onSalvar={handleSalvarAporte}
           onFechar={fecharModal}
         />
