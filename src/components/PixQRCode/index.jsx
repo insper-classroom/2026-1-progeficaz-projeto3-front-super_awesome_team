@@ -7,12 +7,7 @@ export default function PixQRCode({ value, className, alt = "QR Code PIX" }) {
   useEffect(() => {
     let ativo = true;
 
-    if (!value) {
-      setDataUrl("");
-      return () => {
-        ativo = false;
-      };
-    }
+    if (!value) return undefined;
 
     QRCode.toDataURL(value, {
       errorCorrectionLevel: "M",
