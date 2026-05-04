@@ -161,12 +161,76 @@
   opacity: 0.6;
 }
 
+.compactSubmitBtn {
+  margin-top: 8px;
+}
+
+.forgotBtn {
+  align-self: flex-end;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.forgotBtn:hover {
+  color: #72e840;
+}
+
 .errorMessage {
   color: #ff6b6b;
   font-family: "Roboto", sans-serif;
   font-size: 13px;
   margin: 0;
   text-align: center;
+}
+
+.successMessage {
+  color: #72e840;
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  margin: 0;
+  text-align: center;
+}
+
+.helperText {
+  color: rgba(255, 255, 255, 0.75);
+  font-family: "Roboto", sans-serif;
+  font-size: 13px;
+  margin: -4px 0 0 0;
+  text-align: center;
+  word-break: break-word;
+}
+
+.secondaryActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.secondaryLink {
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  font-family: "Roboto", sans-serif;
+  font-size: 14px;
+  padding: 0;
+  transition: color 0.2s;
+}
+
+.secondaryLink:hover {
+  color: #72e840;
+}
+
+.secondaryLink:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
 }
 
 .or {
