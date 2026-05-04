@@ -13,7 +13,7 @@ function nomeDoEmail(email) {
 
 function normalizarMembroParaPagamento(membro) {
   const email = membro.email || membro.id || membro.nome
-  const valor = numeroSeguro(membro.valor)
+  const valor = numeroSeguro(membro.valor ?? membro.value)
 
   return {
     email,

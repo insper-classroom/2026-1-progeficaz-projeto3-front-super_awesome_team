@@ -37,7 +37,7 @@ function normalizarMembroInicial(membro, opcoesMembros) {
   return {
     email: opcao?.email || membro.email || membro.nome || "",
     nome: opcao?.nome || membro.nome || nomeDoEmail(membro.email),
-    valor: membro.valor ?? "",
+    valor: membro.valor ?? membro.value ?? "",
     percentual: membro.percentual ?? "",
     pago: membro.pago ?? false,
     cor: opcao?.cor || membro.cor,
