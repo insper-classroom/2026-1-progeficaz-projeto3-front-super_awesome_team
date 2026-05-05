@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useState } from 'react'
-import {
-  criarDespesaPessoal,
-  deletarDespesaPessoal,
-  obterResumoPessoal,
-} from '../services/personalService'
+import { obterResumoPessoal } from '../services/personalService'
 
 const dadosVazios = {
   resumo: {
     totalDespesas: 0,
+    totalPago: 0,
+    totalRecebido: 0,
     totalAportes: 0,
-    saldo: 0,
     totalRegistrosDespesa: 0,
     totalRegistrosAporte: 0,
+    totalGrupos: 0,
   },
   despesas: [],
   aportes: [],
@@ -34,12 +32,21 @@ function dataParaInput(valor) {
 }
 
 function normalizarDespesa(expense) {
+  const papel = expense.role === 'creditor' ? 'creditor' : 'debtor'
+
   return {
     id: expense._id || expense.id,
-    categoria: expense.expense_type || 'Sem categoria',
+    contaId: expense.bill_id,
+    grupoId: expense.group_id,
+    nomeGrupo: expense.group_name || 'Grupo',
+    categoria: expense.category || 'Sem categoria',
     valor: numeroSeguro(expense.value),
-    data: expense.expense_date,
-    dataValor: dataParaInput(expense.expense_date),
+    data: expense.date,
+    dataValor: dataParaInput(expense.date),
+    papel,
+    papelTexto: papel === 'creditor' ? 'Recebido' : 'Pago',
+    devedorEmail: expense.debtor_email,
+    credorEmail: expense.creditor_email,
   }
 }
 
@@ -63,10 +70,12 @@ function normalizarDadosPessoais(data) {
   return {
     resumo: {
       totalDespesas: numeroSeguro(summary.total_expenses),
+      totalPago: numeroSeguro(summary.total_paid),
+      totalRecebido: numeroSeguro(summary.total_received),
       totalAportes: numeroSeguro(summary.total_contributions),
-      saldo: numeroSeguro(summary.balance),
       totalRegistrosDespesa: numeroSeguro(summary.expense_count),
       totalRegistrosAporte: numeroSeguro(summary.contribution_count),
+      totalGrupos: numeroSeguro(summary.group_count),
     },
     despesas: (data?.expenses || []).map(normalizarDespesa),
     aportes: (data?.contributions || []).map(normalizarAporte),
@@ -104,28 +113,10 @@ export function usePessoal() {
     Promise.resolve().then(carregar)
   }, [carregar])
 
-  const criarDespesa = useCallback(
-    async (despesa) => {
-      await criarDespesaPessoal(despesa)
-      return carregar()
-    },
-    [carregar],
-  )
-
-  const deletarDespesa = useCallback(
-    async (expenseId) => {
-      await deletarDespesaPessoal(expenseId)
-      return carregar()
-    },
-    [carregar],
-  )
-
   return {
     data,
     loading,
     error,
     recarregar: carregar,
-    criarDespesa,
-    deletarDespesa,
   }
 }
