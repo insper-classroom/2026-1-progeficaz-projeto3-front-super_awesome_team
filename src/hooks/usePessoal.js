@@ -12,6 +12,7 @@ const dadosVazios = {
     totalGrupos: 0,
   },
   despesas: [],
+  vencimentos: [],
   aportes: [],
   graficos: {
     categorias: [],
@@ -63,6 +64,22 @@ function normalizarAporte(contribution) {
   }
 }
 
+function normalizarVencimento(expense) {
+  return {
+    id: expense._id || expense.id,
+    contaId: expense.bill_id,
+    grupoId: expense.group_id,
+    nomeGrupo: expense.group_name || 'Grupo',
+    categoria: expense.category || 'Sem categoria',
+    valor: numeroSeguro(expense.value),
+    data: expense.due_date,
+    dataValor: dataParaInput(expense.due_date),
+    credorEmail: expense.creditor_email,
+    devedorConfirmou: Boolean(expense.debtor_confirmed),
+    credorConfirmou: Boolean(expense.creditor_confirmed),
+  }
+}
+
 function normalizarDadosPessoais(data) {
   const summary = data?.summary || {}
   const charts = data?.charts || {}
@@ -78,6 +95,7 @@ function normalizarDadosPessoais(data) {
       totalGrupos: numeroSeguro(summary.group_count),
     },
     despesas: (data?.expenses || []).map(normalizarDespesa),
+    vencimentos: (data?.due_expenses || []).map(normalizarVencimento),
     aportes: (data?.contributions || []).map(normalizarAporte),
     graficos: {
       categorias: charts.expenses_by_category || [],

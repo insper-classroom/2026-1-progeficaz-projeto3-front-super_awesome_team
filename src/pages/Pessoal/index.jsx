@@ -62,35 +62,55 @@ function calcularNivelMapa(valor, maiorValor) {
   return 1
 }
 
-function obterMesReferencia(despesas) {
-  const datas = despesas
-    .map((despesa) => obterData(despesa.data))
-    .filter(Boolean)
-    .sort((a, b) => b.getTime() - a.getTime())
-
-  return datas[0] || new Date()
+function mesmoMes(dataA, dataB) {
+  return dataA.getFullYear() === dataB.getFullYear() && dataA.getMonth() === dataB.getMonth()
 }
 
-function montarMapaCalor(despesas) {
-  const referencia = obterMesReferencia(despesas)
+function obterMesReferenciaVencimentos(vencimentos) {
+  const hoje = new Date()
+  const datas = vencimentos
+    .map((vencimento) => obterData(vencimento.data))
+    .filter(Boolean)
+
+  if (!datas.length) return hoje
+
+  const dataNoMesAtual = datas.find((data) => mesmoMes(data, hoje))
+  if (dataNoMesAtual) return hoje
+
+  const futuras = datas
+    .filter((data) => data >= hoje)
+    .sort((a, b) => a.getTime() - b.getTime())
+  if (futuras[0]) return futuras[0]
+
+  return datas.sort((a, b) => b.getTime() - a.getTime())[0]
+}
+
+function montarCalendarioVencimentos(vencimentos) {
+  const referencia = obterMesReferenciaVencimentos(vencimentos)
   const ano = referencia.getFullYear()
   const mesIndex = referencia.getMonth()
   const primeiroDia = new Date(ano, mesIndex, 1)
   const diasNoMes = new Date(ano, mesIndex + 1, 0).getDate()
-  const totaisPorDia = new Map()
+  const vencimentosPorDia = new Map()
 
-  despesas.forEach((despesa) => {
-    const data = obterData(despesa.data)
+  vencimentos.forEach((vencimento) => {
+    const data = obterData(vencimento.data)
     if (!data || data.getFullYear() !== ano || data.getMonth() !== mesIndex) return
 
     const chaveDia = obterChaveDia(data)
-    totaisPorDia.set(chaveDia, (totaisPorDia.get(chaveDia) || 0) + Number(despesa.valor || 0))
+    const itens = vencimentosPorDia.get(chaveDia) || []
+    itens.push(vencimento)
+    vencimentosPorDia.set(chaveDia, itens)
   })
 
-  const valores = [...totaisPorDia.values()]
+  const totaisPorDia = [...vencimentosPorDia.entries()].map(([dia, itens]) => [
+    dia,
+    itens.reduce((total, item) => total + Number(item.valor || 0), 0),
+  ])
+  const valores = totaisPorDia.map(([, valor]) => valor)
   const maiorValor = valores.length ? Math.max(...valores) : 0
   const totalMes = valores.reduce((total, valor) => total + valor, 0)
-  const maiorEntrada = [...totaisPorDia.entries()].sort(([, valorA], [, valorB]) => valorB - valorA)[0]
+  const maiorEntrada = totaisPorDia.sort(([, valorA], [, valorB]) => valorB - valorA)[0]
   const celulas = []
 
   for (let i = 0; i < primeiroDia.getDay(); i += 1) {
@@ -100,13 +120,15 @@ function montarMapaCalor(despesas) {
   for (let dia = 1; dia <= diasNoMes; dia += 1) {
     const data = new Date(ano, mesIndex, dia)
     const chaveDia = obterChaveDia(data)
-    const valor = totaisPorDia.get(chaveDia) || 0
+    const itens = vencimentosPorDia.get(chaveDia) || []
+    const valor = itens.reduce((total, item) => total + Number(item.valor || 0), 0)
 
     celulas.push({
       tipo: 'dia',
       id: chaveDia,
       dia,
       valor,
+      itens,
       nivel: calcularNivelMapa(valor, maiorValor),
     })
   }
@@ -116,7 +138,7 @@ function montarMapaCalor(despesas) {
     totalMes,
     maiorValor,
     maiorDia: maiorEntrada ? Number(maiorEntrada[0].split('-')[2]) : null,
-    diasComDespesa: totaisPorDia.size,
+    diasComVencimento: vencimentosPorDia.size,
     celulas,
   }
 }
@@ -163,7 +185,10 @@ export function Pessoal() {
   const fluxoMensal = data.graficos.fluxoMensal
   const despesasRecentes = data.despesas.slice(0, 8)
   const aportesRecentes = data.aportes.slice(0, 6)
-  const mapaCalor = useMemo(() => montarMapaCalor(data.despesas), [data.despesas])
+  const calendarioVencimentos = useMemo(
+    () => montarCalendarioVencimentos(data.vencimentos),
+    [data.vencimentos],
+  )
 
   if (loading) return <div className={styles.carregando}>Carregando...</div>
   if (error) return <div className={styles.carregando}>Não foi possível carregar os dados pessoais.</div>
@@ -348,24 +373,24 @@ export function Pessoal() {
         <article className={styles.mapaCalor}>
           <div className={styles.mapaCalorCabecalho}>
             <div>
-              <h3 className={styles.mapaCalorTitle}>Mapa de calor diário</h3>
-              <p>{mapaCalor.titulo}</p>
+              <h3 className={styles.mapaCalorTitle}>Vencimentos</h3>
+              <p>{calendarioVencimentos.titulo}</p>
             </div>
-            <span>{formatarMoeda(mapaCalor.totalMes)}</span>
+            <span>{formatarMoeda(calendarioVencimentos.totalMes)}</span>
           </div>
 
           <div className={styles.mapaCalorResumo}>
             <div>
-              <span>Maior dia</span>
+              <span>Maior vencimento</span>
               <strong>
-                {mapaCalor.maiorDia
-                  ? `${String(mapaCalor.maiorDia).padStart(2, '0')} - ${formatarMoeda(mapaCalor.maiorValor)}`
-                  : 'Sem despesas'}
+                {calendarioVencimentos.maiorDia
+                  ? `${String(calendarioVencimentos.maiorDia).padStart(2, '0')} - ${formatarMoeda(calendarioVencimentos.maiorValor)}`
+                  : 'Sem vencimentos'}
               </strong>
             </div>
             <div>
-              <span>Dias com despesa</span>
-              <strong>{mapaCalor.diasComDespesa}</strong>
+              <span>Dias com vencimento</span>
+              <strong>{calendarioVencimentos.diasComVencimento}</strong>
             </div>
           </div>
 
@@ -376,30 +401,44 @@ export function Pessoal() {
           </div>
 
           <div className={styles.mapaCalorGrade}>
-            {mapaCalor.celulas.map((celula) => {
+            {calendarioVencimentos.celulas.map((celula) => {
               if (celula.tipo === 'vazio') {
                 return <span key={celula.id} className={styles.mapaCalorVazio} />
               }
+              const temVencimento = celula.itens.length > 0
 
               return (
                 <span
                   key={celula.id}
                   className={`${styles.mapaCalorDia} ${styles[`mapaCalorNivel${celula.nivel}`]}`}
                   tabIndex={0}
-                  aria-label={`${String(celula.dia).padStart(2, '0')}: ${formatarMoeda(celula.valor)}`}
+                  aria-label={`${String(celula.dia).padStart(2, '0')}: ${formatarMoeda(celula.valor)} em vencimentos`}
                 >
                   {celula.dia}
-                  <span className={styles.mapaCalorTooltip}>
-                    <strong>Dia {String(celula.dia).padStart(2, '0')}</strong>
-                    <span>{formatarMoeda(celula.valor)}</span>
-                  </span>
+                  {temVencimento && (
+                    <span className={styles.mapaCalorQuantidade}>{celula.itens.length}</span>
+                  )}
+                  {temVencimento && (
+                    <span className={styles.mapaCalorTooltip}>
+                      <strong>Dia {String(celula.dia).padStart(2, '0')}</strong>
+                      <span>Total: {formatarMoeda(celula.valor)}</span>
+                      {celula.itens.slice(0, 3).map((item) => (
+                        <span key={item.id}>
+                          {item.categoria} · {item.nomeGrupo} · {formatarMoeda(item.valor)}
+                        </span>
+                      ))}
+                      {celula.itens.length > 3 && (
+                        <span>+{celula.itens.length - 3} vencimentos</span>
+                      )}
+                    </span>
+                  )}
                 </span>
               )
             })}
           </div>
 
           <div className={styles.mapaCalorLegenda}>
-            <span>Menor gasto</span>
+            <span>Sem vencimento</span>
             <div>
               {[0, 1, 2, 3, 4].map((nivel) => (
                 <span
@@ -408,7 +447,7 @@ export function Pessoal() {
                 />
               ))}
             </div>
-            <span>Maior gasto</span>
+            <span>Maior valor</span>
           </div>
         </article>
 

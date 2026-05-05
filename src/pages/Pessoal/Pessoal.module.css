@@ -375,6 +375,23 @@
   cursor: default;
 }
 
+.mapaCalorQuantidade {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+}
+
 .mapaCalorVazio {
   visibility: hidden;
 }
@@ -384,7 +401,8 @@
   left: 50%;
   bottom: calc(100% + 8px);
   z-index: 2;
-  min-width: 112px;
+  min-width: 230px;
+  max-width: 280px;
   border: 1px solid var(--border);
   border-radius: 10px;
   background: var(--surface);
