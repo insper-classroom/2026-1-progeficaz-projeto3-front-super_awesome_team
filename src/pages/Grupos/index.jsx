@@ -2,20 +2,26 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Button from '../../components/Button'
 import GrupoCard from '../../components/GrupoCard'
+import { useUser } from '../../hooks/useUser'
 import {
   atualizarGrupo as atualizarGrupoApi,
   criarGrupo as criarGrupoApi,
+  deletarGrupo as deletarGrupoApi,
   listarGrupos,
 } from '../../services/groupService'
 import { encodeImageToBase64 } from '../../utils/imageUtils'
 import styles from './Grupos.module.css'
-import { useUser } from '../../hooks/useUser'
 
 const IMAGEM_PADRAO = '/casa.jpg'
+
+function obterDonoGrupo(grupo) {
+  return grupo?.created_by || grupo?.criadoPor || grupo?.raw?.created_by || ''
+}
 
 export function Grupos() {
   const navigate = useNavigate()
   const inputUploadRef = useRef(null)
+  const { usuario } = useUser()
 
   const [grupos, setGrupos] = useState([])
   const [modalAberto, setModalAberto] = useState(false)
@@ -28,17 +34,17 @@ export function Grupos() {
   const [imgSelecionada, setImgSelecionada] = useState(IMAGEM_PADRAO)
   const [imgUpload, setImgUpload] = useState(null)
   const [arquivoUpload, setArquivoUpload] = useState(null)
+  const [novoDonoEmail, setNovoDonoEmail] = useState('')
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
-  const [novoDonoEmail, setNovoDonoEmail] = useState('')
-
-  const { usuario } = useUser()
 
   const imagens = [
     { src: '/casa.jpg', label: 'Casa' },
     { src: '/mercado.jpg', label: 'Mercado' },
     { src: '/estudo.jpg', label: 'Estudos' },
   ]
+
+  const donoAtualEmail = obterDonoGrupo(grupoEditando)
 
   async function carregarGrupos() {
     setCarregando(true)
@@ -82,9 +88,9 @@ export function Grupos() {
     setErro('')
     setGrupoEditando(grupo)
     setNomeGrupo(grupo.nome || '')
-    setDescricaoGrupo(grupo.descricao || '')
+    setDescricaoGrupo(grupo.descricao || grupo.desc || '')
     setMembros((grupo.membros || []).map((membro) => membro.email))
-    setNovoDonoEmail(grupo.created_by || '')
+    setNovoDonoEmail(obterDonoGrupo(grupo))
     setEmailMembro('')
     setImgSelecionada(grupo.imagem || IMAGEM_PADRAO)
     setImgUpload(null)
@@ -145,7 +151,7 @@ export function Grupos() {
         imagem,
       }
 
-      if (modoModal === 'edit' && novoDonoEmail && novoDonoEmail !== grupoEditando?.created_by) {
+      if (modoModal === 'edit' && novoDonoEmail && novoDonoEmail !== donoAtualEmail) {
         payload.created_by = novoDonoEmail
       }
 
@@ -159,6 +165,21 @@ export function Grupos() {
       fecharModal()
     } catch (error) {
       setErro(error.response?.data?.error || 'Não foi possível salvar o grupo.')
+    }
+  }
+
+  async function deletarGrupo() {
+    if (!grupoEditando) return
+
+    const confirmar = window.confirm('Tem certeza que deseja excluir este grupo?')
+    if (!confirmar) return
+
+    try {
+      await deletarGrupoApi(grupoEditando.id)
+      await carregarGrupos()
+      fecharModal()
+    } catch {
+      setErro('Não foi possível excluir o grupo.')
     }
   }
 
@@ -253,7 +274,7 @@ export function Grupos() {
               ))}
             </div>
 
-            {modoModal === 'edit' && grupoEditando?.created_by === usuario?.email && (
+            {modoModal === 'edit' && donoAtualEmail === usuario?.email && (
               <div className={styles.ownerSelect}>
                 <h4>Transferir liderança</h4>
 
@@ -262,9 +283,9 @@ export function Grupos() {
                   value={novoDonoEmail}
                   onChange={(e) => setNovoDonoEmail(e.target.value)}
                 >
-                  <option value="">Manter dono atual</option>
+                  <option value={donoAtualEmail}>Manter dono atual</option>
                   {membros
-                    .filter((email) => email !== grupoEditando?.created_by)
+                    .filter((email) => email !== donoAtualEmail)
                     .map((email) => (
                       <option key={email} value={email}>
                         {email}
@@ -284,7 +305,9 @@ export function Grupos() {
                   key={img.src}
                   type="button"
                   className={
-                    imgSelecionada === img.src ? styles.imgSelecionada : styles.imgOpcao
+                    imgSelecionada === img.src
+                      ? styles.imgSelecionada
+                      : styles.imgOpcao
                   }
                   onClick={() => selecionarImagemPadrao(img.src)}
                 >
@@ -319,13 +342,25 @@ export function Grupos() {
             </div>
 
             <div className={styles.modalActions}>
-              <Button variant="secondary" onClick={fecharModal}>
-                Cancelar
-              </Button>
+              {modoModal === 'edit' && (
+                <button
+                  type="button"
+                  className={styles.danger}
+                  onClick={deletarGrupo}
+                >
+                  Excluir grupo
+                </button>
+              )}
 
-              <Button onClick={salvarGrupo}>
-                {modoModal === 'edit' ? 'Salvar alterações' : 'Criar grupo'}
-              </Button>
+              <div className={styles.rightActions}>
+                <Button variant="secondary" onClick={fecharModal}>
+                  Cancelar
+                </Button>
+
+                <Button onClick={salvarGrupo}>
+                  {modoModal === 'edit' ? 'Salvar alterações' : 'Criar grupo'}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
