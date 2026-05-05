@@ -1,7 +1,7 @@
 import api from './api'
 
 export async function loginWithEmail({ email, password }) {
-  const response = await api.post('/auth/login', { email, password })
+  const response = await api.post('/auth/sessions', { email, password })
   return response.data
 }
 
@@ -16,17 +16,17 @@ export async function registerUser({ name, email, password, confirmPassword }) {
 }
 
 export async function requestPasswordReset({ email }) {
-  const response = await api.post('/auth/forgot-password', { email })
+  const response = await api.post('/auth/password-resets', { email })
   return response.data
 }
 
 export async function verifyResetCode({ email, code }) {
-  const response = await api.post('/auth/verify-reset-code', { email, code })
+  const response = await api.post('/auth/password-resets/verification', { email, code })
   return response.data
 }
 
 export async function resetPassword({ resetToken, newPassword }) {
-  const response = await api.post('/auth/reset-password', {
+  const response = await api.patch('/auth/password', {
     reset_token: resetToken,
     new_password: newPassword,
   })
