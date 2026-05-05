@@ -157,14 +157,22 @@ export default function DespesaForm({
     const totalNum = Number(total);
     if (!totalNum || membros.length === 0) return;
 
-    const valorPorPessoa = totalNum / membros.length;
+    const totalCentavos = Math.round(totalNum * 100);
+    const valorBaseCentavos = Math.floor(totalCentavos / membros.length);
+    const restoCentavos = totalCentavos % membros.length;
 
-    const novos = membros.map((m) => ({
-      ...m,
-      valor: valorPorPessoa.toFixed(2),
-      percentual: (100 / membros.length).toFixed(2),
-      pago: m.pago ?? false,
-    }));
+    const novos = membros.map((m, index) => {
+      const valorCentavos =
+        valorBaseCentavos + (index < restoCentavos ? 1 : 0);
+      const valor = valorCentavos / 100;
+
+      return {
+        ...m,
+        valor: valor.toFixed(2),
+        percentual: totalNum ? ((valor / totalNum) * 100).toFixed(2) : "",
+        pago: m.pago ?? false,
+      };
+    });
 
     setMembros(novos);
     setErro("");

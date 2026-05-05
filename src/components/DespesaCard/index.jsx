@@ -51,6 +51,10 @@ function formatarDataHora(data) {
   });
 }
 
+function pluralizar(quantidade, singular, plural) {
+  return `${quantidade} ${quantidade === 1 ? singular : plural}`;
+}
+
 export default function DespesaCard({
   despesa,
   aberto,
@@ -92,6 +96,25 @@ export default function DespesaCard({
   }, [membrosColoridos]);
 
   const percentualPago = total > 0 ? (pagoTotal / total) * 100 : 0;
+  const percentualPagoLimitado = Math.min(Math.max(percentualPago, 0), 100);
+  const membrosDevedores = membrosColoridos.filter((membro) => membro.papel !== "credor");
+  const membrosPendentes = membrosDevedores.filter((membro) => !membro.pago && !membro.resolvida);
+  const valorPendente = membrosDevedores.reduce((acc, membro) => {
+    if (membro.pago || membro.resolvida) return acc;
+    return acc + Number(membro.valor || 0);
+  }, 0);
+  const statusCard = despesa?.concluida
+    ? "Concluída"
+    : membrosPendentes.length > 0
+      ? "Pendente"
+      : "Em dia";
+  const statusCardPositivo = despesa?.concluida || statusCard === "Em dia";
+  const textoMembrosCard = pluralizar(
+    membrosDevedores.length || membrosColoridos.length,
+    "membro",
+    "membros"
+  );
+  const credorCard = despesa?.credorNome || despesa?.credorEmail;
 
   const chartData = useMemo(() => {
     const pagos = membrosColoridos
@@ -172,10 +195,62 @@ export default function DespesaCard({
     <>
       {!somenteModal && (
         <button type="button" className={styles.card} onClick={onOpen}>
-          <div className={styles.cardTop}>
-            <div>
+          <div className={styles.cardHeader}>
+            <div className={styles.cardTitleBlock}>
               <h4 className={styles.cardTitle}>{despesa?.nome ?? "Despesa"}</h4>
-              <p className={styles.cardSubtitle}>{formatarMoeda(total)}</p>
+              <p className={styles.cardSubtitle}>
+                {credorCard ? `Credor: ${credorCard}` : "Conta do grupo"}
+              </p>
+            </div>
+
+            <span
+              className={statusCardPositivo ? styles.badgePago : styles.badgePendente}
+            >
+              {statusCard}
+            </span>
+          </div>
+
+          <div className={styles.cardValues}>
+            <div>
+              <span>Total</span>
+              <strong>{formatarMoeda(total)}</strong>
+            </div>
+            <div>
+              <span>Pendente</span>
+              <strong>{formatarMoeda(valorPendente)}</strong>
+            </div>
+          </div>
+
+          <div className={styles.cardProgress}>
+            <div className={styles.cardProgressInfo}>
+              <span>{percentualPagoLimitado.toFixed(0)}% pago</span>
+              <span>{prazoFormatado ? `Prazo ${prazoFormatado}` : "Sem prazo"}</span>
+            </div>
+            <div className={styles.cardProgressTrack}>
+              <div
+                className={styles.cardProgressFill}
+                style={{ width: `${percentualPagoLimitado}%` }}
+              />
+            </div>
+          </div>
+
+          <div className={styles.cardFooter}>
+            <span>{textoMembrosCard}</span>
+            <div className={styles.cardAvatars}>
+              {membrosColoridos.slice(0, 4).map((membro, index) => (
+                <span
+                  key={`${membro.email || membro.nome || "membro"}-${index}`}
+                  className={styles.cardAvatar}
+                  style={{ backgroundColor: membro.cor }}
+                >
+                  {membro.nome ? membro.nome.charAt(0) : "?"}
+                </span>
+              ))}
+              {membrosColoridos.length > 4 && (
+                <span className={styles.cardAvatarMore}>
+                  +{membrosColoridos.length - 4}
+                </span>
+              )}
             </div>
           </div>
         </button>

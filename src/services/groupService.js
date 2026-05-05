@@ -26,15 +26,16 @@ function normalizarMembro(membro, index) {
 
 export function normalizarGrupo(grupo) {
   const membros = grupo.member_details || grupo.members || []
+  const imagem = decodeImageFromBase64(grupo.image || grupo.imagem) || '/casa.jpg'
 
   return {
     id: grupo._id,
     nome: grupo.name,
     desc: grupo.description || `${membros.length} membros`,
     descricao: grupo.description,
+    created_by: grupo.created_by,
     membros: membros.map(normalizarMembro),
-    imagem: grupo.image || grupo.imagem || '/casa.jpg',
-    imagem: decodeImageFromBase64(grupo.image) || '/casa.jpg',
+    imagem,
     raw: grupo,
   }
 }
@@ -54,12 +55,13 @@ export async function criarGrupo({ nome, membros, descricao, imagem }) {
   return response.data
 }
 
-export async function atualizarGrupo(groupId, { nome, membros, descricao, imagem }) {
+export async function atualizarGrupo(groupId, { nome, membros, descricao, imagem, created_by }) {
   const response = await api.put(`/group/${groupId}`, {
     name: nome,
     members: membros,
     description: descricao,
     image: imagem,
+    created_by,
   })
   return response.data
 }

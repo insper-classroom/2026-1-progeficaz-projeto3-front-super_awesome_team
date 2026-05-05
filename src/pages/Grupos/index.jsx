@@ -1,220 +1,190 @@
-import { useEffect, useState, useRef } from "react";
-import styles from "./Grupos.module.css";
-import { useNavigate } from "react-router-dom";
-import GrupoCard from "../../components/GrupoCard";
-import Button from "../../components/Button";
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import Button from '../../components/Button'
+import GrupoCard from '../../components/GrupoCard'
+import { useUser } from '../../hooks/useUser'
 import {
-  criarGrupo as criarGrupoApi,
   atualizarGrupo as atualizarGrupoApi,
+  criarGrupo as criarGrupoApi,
   deletarGrupo as deletarGrupoApi,
   listarGrupos,
-<<<<<<< HEAD
 } from '../../services/groupService'
 import { encodeImageToBase64 } from '../../utils/imageUtils'
+import styles from './Grupos.module.css'
+
+const IMAGEM_PADRAO = '/casa.jpg'
+
+function obterDonoGrupo(grupo) {
+  return grupo?.created_by || grupo?.criadoPor || grupo?.raw?.created_by || ''
+}
 
 export function Grupos() {
   const navigate = useNavigate()
+  const inputUploadRef = useRef(null)
+  const { usuario } = useUser()
+
   const [grupos, setGrupos] = useState([])
   const [modalAberto, setModalAberto] = useState(false)
-  const [modoModal, setModoModal] = useState('create') // create | edit
+  const [modoModal, setModoModal] = useState('create')
   const [grupoEditando, setGrupoEditando] = useState(null)
-  const navigate = useNavigate() // hook para navegar entre páginas
-  const [grupos, setGrupos] = useState([]) // lista de grupos criados pelo usuario
-  const [modalAberto, setModalAberto] = useState(false) // controla a visibilidade do modal
-  const [nomeGrupo, setNomeGrupo] = useState('') // nome digitado para o novo grupo
-  const [emailMembro, setEmailMembro ] = useState('') // e-mail digitado para adicionar membro
-  const [membros, setMembros] = useState([]) // lista de e-mails dos membros adicionados
-  const [imgSelecionada, setImgSelecionada] = useState('/casa.jpg') // imagem escolhida para o grupo
-  const [imgUpload, setImgUpload] = useState(null) // url temporária da imagem enviada pelo usuário
+  const [nomeGrupo, setNomeGrupo] = useState('')
   const [descricaoGrupo, setDescricaoGrupo] = useState('')
-  const [arquivoUpload, setArquivoUpload] = useState(null) // arquivo original para codificação
+  const [emailMembro, setEmailMembro] = useState('')
+  const [membros, setMembros] = useState([])
+  const [imgSelecionada, setImgSelecionada] = useState(IMAGEM_PADRAO)
+  const [imgUpload, setImgUpload] = useState(null)
+  const [arquivoUpload, setArquivoUpload] = useState(null)
+  const [novoDonoEmail, setNovoDonoEmail] = useState('')
   const [carregando, setCarregando] = useState(true)
   const [erro, setErro] = useState('')
-  const inputUploadRef = useRef(null) // referência ao input de arquivo oculto
-=======
-} from "../../services/groupService";
-
-export function Grupos() {
-  const navigate = useNavigate();
-
-  const [grupos, setGrupos] = useState([]);
-  const [modalAberto, setModalAberto] = useState(false);
-  const [modoModal, setModoModal] = useState("create"); // create | edit
-  const [grupoEditando, setGrupoEditando] = useState(null);
-
-  const [nomeGrupo, setNomeGrupo] = useState("");
-  const [descricaoGrupo, setDescricaoGrupo] = useState("");
-  const [emailMembro, setEmailMembro] = useState("");
-  const [membros, setMembros] = useState([]);
-  const [imgSelecionada, setImgSelecionada] = useState("/casa.jpg");
-  const [imgUpload, setImgUpload] = useState(null);
-  const [carregando, setCarregando] = useState(true);
-  const [erro, setErro] = useState("");
-
-  const inputUploadRef = useRef(null);
->>>>>>> 13d6ea5 (botao de deletar funcional e tudo certo)
 
   const imagens = [
-    { src: "/casa.jpg", label: "Casa" },
-    { src: "/mercado.jpg", label: "Mercado" },
-    { src: "/estudo.jpg", label: "Estudos" },
-  ];
+    { src: '/casa.jpg', label: 'Casa' },
+    { src: '/mercado.jpg', label: 'Mercado' },
+    { src: '/estudo.jpg', label: 'Estudos' },
+  ]
+
+  const donoAtualEmail = obterDonoGrupo(grupoEditando)
+
+  async function carregarGrupos() {
+    setCarregando(true)
+    setErro('')
+
+    try {
+      const gruposCarregados = await listarGrupos()
+      setGrupos(gruposCarregados)
+    } catch {
+      setErro('Não foi possível carregar seus grupos.')
+    } finally {
+      setCarregando(false)
+    }
+  }
 
   useEffect(() => {
-    async function carregarGrupos() {
-      setCarregando(true);
-      setErro("");
-
-      try {
-        const gruposCarregados = await listarGrupos();
-        setGrupos(gruposCarregados);
-      } catch {
-        setErro("Não foi possível carregar seus grupos.");
-      } finally {
-        setCarregando(false);
-      }
-    }
-
-    carregarGrupos();
-  }, []);
+    Promise.resolve().then(carregarGrupos)
+  }, [])
 
   function limparFormulario() {
-    setNomeGrupo("");
-    setDescricaoGrupo("");
-    setMembros([]);
-    setEmailMembro("");
-    setImgSelecionada("/casa.jpg");
-    setImgUpload(null);
-    setGrupoEditando(null);
+    setNomeGrupo('')
+    setDescricaoGrupo('')
+    setMembros([])
+    setEmailMembro('')
+    setImgSelecionada(IMAGEM_PADRAO)
+    setImgUpload(null)
+    setArquivoUpload(null)
+    setGrupoEditando(null)
+    setNovoDonoEmail('')
   }
-    // converte o arquivo enviado em url temporária e seleciona como imagem do grupo
-    function handleUpload(e) {
-      const arquivo = e.target.files[0]
-      if (!arquivo) return
-      const url = URL.createObjectURL(arquivo)
-      setImgUpload(url)
-      setImgSelecionada(url)
-      setArquivoUpload(arquivo)
-    }
 
   function abrirCriarGrupo() {
-    setModoModal("create");
-    limparFormulario();
-    setModalAberto(true);
+    setModoModal('create')
+    setErro('')
+    limparFormulario()
+    setModalAberto(true)
   }
 
   function abrirEditarGrupo(grupo) {
-    setModoModal("edit");
-    setGrupoEditando(grupo);
+    setModoModal('edit')
+    setErro('')
+    setGrupoEditando(grupo)
+    setNomeGrupo(grupo.nome || '')
+    setDescricaoGrupo(grupo.descricao || grupo.desc || '')
+    setMembros((grupo.membros || []).map((membro) => membro.email))
+    setNovoDonoEmail(obterDonoGrupo(grupo))
+    setEmailMembro('')
+    setImgSelecionada(grupo.imagem || IMAGEM_PADRAO)
+    setImgUpload(null)
+    setArquivoUpload(null)
+    setModalAberto(true)
+  }
 
-    setNomeGrupo(grupo.nome || "");
-    setDescricaoGrupo(grupo.descricao || "");
-    setMembros((grupo.membros || []).map((m) => m.email));
-    setEmailMembro("");
-    setImgSelecionada(grupo.imagem || "/casa.jpg");
-    setImgUpload(null);
-    setModalAberto(true);
+  function fecharModal() {
+    setModalAberto(false)
+    setModoModal('create')
+    setErro('')
+    limparFormulario()
   }
 
   function adicionarMembro() {
-    const email = emailMembro.trim().toLowerCase();
+    const email = emailMembro.trim().toLowerCase()
 
     if (email && !membros.includes(email)) {
-<<<<<<< HEAD
       setMembros([...membros, email])
       setEmailMembro('')
-      setImgSelecionada('/casa.jpg')
-      setImgUpload(null)
-      setArquivoUpload(null)
-=======
-      setMembros([...membros, email]);
-      setEmailMembro("");
->>>>>>> 13d6ea5 (botao de deletar funcional e tudo certo)
     }
   }
 
   function removerMembro(emailParaRemover) {
-    setMembros(membros.filter((email) => email !== emailParaRemover));
+    setMembros(membros.filter((email) => email !== emailParaRemover))
+  }
+
+  function selecionarImagemPadrao(src) {
+    setImgSelecionada(src)
+    setImgUpload(null)
+    setArquivoUpload(null)
   }
 
   function handleUpload(e) {
-    const arquivo = e.target.files?.[0];
-    if (!arquivo) return;
+    const arquivo = e.target.files?.[0]
+    if (!arquivo) return
 
-    const url = URL.createObjectURL(arquivo);
-    setImgUpload(url);
-    setImgSelecionada(url);
-  }
-
-  function fecharModal() {
-    setModalAberto(false);
-    setModoModal("create");
-    limparFormulario();
-    setErro("");
+    const url = URL.createObjectURL(arquivo)
+    setImgUpload(url)
+    setImgSelecionada(url)
+    setArquivoUpload(arquivo)
   }
 
   async function salvarGrupo() {
-    if (!nomeGrupo.trim()) return;
-    setErro("");
+    if (!nomeGrupo.trim()) return
+
+    setErro('')
 
     try {
+      const imagem = arquivoUpload
+        ? await encodeImageToBase64(arquivoUpload)
+        : imgSelecionada
+
       const payload = {
         nome: nomeGrupo.trim(),
         membros,
-<<<<<<< HEAD
         descricao: descricaoGrupo.trim() || 'Novo grupo',
-      try {
-        const imagem = arquivoUpload ? await encodeImageToBase64(arquivoUpload) : null
-        await criarGrupoApi({
-          nome: nomeGrupo,
-          membros,
-          descricao: 'Novo grupo',
-          imagem,
-        })
-        const gruposAtualizados = await listarGrupos()
-        setGrupos(gruposAtualizados)
-        fecharModal()
-      } catch (error) {
-        setErro(error.response?.data?.error || 'Não foi possível criar o grupo.')
+        imagem,
       }
-=======
-        descricao: descricaoGrupo.trim() || "Novo grupo",
-      };
->>>>>>> 13d6ea5 (botao de deletar funcional e tudo certo)
 
-      if (modoModal === "edit" && grupoEditando) {
-        await atualizarGrupoApi(grupoEditando.id, payload);
+      if (modoModal === 'edit' && novoDonoEmail && novoDonoEmail !== donoAtualEmail) {
+        payload.created_by = novoDonoEmail
+      }
+
+      if (modoModal === 'edit' && grupoEditando) {
+        await atualizarGrupoApi(grupoEditando.id, payload)
       } else {
-        await criarGrupoApi(payload);
+        await criarGrupoApi(payload)
       }
 
-      const gruposAtualizados = await listarGrupos();
-      setGrupos(gruposAtualizados);
-      fecharModal();
+      await carregarGrupos()
+      fecharModal()
     } catch (error) {
-      setErro(error.response?.data?.error || "Não foi possível salvar o grupo.");
+      setErro(error.response?.data?.error || 'Não foi possível salvar o grupo.')
     }
   }
 
   async function deletarGrupo() {
-    if (!grupoEditando) return;
+    if (!grupoEditando) return
 
-    const confirmar = window.confirm("Tem certeza que deseja excluir este grupo?");
-    if (!confirmar) return;
+    const confirmar = window.confirm('Tem certeza que deseja excluir este grupo?')
+    if (!confirmar) return
 
     try {
-      await deletarGrupoApi(grupoEditando.id);
-
-      const gruposAtualizados = await listarGrupos();
-      setGrupos(gruposAtualizados);
-      fecharModal();
+      await deletarGrupoApi(grupoEditando.id)
+      await carregarGrupos()
+      fecharModal()
     } catch {
-      setErro("Não foi possível excluir o grupo.");
+      setErro('Não foi possível excluir o grupo.')
     }
   }
 
   return (
-    <div className={styles.pagina}>
+    <div className={styles.page}>
       <div className={styles.content}>
         <div className={styles.header}>
           <div>
@@ -226,7 +196,7 @@ export function Grupos() {
         </div>
 
         {carregando && <p>Carregando grupos...</p>}
-        {erro && <p>{erro}</p>}
+        {erro && !modalAberto && <p>{erro}</p>}
 
         <div className={styles.grid}>
           {grupos.map((grupo) => (
@@ -247,7 +217,7 @@ export function Grupos() {
         <div className={styles.overlay}>
           <div className={styles.modal}>
             <h2 className={styles.modalTitle}>
-              {modoModal === "edit" ? "Editar grupo" : "Novo grupo"}
+              {modoModal === 'edit' ? 'Editar grupo' : 'Novo grupo'}
             </h2>
 
             {erro && <p className={styles.erro}>{erro}</p>}
@@ -280,9 +250,9 @@ export function Grupos() {
                 value={emailMembro}
                 onChange={(e) => setEmailMembro(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    adicionarMembro();
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    adicionarMembro()
                   }
                 }}
               />
@@ -304,6 +274,27 @@ export function Grupos() {
               ))}
             </div>
 
+            {modoModal === 'edit' && donoAtualEmail === usuario?.email && (
+              <div className={styles.ownerSelect}>
+                <h4>Transferir liderança</h4>
+
+                <select
+                  className={styles.input}
+                  value={novoDonoEmail}
+                  onChange={(e) => setNovoDonoEmail(e.target.value)}
+                >
+                  <option value={donoAtualEmail}>Manter dono atual</option>
+                  {membros
+                    .filter((email) => email !== donoAtualEmail)
+                    .map((email) => (
+                      <option key={email} value={email}>
+                        {email}
+                      </option>
+                    ))}
+                </select>
+              </div>
+            )}
+
             <div className={styles.sectionHeader}>
               <h4>Imagem do grupo</h4>
             </div>
@@ -318,7 +309,7 @@ export function Grupos() {
                       ? styles.imgSelecionada
                       : styles.imgOpcao
                   }
-                  onClick={() => setImgSelecionada(img.src)}
+                  onClick={() => selecionarImagemPadrao(img.src)}
                 >
                   <img src={img.src} alt={img.label} />
                   <span>{img.label}</span>
@@ -351,7 +342,7 @@ export function Grupos() {
             </div>
 
             <div className={styles.modalActions}>
-              {modoModal === "edit" && (
+              {modoModal === 'edit' && (
                 <button
                   type="button"
                   className={styles.danger}
@@ -367,7 +358,7 @@ export function Grupos() {
                 </Button>
 
                 <Button onClick={salvarGrupo}>
-                  {modoModal === "edit" ? "Salvar alterações" : "Criar grupo"}
+                  {modoModal === 'edit' ? 'Salvar alterações' : 'Criar grupo'}
                 </Button>
               </div>
             </div>
@@ -375,5 +366,5 @@ export function Grupos() {
         </div>
       )}
     </div>
-  );
+  )
 }
