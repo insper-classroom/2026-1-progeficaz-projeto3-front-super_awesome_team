@@ -1,0 +1,589 @@
+.pagina {
+  width: 100%;
+  min-height: 100vh;
+  padding: 28px 32px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.header h1 {
+  margin: 0 0 6px;
+  color: var(--text);
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.header span {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.botaoSecundario {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.botaoSecundario:hover {
+  transform: translateY(-1px);
+}
+
+.botaoSecundario:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  transform: none;
+}
+
+.resumoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.cardResumo,
+.painel,
+.mapaCalor {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.cardResumo {
+  min-height: 124px;
+  padding: 18px;
+}
+
+.cardResumo span,
+.cabecalhoSecao span {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cardResumo strong {
+  display: block;
+  margin-top: 10px;
+  color: var(--text);
+  font-size: 25px;
+  line-height: 1.2;
+}
+
+.cardResumo small {
+  display: block;
+  margin-top: 8px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.cardResumo p {
+  margin: 10px 0 0;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.valorPositivo {
+  color: var(--positive) !important;
+}
+
+.valorNegativo {
+  color: var(--negative) !important;
+}
+
+.valorRecebido {
+  color: #2563eb !important;
+}
+
+.gridPrincipal,
+.analiseGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.analiseGrid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.painel,
+.mapaCalor {
+  padding: 18px;
+}
+
+.cabecalhoSecao {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 24px;
+}
+
+.pizzaLayout {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 12px;
+  min-height: 250px;
+}
+
+.legendaCategorias,
+.listaRanking,
+.listaMovimentos {
+  display: flex;
+  flex-direction: column;
+}
+
+.legendaCategorias {
+  gap: 9px;
+}
+
+.linhaLegenda {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 9px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.linhaLegenda strong {
+  font-size: 13px;
+}
+
+.ponto {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+}
+
+.listaRanking {
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.itemRanking {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.itemRankingTopo {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.itemRankingTopo span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemRanking small {
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.barraRanking {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--border);
+}
+
+.barraRanking span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: #2563eb;
+}
+
+.listaMovimentos {
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.movimento {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  min-height: 62px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bg) 60%, var(--surface));
+  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.movimento:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--border));
+  background: color-mix(in srgb, var(--primary) 4%, var(--surface));
+  box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+}
+
+.movimento div:first-child {
+  min-width: 0;
+}
+
+.movimento strong {
+  display: block;
+  color: var(--text);
+  font-size: 14px;
+}
+
+.movimento span {
+  display: block;
+  margin-top: 4px;
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.movimentoValor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.vazio,
+.carregando {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 180px;
+  color: var(--text-muted);
+  font-size: 14px;
+  text-align: center;
+}
+
+.carregando {
+  min-height: 100vh;
+}
+
+.tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 12px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12);
+}
+
+.mapaCalor {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mapaCalorCabecalho,
+.mapaCalorResumo {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.mapaCalorCabecalho {
+  align-items: flex-start;
+}
+
+.mapaCalorCabecalho p,
+.mapaCalorResumo span {
+  margin: 4px 0 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.mapaCalorCabecalho > span {
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.mapaCalorTitle {
+  margin: 0;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.mapaCalorResumo {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+}
+
+.mapaCalorResumo div {
+  min-width: 0;
+}
+
+.mapaCalorResumo strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--text);
+  font-size: 13px;
+}
+
+.mapaCalorSemana,
+.mapaCalorGrade {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.mapaCalorSemana span {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.mapaCalorDia,
+.mapaCalorVazio {
+  aspect-ratio: 1;
+  border-radius: 8px;
+}
+
+.mapaCalorDia {
+  border: 1px solid transparent;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 800;
+  position: relative;
+  cursor: default;
+}
+
+.mapaCalorQuantidade {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  min-width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.mapaCalorVazio {
+  visibility: hidden;
+}
+
+.mapaCalorTooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 8px);
+  z-index: 2;
+  min-width: 230px;
+  max-width: 280px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0;
+  padding: 8px 10px;
+  pointer-events: none;
+  text-align: left;
+  transform: translate(-50%, 4px);
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.mapaCalorTooltip strong {
+  font-size: 11px;
+  color: var(--text);
+}
+
+.mapaCalorTooltip span {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.mapaCalorDia:hover .mapaCalorTooltip,
+.mapaCalorDia:focus .mapaCalorTooltip {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.mapaCalorDia:focus {
+  outline: 2px solid color-mix(in srgb, var(--negative) 32%, transparent);
+  outline-offset: 2px;
+}
+
+.mapaCalorStatusVazio {
+  background: color-mix(in srgb, var(--text-muted) 8%, transparent);
+  color: var(--text-muted);
+}
+
+.mapaCalorStatusPagar1 {
+  background: color-mix(in srgb, var(--negative) 24%, var(--surface));
+  border-color: color-mix(in srgb, var(--negative) 18%, var(--border));
+}
+
+.mapaCalorStatusPagar2 {
+  background: color-mix(in srgb, var(--negative) 42%, var(--surface));
+  border-color: color-mix(in srgb, var(--negative) 30%, var(--border));
+}
+
+.mapaCalorStatusPagar3 {
+  background: color-mix(in srgb, var(--negative) 68%, var(--surface));
+  border-color: color-mix(in srgb, var(--negative) 50%, var(--border));
+  color: #fff;
+}
+
+.mapaCalorStatusPagar4 {
+  background: var(--negative);
+  border-color: var(--negative);
+  color: #fff;
+}
+
+.mapaCalorStatusReceber1 {
+  background: color-mix(in srgb, #2563eb 22%, var(--surface));
+  border-color: color-mix(in srgb, #2563eb 18%, var(--border));
+}
+
+.mapaCalorStatusReceber2 {
+  background: color-mix(in srgb, #2563eb 40%, var(--surface));
+  border-color: color-mix(in srgb, #2563eb 30%, var(--border));
+}
+
+.mapaCalorStatusReceber3 {
+  background: color-mix(in srgb, #2563eb 66%, var(--surface));
+  border-color: color-mix(in srgb, #2563eb 48%, var(--border));
+  color: #fff;
+}
+
+.mapaCalorStatusReceber4 {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.mapaCalorStatusMisto1 {
+  background: color-mix(in srgb, #7c3aed 22%, var(--surface));
+  border-color: color-mix(in srgb, #7c3aed 18%, var(--border));
+}
+
+.mapaCalorStatusMisto2 {
+  background: color-mix(in srgb, #7c3aed 42%, var(--surface));
+  border-color: color-mix(in srgb, #7c3aed 30%, var(--border));
+}
+
+.mapaCalorStatusMisto3 {
+  background: color-mix(in srgb, #7c3aed 68%, var(--surface));
+  border-color: color-mix(in srgb, #7c3aed 50%, var(--border));
+  color: #fff;
+}
+
+.mapaCalorStatusMisto4 {
+  background: #7c3aed;
+  border-color: #7c3aed;
+  color: #fff;
+}
+
+.mapaCalorStatusConcluido {
+  background: var(--positive);
+  border-color: var(--positive);
+  color: #fff;
+}
+
+.mapaCalorLegenda {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--text-muted);
+  font-size: 10px;
+  flex-wrap: wrap;
+}
+
+.mapaCalorLegenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.mapaCalorLegenda i {
+  width: 14px;
+  height: 14px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1120px) {
+  .resumoGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gridPrincipal,
+  .analiseGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .pagina {
+    padding: 18px;
+  }
+
+  .header {
+    flex-direction: column;
+  }
+
+  .header h1 {
+    font-size: 26px;
+  }
+
+  .resumoGrid,
+  .pizzaLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .botaoSecundario {
+    width: 100%;
+  }
+}
