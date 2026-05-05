@@ -92,11 +92,11 @@ function normalizarDadosPessoais(data) {
 
   return {
     resumo: {
-      totalDespesas: numeroSeguro(summary.total_expenses),
+      totalDespesas: numeroSeguro(summary.total_owed ?? summary.total_expenses),
       totalPago: numeroSeguro(summary.total_paid),
       totalRecebido: numeroSeguro(summary.total_received),
       totalAportes: numeroSeguro(summary.total_contributions),
-      totalRegistrosDespesa: numeroSeguro(summary.expense_count),
+      totalRegistrosDespesa: numeroSeguro(summary.owed_count ?? summary.expense_count),
       totalRegistrosAporte: numeroSeguro(summary.contribution_count),
       totalGrupos: numeroSeguro(summary.group_count),
     },

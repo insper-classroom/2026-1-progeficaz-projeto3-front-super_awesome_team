@@ -304,7 +304,7 @@ export function Pessoal() {
         <article className={styles.cardResumo}>
           <span>Você deve</span>
           <strong className={styles.valorNegativo}>{formatarMoeda(resumo.totalDespesas)}</strong>
-          <small>{resumo.totalRegistrosDespesa} registros em {resumo.totalGrupos} grupos</small>
+          <small>{resumo.totalRegistrosDespesa} pendências em {resumo.totalGrupos} grupos</small>
         </article>
         <article className={styles.cardResumo}>
           <span>Você pagou</span>
