@@ -65,6 +65,8 @@ function normalizarAporte(contribution) {
 }
 
 function normalizarVencimento(expense) {
+  const papel = expense.role === 'creditor' ? 'creditor' : 'debtor'
+
   return {
     id: expense._id || expense.id,
     contaId: expense.bill_id,
@@ -74,6 +76,10 @@ function normalizarVencimento(expense) {
     valor: numeroSeguro(expense.value),
     data: expense.due_date,
     dataValor: dataParaInput(expense.due_date),
+    papel,
+    papelTexto: papel === 'creditor' ? 'A receber' : 'A pagar',
+    resolvido: Boolean(expense.resolved),
+    devedorEmail: expense.debtor_email,
     credorEmail: expense.creditor_email,
     devedorConfirmou: Boolean(expense.debtor_confirmed),
     credorConfirmou: Boolean(expense.creditor_confirmed),

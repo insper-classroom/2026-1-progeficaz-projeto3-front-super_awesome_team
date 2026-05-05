@@ -52,16 +52,6 @@ function obterChaveDia(data) {
   return `${ano}-${mes}-${dia}`
 }
 
-function calcularNivelMapa(valor, maiorValor) {
-  if (!valor || !maiorValor) return 0
-
-  const proporcao = valor / maiorValor
-  if (proporcao >= 0.76) return 4
-  if (proporcao >= 0.51) return 3
-  if (proporcao >= 0.26) return 2
-  return 1
-}
-
 function mesmoMes(dataA, dataB) {
   return dataA.getFullYear() === dataB.getFullYear() && dataA.getMonth() === dataB.getMonth()
 }
@@ -83,6 +73,33 @@ function obterMesReferenciaVencimentos(vencimentos) {
   if (futuras[0]) return futuras[0]
 
   return datas.sort((a, b) => b.getTime() - a.getTime())[0]
+}
+
+function obterStatusDia(itens) {
+  if (!itens.length) return 'vazio'
+
+  const pendentes = itens.filter((item) => !item.resolvido)
+  if (!pendentes.length) return 'concluido'
+
+  const temPagar = pendentes.some((item) => item.papel === 'debtor')
+  const temReceber = pendentes.some((item) => item.papel === 'creditor')
+
+  if (temPagar && temReceber) return 'misto'
+  if (temPagar) return 'pagar'
+  return 'receber'
+}
+
+function obterClasseStatusDia(status) {
+  if (status === 'pagar') return styles.mapaCalorStatusPagar
+  if (status === 'receber') return styles.mapaCalorStatusReceber
+  if (status === 'misto') return styles.mapaCalorStatusMisto
+  if (status === 'concluido') return styles.mapaCalorStatusConcluido
+  return styles.mapaCalorStatusVazio
+}
+
+function obterTextoStatusItem(item) {
+  if (item.resolvido) return 'Concluída'
+  return item.papel === 'creditor' ? 'A receber' : 'A pagar'
 }
 
 function montarCalendarioVencimentos(vencimentos) {
@@ -122,6 +139,7 @@ function montarCalendarioVencimentos(vencimentos) {
     const chaveDia = obterChaveDia(data)
     const itens = vencimentosPorDia.get(chaveDia) || []
     const valor = itens.reduce((total, item) => total + Number(item.valor || 0), 0)
+    const status = obterStatusDia(itens)
 
     celulas.push({
       tipo: 'dia',
@@ -129,7 +147,7 @@ function montarCalendarioVencimentos(vencimentos) {
       dia,
       valor,
       itens,
-      nivel: calcularNivelMapa(valor, maiorValor),
+      status,
     })
   }
 
@@ -410,7 +428,7 @@ export function Pessoal() {
               return (
                 <span
                   key={celula.id}
-                  className={`${styles.mapaCalorDia} ${styles[`mapaCalorNivel${celula.nivel}`]}`}
+                  className={`${styles.mapaCalorDia} ${obterClasseStatusDia(celula.status)}`}
                   tabIndex={0}
                   aria-label={`${String(celula.dia).padStart(2, '0')}: ${formatarMoeda(celula.valor)} em vencimentos`}
                 >
@@ -424,7 +442,7 @@ export function Pessoal() {
                       <span>Total: {formatarMoeda(celula.valor)}</span>
                       {celula.itens.slice(0, 3).map((item) => (
                         <span key={item.id}>
-                          {item.categoria} · {item.nomeGrupo} · {formatarMoeda(item.valor)}
+                          {obterTextoStatusItem(item)} · {item.categoria} · {item.nomeGrupo} · {formatarMoeda(item.valor)}
                         </span>
                       ))}
                       {celula.itens.length > 3 && (
@@ -438,16 +456,10 @@ export function Pessoal() {
           </div>
 
           <div className={styles.mapaCalorLegenda}>
-            <span>Sem vencimento</span>
-            <div>
-              {[0, 1, 2, 3, 4].map((nivel) => (
-                <span
-                  key={nivel}
-                  className={`${styles.mapaCalorLegendaItem} ${styles[`mapaCalorNivel${nivel}`]}`}
-                />
-              ))}
-            </div>
-            <span>Maior valor</span>
+            <span><i className={styles.mapaCalorStatusPagar} /> A pagar</span>
+            <span><i className={styles.mapaCalorStatusReceber} /> A receber</span>
+            <span><i className={styles.mapaCalorStatusMisto} /> Ambos</span>
+            <span><i className={styles.mapaCalorStatusConcluido} /> Concluído</span>
           </div>
         </article>
 

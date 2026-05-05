@@ -440,28 +440,32 @@
   outline-offset: 2px;
 }
 
-.mapaCalorNivel0 {
+.mapaCalorStatusVazio {
   background: color-mix(in srgb, var(--text-muted) 8%, transparent);
   color: var(--text-muted);
 }
 
-.mapaCalorNivel1 {
-  background: color-mix(in srgb, var(--negative) 16%, transparent);
-  border-color: color-mix(in srgb, var(--negative) 12%, transparent);
-}
-
-.mapaCalorNivel2 {
-  background: color-mix(in srgb, var(--negative) 30%, transparent);
-  border-color: color-mix(in srgb, var(--negative) 18%, transparent);
-}
-
-.mapaCalorNivel3 {
-  background: color-mix(in srgb, var(--negative) 50%, transparent);
-  border-color: color-mix(in srgb, var(--negative) 28%, transparent);
-}
-
-.mapaCalorNivel4 {
+.mapaCalorStatusPagar {
   background: var(--negative);
+  border-color: var(--negative);
+  color: #fff;
+}
+
+.mapaCalorStatusReceber {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+
+.mapaCalorStatusMisto {
+  background: #7c3aed;
+  border-color: #7c3aed;
+  color: #fff;
+}
+
+.mapaCalorStatusConcluido {
+  background: var(--positive);
+  border-color: var(--positive);
   color: #fff;
 }
 
@@ -472,18 +476,22 @@
   gap: 8px;
   color: var(--text-muted);
   font-size: 10px;
+  flex-wrap: wrap;
 }
 
-.mapaCalorLegenda div {
-  display: flex;
-  gap: 4px;
+.mapaCalorLegenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.mapaCalorLegendaItem {
+.mapaCalorLegenda i {
   width: 14px;
   height: 14px;
   border: 1px solid transparent;
   border-radius: 4px;
+  display: inline-block;
+  flex-shrink: 0;
 }
 
 @media (max-width: 1120px) {
