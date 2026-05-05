@@ -112,6 +112,53 @@ function obterTextoStatusItem(item) {
   return item.papel === 'creditor' ? 'A receber' : 'A pagar'
 }
 
+function inicioDoDia(data) {
+  return new Date(data.getFullYear(), data.getMonth(), data.getDate())
+}
+
+function obterCompromissoMaisProximo(vencimentos) {
+  const hoje = inicioDoDia(new Date())
+  const pendentes = vencimentos
+    .map((item) => ({ ...item, dataObj: obterData(item.data) }))
+    .filter((item) => item.dataObj && !item.resolvido)
+
+  if (!pendentes.length) {
+    return {
+      titulo: 'Sem pendências próximas',
+      subtitulo: 'Todos os compromissos financeiros estão concluídos.',
+    }
+  }
+
+  const futuros = pendentes
+    .filter((item) => inicioDoDia(item.dataObj) >= hoje)
+    .sort((a, b) => a.dataObj.getTime() - b.dataObj.getTime())
+  const atrasados = pendentes
+    .filter((item) => inicioDoDia(item.dataObj) < hoje)
+    .sort((a, b) => b.dataObj.getTime() - a.dataObj.getTime())
+
+  const referencia = futuros[0] || atrasados[0]
+  const dataReferencia = inicioDoDia(referencia.dataObj)
+  const itensDoDia = pendentes.filter((item) => inicioDoDia(item.dataObj).getTime() === dataReferencia.getTime())
+  const totalDia = itensDoDia.reduce((total, item) => total + Number(item.valor || 0), 0)
+  const temPagar = itensDoDia.some((item) => item.papel === 'debtor')
+  const temReceber = itensDoDia.some((item) => item.papel === 'creditor')
+
+  let titulo = 'Próximos compromissos'
+  if (itensDoDia.length === 1) {
+    titulo = `${referencia.papel === 'creditor' ? 'Próximo recebimento' : 'Próximo pagamento'}: ${referencia.categoria}`
+  } else if (temPagar && !temReceber) {
+    titulo = 'Próximos pagamentos'
+  } else if (!temPagar && temReceber) {
+    titulo = 'Próximos recebimentos'
+  }
+
+  const prefixoData = futuros[0] ? 'até' : 'pendente desde'
+  return {
+    titulo,
+    subtitulo: `${prefixoData} ${formatarData(referencia.data)} · ${itensDoDia.length} compromisso${itensDoDia.length > 1 ? 's' : ''} · ${formatarMoeda(totalDia)}`,
+  }
+}
+
 function montarCalendarioVencimentos(vencimentos) {
   const referencia = obterMesReferenciaVencimentos(vencimentos)
   const ano = referencia.getFullYear()
@@ -217,6 +264,10 @@ export function Pessoal() {
   const aportesRecentes = data.aportes.slice(0, 6)
   const calendarioVencimentos = useMemo(
     () => montarCalendarioVencimentos(data.vencimentos),
+    [data.vencimentos],
+  )
+  const compromissoProximo = useMemo(
+    () => obterCompromissoMaisProximo(data.vencimentos),
     [data.vencimentos],
   )
 
@@ -403,10 +454,10 @@ export function Pessoal() {
         <article className={styles.mapaCalor}>
           <div className={styles.mapaCalorCabecalho}>
             <div>
-              <h3 className={styles.mapaCalorTitle}>Vencimentos</h3>
-              <p>{calendarioVencimentos.titulo}</p>
+              <h3 className={styles.mapaCalorTitle}>{compromissoProximo.titulo}</h3>
+              <p>{compromissoProximo.subtitulo}</p>
             </div>
-            <span>{formatarMoeda(calendarioVencimentos.totalMes)}</span>
+            <span>{calendarioVencimentos.titulo}</span>
           </div>
 
           <div className={styles.mapaCalorResumo}>
