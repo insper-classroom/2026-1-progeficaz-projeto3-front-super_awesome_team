@@ -1,9 +1,9 @@
 import { useMemo } from 'react'
 import {
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
+  Line,
+  LineChart,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -38,6 +38,89 @@ function formatarMes(valor) {
   return data.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })
 }
 
+function obterData(valor) {
+  if (!valor) return null
+  const data = new Date(valor)
+  if (Number.isNaN(data.getTime())) return null
+  return data
+}
+
+function obterChaveDia(data) {
+  const ano = data.getFullYear()
+  const mes = String(data.getMonth() + 1).padStart(2, '0')
+  const dia = String(data.getDate()).padStart(2, '0')
+  return `${ano}-${mes}-${dia}`
+}
+
+function calcularNivelMapa(valor, maiorValor) {
+  if (!valor || !maiorValor) return 0
+
+  const proporcao = valor / maiorValor
+  if (proporcao >= 0.76) return 4
+  if (proporcao >= 0.51) return 3
+  if (proporcao >= 0.26) return 2
+  return 1
+}
+
+function obterMesReferencia(despesas) {
+  const datas = despesas
+    .map((despesa) => obterData(despesa.data))
+    .filter(Boolean)
+    .sort((a, b) => b.getTime() - a.getTime())
+
+  return datas[0] || new Date()
+}
+
+function montarMapaCalor(despesas) {
+  const referencia = obterMesReferencia(despesas)
+  const ano = referencia.getFullYear()
+  const mesIndex = referencia.getMonth()
+  const primeiroDia = new Date(ano, mesIndex, 1)
+  const diasNoMes = new Date(ano, mesIndex + 1, 0).getDate()
+  const totaisPorDia = new Map()
+
+  despesas.forEach((despesa) => {
+    const data = obterData(despesa.data)
+    if (!data || data.getFullYear() !== ano || data.getMonth() !== mesIndex) return
+
+    const chaveDia = obterChaveDia(data)
+    totaisPorDia.set(chaveDia, (totaisPorDia.get(chaveDia) || 0) + Number(despesa.valor || 0))
+  })
+
+  const valores = [...totaisPorDia.values()]
+  const maiorValor = valores.length ? Math.max(...valores) : 0
+  const totalMes = valores.reduce((total, valor) => total + valor, 0)
+  const maiorEntrada = [...totaisPorDia.entries()].sort(([, valorA], [, valorB]) => valorB - valorA)[0]
+  const celulas = []
+
+  for (let i = 0; i < primeiroDia.getDay(); i += 1) {
+    celulas.push({ tipo: 'vazio', id: `vazio-${i}` })
+  }
+
+  for (let dia = 1; dia <= diasNoMes; dia += 1) {
+    const data = new Date(ano, mesIndex, dia)
+    const chaveDia = obterChaveDia(data)
+    const valor = totaisPorDia.get(chaveDia) || 0
+
+    celulas.push({
+      tipo: 'dia',
+      id: chaveDia,
+      dia,
+      valor,
+      nivel: calcularNivelMapa(valor, maiorValor),
+    })
+  }
+
+  return {
+    titulo: formatarMes(`${ano}-${String(mesIndex + 1).padStart(2, '0')}`),
+    totalMes,
+    maiorValor,
+    maiorDia: maiorEntrada ? Number(maiorEntrada[0].split('-')[2]) : null,
+    diasComDespesa: totaisPorDia.size,
+    celulas,
+  }
+}
+
 function TooltipMoeda({ active, payload, label }) {
   if (!active || !payload?.length) return null
 
@@ -66,22 +149,6 @@ function TooltipCategoria({ active, payload }) {
   )
 }
 
-function textoFeedback(resumo) {
-  if (!resumo.totalRegistrosDespesa && !resumo.totalRegistrosAporte) {
-    return 'Sem movimentações confirmadas nos grupos ainda.'
-  }
-
-  if (resumo.totalPago > resumo.totalRecebido) {
-    return `${formatarMoeda(resumo.totalPago)} pagos em despesas confirmadas nos grupos.`
-  }
-
-  if (resumo.totalRecebido > resumo.totalPago) {
-    return `${formatarMoeda(resumo.totalRecebido)} recebidos em despesas confirmadas nos grupos.`
-  }
-
-  return 'Pagamentos e recebimentos confirmados estão no mesmo nível.'
-}
-
 export function Pessoal() {
   const { data, loading, error, recarregar } = usePessoal()
 
@@ -96,6 +163,7 @@ export function Pessoal() {
   const fluxoMensal = data.graficos.fluxoMensal
   const despesasRecentes = data.despesas.slice(0, 8)
   const aportesRecentes = data.aportes.slice(0, 6)
+  const mapaCalor = useMemo(() => montarMapaCalor(data.despesas), [data.despesas])
 
   if (loading) return <div className={styles.carregando}>Carregando...</div>
   if (error) return <div className={styles.carregando}>Não foi possível carregar os dados pessoais.</div>
@@ -183,7 +251,7 @@ export function Pessoal() {
           </div>
           {fluxoMensal.length ? (
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={fluxoMensal} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <LineChart data={fluxoMensal} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis
                   dataKey="month"
@@ -200,9 +268,25 @@ export function Pessoal() {
                   width={56}
                 />
                 <Tooltip content={<TooltipMoeda />} />
-                <Bar name="Despesas confirmadas" dataKey="expenses" fill="#dc2626" radius={[6, 6, 0, 0]} />
-                <Bar name="Aportes" dataKey="contributions" fill="#047857" radius={[6, 6, 0, 0]} />
-              </BarChart>
+                <Line
+                  name="Despesas confirmadas"
+                  type="monotone"
+                  dataKey="expenses"
+                  stroke="#dc2626"
+                  strokeWidth={3}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                />
+                <Line
+                  name="Aportes"
+                  type="monotone"
+                  dataKey="contributions"
+                  stroke="#047857"
+                  strokeWidth={3}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                />
+              </LineChart>
             </ResponsiveContainer>
           ) : (
             <div className={styles.vazio}>Sem dados mensais.</div>
@@ -261,9 +345,71 @@ export function Pessoal() {
       </section>
 
       <section className={styles.analiseGrid}>
-        <article className={styles.painelDestaque}>
-          <span>Leitura geral</span>
-          <p>{textoFeedback(resumo)}</p>
+        <article className={styles.mapaCalor}>
+          <div className={styles.mapaCalorCabecalho}>
+            <div>
+              <h3 className={styles.mapaCalorTitle}>Mapa de calor diário</h3>
+              <p>{mapaCalor.titulo}</p>
+            </div>
+            <span>{formatarMoeda(mapaCalor.totalMes)}</span>
+          </div>
+
+          <div className={styles.mapaCalorResumo}>
+            <div>
+              <span>Maior dia</span>
+              <strong>
+                {mapaCalor.maiorDia
+                  ? `${String(mapaCalor.maiorDia).padStart(2, '0')} - ${formatarMoeda(mapaCalor.maiorValor)}`
+                  : 'Sem despesas'}
+              </strong>
+            </div>
+            <div>
+              <span>Dias com despesa</span>
+              <strong>{mapaCalor.diasComDespesa}</strong>
+            </div>
+          </div>
+
+          <div className={styles.mapaCalorSemana}>
+            {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((dia, index) => (
+              <span key={`${dia}-${index}`}>{dia}</span>
+            ))}
+          </div>
+
+          <div className={styles.mapaCalorGrade}>
+            {mapaCalor.celulas.map((celula) => {
+              if (celula.tipo === 'vazio') {
+                return <span key={celula.id} className={styles.mapaCalorVazio} />
+              }
+
+              return (
+                <span
+                  key={celula.id}
+                  className={`${styles.mapaCalorDia} ${styles[`mapaCalorNivel${celula.nivel}`]}`}
+                  tabIndex={0}
+                  aria-label={`${String(celula.dia).padStart(2, '0')}: ${formatarMoeda(celula.valor)}`}
+                >
+                  {celula.dia}
+                  <span className={styles.mapaCalorTooltip}>
+                    <strong>Dia {String(celula.dia).padStart(2, '0')}</strong>
+                    <span>{formatarMoeda(celula.valor)}</span>
+                  </span>
+                </span>
+              )
+            })}
+          </div>
+
+          <div className={styles.mapaCalorLegenda}>
+            <span>Menor gasto</span>
+            <div>
+              {[0, 1, 2, 3, 4].map((nivel) => (
+                <span
+                  key={nivel}
+                  className={`${styles.mapaCalorLegendaItem} ${styles[`mapaCalorNivel${nivel}`]}`}
+                />
+              ))}
+            </div>
+            <span>Maior gasto</span>
+          </div>
         </article>
 
         <article className={styles.painel}>
