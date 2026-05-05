@@ -12,6 +12,11 @@ function obterTextoNascimento(nascimento) {
   return 'Nao informado'
 }
 
+function normalizarNascimento(nascimento) {
+  if (!nascimento) return ''
+  return String(nascimento).slice(0, 10)
+}
+
 export function Perfil() {
   const navigate = useNavigate()
   const { carregarUsuario, foto, sair, setFoto, usuario } = useUser()
@@ -32,7 +37,8 @@ export function Perfil() {
 
   const email = usuario?.email || ''
   const nomeExibido = usuario?.name || 'Nome do usuario'
-  const textoNascimento = obterTextoNascimento(nascimento)
+  const nascimentoExibido = normalizarNascimento(usuario?.birth_date)
+  const textoNascimento = obterTextoNascimento(nascimentoExibido)
   const isGoogleUser = usuario?.auth_provider === 'google'
 
   let srcFoto = '/imagem_padrao_perfil.png'
@@ -76,7 +82,10 @@ export function Perfil() {
     setMensagemPerfil('')
 
     try {
-      await updateUser({ name: nome })
+      await updateUser({
+        name: nome,
+        birth_date: nascimento || null,
+      })
       await carregarUsuario()
       setEditando(false)
     } catch (error) {
@@ -86,6 +95,7 @@ export function Perfil() {
 
   function cancelarEdicao() {
     setNome(nomeExibido)
+    setNascimento(nascimentoExibido)
     setMensagemPerfil('')
     setEditando(false)
   }
@@ -274,6 +284,7 @@ export function Perfil() {
           className={styles.botaoPrimario}
           onClick={() => {
             setNome(nomeExibido)
+            setNascimento(nascimentoExibido)
             setEditando(true)
           }}
         >
