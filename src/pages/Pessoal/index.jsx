@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import {
   CartesianGrid,
   Cell,
@@ -16,7 +16,14 @@ import { usePessoal } from '../../hooks/usePessoal'
 import { useUser } from '../../hooks/useUser'
 import styles from './Pessoal.module.css'
 
-const coresCategorias = ['#047857', '#2563eb', '#d97706', '#7c3aed', '#dc2626', '#0891b2']
+const coresCategorias = ['#ff2d87', '#ff9f00', '#7c2fff', '#03fc83', '#2d9cff']
+
+const opcoesPeriodoGrafico = [
+  { id: '7d', label: '7 dias', tipo: 'dias', quantidade: 7 },
+  { id: '1m', label: '1 mês', tipo: 'dias', quantidade: 30 },
+  { id: '3m', label: '3 meses', tipo: 'meses', quantidade: 3 },
+  { id: '6m', label: '6 meses', tipo: 'meses', quantidade: 6 },
+]
 
 function formatarMoeda(valor) {
   return Number(valor || 0).toLocaleString('pt-BR', {
@@ -27,16 +34,23 @@ function formatarMoeda(valor) {
 
 function formatarData(valor) {
   if (!valor) return 'Sem data'
-  const data = new Date(valor)
-  if (Number.isNaN(data.getTime())) return 'Sem data'
+  const data = obterData(valor)
+  if (!data || Number.isNaN(data.getTime())) return 'Sem data'
   return data.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 function formatarMes(valor) {
   if (!valor || valor === 'Sem data') return 'Sem data'
-  const data = new Date(`${valor}-01T12:00:00Z`)
+  const match = String(valor).match(/^(\d{4})-(\d{2})/)
+  const data = match
+    ? new Date(Number(match[1]), Number(match[2]) - 1, 1)
+    : new Date(valor)
+
   if (Number.isNaN(data.getTime())) return valor
-  return data.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })
+
+  const mes = data.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')
+  const ano = String(data.getFullYear()).slice(-2)
+  return `${mes}/${ano}`
 }
 
 function obterNomeUsuario(usuario) {
@@ -51,9 +65,109 @@ function obterNomeUsuario(usuario) {
 
 function obterData(valor) {
   if (!valor) return null
+  const match = String(valor).match(/^(\d{4})-(\d{2})-(\d{2})/)
+
+  if (match) {
+    return new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]))
+  }
+
   const data = new Date(valor)
   if (Number.isNaN(data.getTime())) return null
   return data
+}
+
+function adicionarDias(data, dias) {
+  const novaData = new Date(data)
+  novaData.setDate(novaData.getDate() + dias)
+  return novaData
+}
+
+function adicionarMeses(data, meses) {
+  return new Date(data.getFullYear(), data.getMonth() + meses, 1)
+}
+
+function obterChaveMes(data) {
+  const ano = data.getFullYear()
+  const mes = String(data.getMonth() + 1).padStart(2, '0')
+  return `${ano}-${mes}`
+}
+
+function formatarRotuloDia(data) {
+  return data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })
+}
+
+function formatarRotuloCompleto(data) {
+  return data.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
+function criarPontoFluxo(data, tipo) {
+  const key = tipo === 'meses' ? obterChaveMes(data) : obterChaveDia(data)
+
+  return {
+    key,
+    label: tipo === 'meses' ? formatarMes(key) : formatarRotuloDia(data),
+    tooltipLabel: tipo === 'meses' ? formatarMes(key) : formatarRotuloCompleto(data),
+    expenses: 0,
+    contributions: 0,
+  }
+}
+
+function somarMovimentosPorData(pontos, despesas, aportes, tipo) {
+  const indicePorChave = new Map(pontos.map((ponto, index) => [ponto.key, index]))
+
+  despesas.forEach((despesa) => {
+    const data = obterData(despesa.dataValor || despesa.data)
+    if (!data) return
+
+    const chave = tipo === 'meses' ? obterChaveMes(data) : obterChaveDia(data)
+    const index = indicePorChave.get(chave)
+    if (index === undefined) return
+
+    pontos[index].expenses += Number(despesa.valor || 0)
+  })
+
+  aportes.forEach((aporte) => {
+    const data = obterData(aporte.dataValor || aporte.data)
+    if (!data) return
+
+    const chave = tipo === 'meses' ? obterChaveMes(data) : obterChaveDia(data)
+    const index = indicePorChave.get(chave)
+    if (index === undefined) return
+
+    pontos[index].contributions += Number(aporte.valor || 0)
+  })
+}
+
+// O gráfico de período é calculado no front para permitir alternar entre dias e meses.
+function montarFluxoPeriodo(despesas, aportes, periodo) {
+  const hoje = inicioDoDia(new Date())
+
+  if (periodo.tipo === 'meses') {
+    const inicioMesAtual = new Date(hoje.getFullYear(), hoje.getMonth(), 1)
+    const inicio = adicionarMeses(inicioMesAtual, -(periodo.quantidade - 1))
+    const pontos = Array.from({ length: periodo.quantidade }, (_, index) =>
+      criarPontoFluxo(adicionarMeses(inicio, index), periodo.tipo)
+    )
+
+    somarMovimentosPorData(pontos, despesas, aportes, periodo.tipo)
+
+    return {
+      pontos,
+      temDados: pontos.some((ponto) => ponto.expenses || ponto.contributions),
+    }
+  }
+
+  const inicio = adicionarDias(hoje, -(periodo.quantidade - 1))
+  const pontos = Array.from({ length: periodo.quantidade }, (_, index) =>
+    criarPontoFluxo(adicionarDias(inicio, index), periodo.tipo)
+  )
+
+  somarMovimentosPorData(pontos, despesas, aportes, periodo.tipo)
+
+  return {
+    pontos,
+    temDados: pontos.some((ponto) => ponto.expenses || ponto.contributions),
+  }
 }
 
 function obterChaveDia(data) {
@@ -233,10 +347,11 @@ function montarCalendarioVencimentos(vencimentos) {
 
 function TooltipMoeda({ active, payload, label }) {
   if (!active || !payload?.length) return null
+  const titulo = payload[0]?.payload?.tooltipLabel || label
 
   return (
     <div className={styles.tooltip}>
-      <strong>{formatarMes(label)}</strong>
+      <strong>{titulo}</strong>
       {payload.map((item) => (
         <span key={item.dataKey} style={{ color: item.color }}>
           {item.name}: {formatarMoeda(item.value)}
@@ -262,6 +377,7 @@ function TooltipCategoria({ active, payload }) {
 export function Pessoal() {
   const { data, loading, error, recarregar } = usePessoal()
   const { usuario } = useUser()
+  const [periodoGrafico, setPeriodoGrafico] = useState('1m')
 
   const resumo = data.resumo
   const titulo = `Olá, ${obterNomeUsuario(usuario)}`
@@ -272,7 +388,12 @@ export function Pessoal() {
     })),
     [data.graficos.categorias],
   )
-  const fluxoMensal = data.graficos.fluxoMensal
+  const periodoSelecionado =
+    opcoesPeriodoGrafico.find((opcao) => opcao.id === periodoGrafico) || opcoesPeriodoGrafico[1]
+  const fluxoPeriodo = useMemo(
+    () => montarFluxoPeriodo(data.despesas, data.aportes, periodoSelecionado),
+    [data.aportes, data.despesas, periodoSelecionado],
+  )
   const despesasRecentes = data.despesas.slice(0, 8)
   const aportesRecentes = data.aportes.slice(0, 6)
   const calendarioVencimentos = useMemo(
@@ -366,15 +487,31 @@ export function Pessoal() {
 
         <article className={styles.painel}>
           <div className={styles.cabecalhoSecao}>
-            <span>Fluxo mensal</span>
+            <span>Movimentações no período</span>
+            <div className={styles.filtroGrafico} aria-label="Período do gráfico">
+              {opcoesPeriodoGrafico.map((opcao) => (
+                <button
+                  key={opcao.id}
+                  type="button"
+                  className={
+                    opcao.id === periodoGrafico
+                      ? styles.filtroGraficoAtivo
+                      : styles.filtroGraficoBotao
+                  }
+                  onClick={() => setPeriodoGrafico(opcao.id)}
+                >
+                  {opcao.label}
+                </button>
+              ))}
+            </div>
           </div>
-          {fluxoMensal.length ? (
+          {fluxoPeriodo.temDados ? (
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={fluxoMensal} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+              <LineChart data={fluxoPeriodo.pontos} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
                 <XAxis
-                  dataKey="month"
-                  tickFormatter={formatarMes}
+                  dataKey="label"
+                  interval={periodoSelecionado.id === '1m' ? 5 : 0}
                   tick={{ fontSize: 11, fill: 'var(--text-muted)' }}
                   axisLine={false}
                   tickLine={false}
@@ -391,7 +528,7 @@ export function Pessoal() {
                   name="Despesas confirmadas"
                   type="monotone"
                   dataKey="expenses"
-                  stroke="#dc2626"
+                  stroke="var(--negative)"
                   strokeWidth={3}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}
@@ -400,7 +537,7 @@ export function Pessoal() {
                   name="Aportes"
                   type="monotone"
                   dataKey="contributions"
-                  stroke="#047857"
+                  stroke="var(--primary)"
                   strokeWidth={3}
                   dot={{ r: 3 }}
                   activeDot={{ r: 5 }}
@@ -408,7 +545,7 @@ export function Pessoal() {
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <div className={styles.vazio}>Sem dados mensais.</div>
+            <div className={styles.vazio}>Sem movimentações no período.</div>
           )}
         </article>
       </section>
@@ -427,9 +564,7 @@ export function Pessoal() {
                     <span>{despesa.nomeGrupo} · {despesa.papelTexto} · {formatarData(despesa.data)}</span>
                   </div>
                   <div className={styles.movimentoValor}>
-                    <strong className={despesa.papel === 'creditor' ? styles.valorPositivo : styles.valorNegativo}>
-                      {formatarMoeda(despesa.valor)}
-                    </strong>
+                    <strong className={styles.valorNegativo}>{formatarMoeda(despesa.valor)}</strong>
                   </div>
                 </div>
               ))}
