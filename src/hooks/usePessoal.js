@@ -17,7 +17,6 @@ const dadosVazios = {
   graficos: {
     categorias: [],
     aportesPorMeta: [],
-    fluxoMensal: [],
   },
 }
 
@@ -106,7 +105,6 @@ function normalizarDadosPessoais(data) {
     graficos: {
       categorias: charts.expenses_by_category || [],
       aportesPorMeta: charts.contributions_by_goal || [],
-      fluxoMensal: charts.monthly_flow || [],
     },
   }
 }

@@ -1,27 +1,34 @@
 .pagina {
   width: 100%;
-  min-height: 100vh;
-  padding: 28px 32px;
+  max-width: 1480px;
+  min-height: 100%;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 48px clamp(24px, 5vw, 64px);
 }
 
 .header {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 24px;
+  align-items: flex-end;
+  gap: 24px;
+  margin-bottom: 28px;
 }
 
 .header h1 {
-  margin: 0 0 6px;
+  margin: 0;
   color: var(--text);
-  font-size: 32px;
-  line-height: 1.1;
+  font-size: 34px;
+  font-weight: 850;
+  line-height: 1;
 }
 
 .header span {
+  display: block;
+  margin-top: 12px;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 15px;
+  line-height: 1.4;
 }
 
 .botaoSecundario {
@@ -29,19 +36,24 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  min-height: 40px;
   font-family: inherit;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease;
-  padding: 10px 14px;
+  transition: transform 0.15s ease, border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
+  padding: 0 16px;
   border-radius: 999px;
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--text-muted) 65%, var(--border));
+  background: transparent;
   color: var(--text);
 }
 
 .botaoSecundario:hover {
   transform: translateY(-1px);
+  border-color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 8%, transparent);
+  color: var(--primary);
 }
 
 .botaoSecundario:disabled {
@@ -53,7 +65,7 @@
 .resumoGrid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
   margin-bottom: 18px;
 }
 
@@ -62,36 +74,39 @@
 .mapaCalor {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .cardResumo {
-  min-height: 124px;
-  padding: 18px;
+  display: flex;
+  min-height: 112px;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
 }
 
-.cardResumo span,
-.cabecalhoSecao span {
+.cardResumo span {
   color: var(--text-muted);
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
 .cardResumo strong {
   display: block;
-  margin-top: 10px;
+  margin-top: 6px;
   color: var(--text);
-  font-size: 25px;
+  font-size: 22px;
   line-height: 1.2;
 }
 
 .cardResumo small {
   display: block;
-  margin-top: 8px;
+  margin-top: 2px;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 11px;
+  line-height: 1.35;
 }
 
 .cardResumo p {
@@ -110,13 +125,13 @@
 }
 
 .valorRecebido {
-  color: #2563eb !important;
+  color: var(--primary) !important;
 }
 
 .gridPrincipal,
 .analiseGrid {
   display: grid;
-  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+  grid-template-columns: minmax(360px, 0.9fr) minmax(0, 1.1fr);
   gap: 18px;
   margin-bottom: 18px;
 }
@@ -127,22 +142,69 @@
 
 .painel,
 .mapaCalor {
-  padding: 18px;
+  padding: 16px;
 }
 
 .cabecalhoSecao {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
   min-height: 24px;
+  margin-bottom: 14px;
+}
+
+.cabecalhoSecao span {
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.filtroGrafico {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filtroGraficoBotao,
+.filtroGraficoAtivo {
+  min-height: 28px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: color-mix(in srgb, var(--text-muted) 8%, transparent);
+  color: var(--text-muted);
+  cursor: pointer;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 0 10px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+
+.filtroGraficoBotao:hover {
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 7%, transparent);
+}
+
+.filtroGraficoAtivo {
+  border-color: color-mix(in srgb, var(--primary) 18%, transparent);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  color: var(--text);
 }
 
 .pizzaLayout {
   display: grid;
   grid-template-columns: minmax(180px, 0.9fr) minmax(0, 1.1fr);
   align-items: center;
-  gap: 12px;
-  min-height: 250px;
+  gap: 0;
+  min-height: 260px;
+}
+
+.pizzaLayout > div:first-child {
+  border-right: 1px solid var(--border);
 }
 
 .legendaCategorias,
@@ -154,6 +216,7 @@
 
 .legendaCategorias {
   gap: 9px;
+  padding-left: 16px;
 }
 
 .linhaLegenda {
@@ -161,6 +224,11 @@
   grid-template-columns: 10px minmax(0, 1fr) auto;
   align-items: center;
   gap: 9px;
+  min-height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  padding: 8px 10px;
   color: var(--text);
   font-size: 13px;
 }
@@ -176,14 +244,18 @@
 }
 
 .listaRanking {
-  gap: 14px;
-  margin-top: 18px;
+  gap: 10px;
+  margin-top: 14px;
 }
 
 .itemRanking {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  padding: 12px;
 }
 
 .itemRankingTopo {
@@ -217,7 +289,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: #2563eb;
+  background: linear-gradient(90deg, var(--primary), color-mix(in srgb, var(--primary) 60%, transparent));
 }
 
 .listaMovimentos {
@@ -233,8 +305,8 @@
   min-height: 62px;
   padding: 12px;
   border: 1px solid var(--border);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--bg) 60%, var(--surface));
+  border-radius: 10px;
+  background: var(--bg);
   transition: transform 0.16s ease, border-color 0.16s ease, background 0.16s ease, box-shadow 0.16s ease;
 }
 
@@ -293,7 +365,7 @@
   gap: 5px;
   padding: 10px 12px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--surface);
   color: var(--text);
   font-size: 12px;
@@ -339,13 +411,16 @@
 }
 
 .mapaCalorResumo {
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .mapaCalorResumo div {
   min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  padding: 12px;
 }
 
 .mapaCalorResumo strong {
@@ -480,59 +555,59 @@
 }
 
 .mapaCalorStatusReceber1 {
-  background: color-mix(in srgb, #2563eb 22%, var(--surface));
-  border-color: color-mix(in srgb, #2563eb 18%, var(--border));
+  background: color-mix(in srgb, var(--primary) 22%, var(--surface));
+  border-color: color-mix(in srgb, var(--primary) 18%, var(--border));
 }
 
 .mapaCalorStatusReceber2 {
-  background: color-mix(in srgb, #2563eb 40%, var(--surface));
-  border-color: color-mix(in srgb, #2563eb 30%, var(--border));
+  background: color-mix(in srgb, var(--primary) 40%, var(--surface));
+  border-color: color-mix(in srgb, var(--primary) 30%, var(--border));
 }
 
 .mapaCalorStatusReceber3 {
-  background: color-mix(in srgb, #2563eb 66%, var(--surface));
-  border-color: color-mix(in srgb, #2563eb 48%, var(--border));
+  background: color-mix(in srgb, var(--primary) 66%, var(--surface));
+  border-color: color-mix(in srgb, var(--primary) 48%, var(--border));
   color: #fff;
 }
 
 .mapaCalorStatusReceber4 {
-  background: #2563eb;
-  border-color: #2563eb;
+  background: var(--primary);
+  border-color: var(--primary);
   color: #fff;
 }
 
 .mapaCalorStatusMisto1 {
-  background: color-mix(in srgb, #7c3aed 22%, var(--surface));
-  border-color: color-mix(in srgb, #7c3aed 18%, var(--border));
+  background: color-mix(in srgb, #7c2fff 22%, var(--surface));
+  border-color: color-mix(in srgb, #7c2fff 18%, var(--border));
 }
 
 .mapaCalorStatusMisto2 {
-  background: color-mix(in srgb, #7c3aed 42%, var(--surface));
-  border-color: color-mix(in srgb, #7c3aed 30%, var(--border));
+  background: color-mix(in srgb, #7c2fff 42%, var(--surface));
+  border-color: color-mix(in srgb, #7c2fff 30%, var(--border));
 }
 
 .mapaCalorStatusMisto3 {
-  background: color-mix(in srgb, #7c3aed 68%, var(--surface));
-  border-color: color-mix(in srgb, #7c3aed 50%, var(--border));
+  background: color-mix(in srgb, #7c2fff 68%, var(--surface));
+  border-color: color-mix(in srgb, #7c2fff 50%, var(--border));
   color: #fff;
 }
 
 .mapaCalorStatusMisto4 {
-  background: #7c3aed;
-  border-color: #7c3aed;
+  background: #7c2fff;
+  border-color: #7c2fff;
   color: #fff;
 }
 
 .mapaCalorStatusConcluido {
-  background: var(--positive);
-  border-color: var(--positive);
+  background: #2d9cff;
+  border-color: #2d9cff;
   color: #fff;
 }
 
 .mapaCalorLegenda {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 8px;
   color: var(--text-muted);
   font-size: 10px;
@@ -580,6 +655,20 @@
 
   .resumoGrid,
   .pizzaLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .pizzaLayout > div:first-child {
+    border-right: 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .legendaCategorias {
+    padding-top: 14px;
+    padding-left: 0;
+  }
+
+  .mapaCalorResumo {
     grid-template-columns: 1fr;
   }
 
