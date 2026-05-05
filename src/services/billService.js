@@ -103,6 +103,6 @@ export async function atualizarContaGrupo(contaId, { nome, total, membros, dueDa
 }
 
 export async function marcarContaComoPaga(contaId) {
-  const response = await api.put(`/bill/${contaId}/mark-as-paid`)
+  const response = await api.patch(`/bill/${contaId}`)
   return response.data
 }

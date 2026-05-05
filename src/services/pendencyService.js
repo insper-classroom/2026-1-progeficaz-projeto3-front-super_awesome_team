@@ -25,16 +25,17 @@ export function normalizarPendencia(pendencia) {
 }
 
 export async function listarPendenciasDoGrupo(groupId) {
-  const response = await api.get(`/group/${groupId}/pendencies`)
-  return (response.data.pendencies || []).map(normalizarPendencia)
+  const response = await api.get(`/group/${groupId}/pendency`)
+  const pendencias = response.data.pendency || response.data.pendencies || []
+  return pendencias.map(normalizarPendencia)
 }
 
 export async function confirmarPagamentoComoDevedor(pendencyId) {
-  const response = await api.put(`/pendencies/${pendencyId}/confirm-debtor`)
+  const response = await api.put(`/pendency/${pendencyId}/debtor-confirmation`)
   return response.data
 }
 
 export async function confirmarRecebimentoComoCredor(pendencyId) {
-  const response = await api.put(`/pendencies/${pendencyId}/confirm-creditor`)
+  const response = await api.put(`/pendency/${pendencyId}/creditor-confirmation`)
   return response.data
 }

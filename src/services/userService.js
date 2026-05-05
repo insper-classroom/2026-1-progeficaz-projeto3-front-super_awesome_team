@@ -6,12 +6,12 @@ export async function getCurrentUser() {
 }
 
 export async function updateUser(data) {
-  const response = await api.put('/user', data)
+  const response = await api.put('/user/me', data)
   return response.data
 }
 
 export async function deleteUser(data = {}) {
-  const response = await api.delete('/user', {
+  const response = await api.delete('/user/me', {
     data,
   })
   return response.data
