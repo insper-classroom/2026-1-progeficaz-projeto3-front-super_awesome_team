@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { FiPlus, FiTrash2, FiUpload, FiX } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import Button from '../../components/Button'
 import GrupoCard from '../../components/GrupoCard'
@@ -18,6 +19,43 @@ function obterDonoGrupo(grupo) {
   return grupo?.created_by || grupo?.criadoPor || grupo?.raw?.created_by || ''
 }
 
+function formatarDataCriacao(data) {
+  if (!data) return 'Data de criação indisponível'
+
+  const dataCriacao = new Date(data)
+  if (Number.isNaN(dataCriacao.getTime())) return 'Data de criação indisponível'
+
+  return `Criado em ${dataCriacao.toLocaleDateString('pt-BR')}`
+}
+
+function nomeDoEmail(email) {
+  return email.split('@')[0]
+}
+
+function iniciaisDoNome(nome) {
+  const partes = nome.trim().split(/\s+/)
+  const iniciais = partes.length > 1 ? `${partes[0][0]}${partes[1][0]}` : nome.slice(0, 2)
+  return iniciais.toUpperCase()
+}
+
+function mapearNomesMembros(membros) {
+  return membros.reduce((mapa, membro) => {
+    if (membro.email) {
+      mapa[membro.email] = membro.nome || nomeDoEmail(membro.email)
+    }
+    return mapa
+  }, {})
+}
+
+function mapearFotosMembros(membros) {
+  return membros.reduce((mapa, membro) => {
+    if (membro.email && membro.foto) {
+      mapa[membro.email] = membro.foto
+    }
+    return mapa
+  }, {})
+}
+
 export function Grupos() {
   const navigate = useNavigate()
   const inputUploadRef = useRef(null)
@@ -28,9 +66,10 @@ export function Grupos() {
   const [modoModal, setModoModal] = useState('create')
   const [grupoEditando, setGrupoEditando] = useState(null)
   const [nomeGrupo, setNomeGrupo] = useState('')
-  const [descricaoGrupo, setDescricaoGrupo] = useState('')
   const [emailMembro, setEmailMembro] = useState('')
   const [membros, setMembros] = useState([])
+  const [nomesMembros, setNomesMembros] = useState({})
+  const [fotosMembros, setFotosMembros] = useState({})
   const [imgSelecionada, setImgSelecionada] = useState(IMAGEM_PADRAO)
   const [imgUpload, setImgUpload] = useState(null)
   const [arquivoUpload, setArquivoUpload] = useState(null)
@@ -66,8 +105,9 @@ export function Grupos() {
 
   function limparFormulario() {
     setNomeGrupo('')
-    setDescricaoGrupo('')
     setMembros([])
+    setNomesMembros({})
+    setFotosMembros({})
     setEmailMembro('')
     setImgSelecionada(IMAGEM_PADRAO)
     setImgUpload(null)
@@ -88,8 +128,9 @@ export function Grupos() {
     setErro('')
     setGrupoEditando(grupo)
     setNomeGrupo(grupo.nome || '')
-    setDescricaoGrupo(grupo.descricao || grupo.desc || '')
     setMembros((grupo.membros || []).map((membro) => membro.email))
+    setNomesMembros(mapearNomesMembros(grupo.membros || []))
+    setFotosMembros(mapearFotosMembros(grupo.membros || []))
     setNovoDonoEmail(obterDonoGrupo(grupo))
     setEmailMembro('')
     setImgSelecionada(grupo.imagem || IMAGEM_PADRAO)
@@ -110,12 +151,30 @@ export function Grupos() {
 
     if (email && !membros.includes(email)) {
       setMembros([...membros, email])
+      setNomesMembros((nomesAtuais) => ({
+        ...nomesAtuais,
+        [email]: nomeDoEmail(email),
+      }))
+      setFotosMembros((fotosAtuais) => ({
+        ...fotosAtuais,
+        [email]: null,
+      }))
       setEmailMembro('')
     }
   }
 
   function removerMembro(emailParaRemover) {
     setMembros(membros.filter((email) => email !== emailParaRemover))
+    setNomesMembros((nomesAtuais) => {
+      const novosNomes = { ...nomesAtuais }
+      delete novosNomes[emailParaRemover]
+      return novosNomes
+    })
+    setFotosMembros((fotosAtuais) => {
+      const novasFotos = { ...fotosAtuais }
+      delete novasFotos[emailParaRemover]
+      return novasFotos
+    })
   }
 
   function selecionarImagemPadrao(src) {
@@ -147,7 +206,6 @@ export function Grupos() {
       const payload = {
         nome: nomeGrupo.trim(),
         membros,
-        descricao: descricaoGrupo.trim() || 'Novo grupo',
         imagem,
       }
 
@@ -204,7 +262,7 @@ export function Grupos() {
               key={grupo.id}
               id={grupo.id}
               title={grupo.nome}
-              subtitle={grupo.desc}
+              subtitle={formatarDataCriacao(grupo.criadoEm || grupo.desc)}
               image={grupo.imagem}
               onClick={() => navigate(`/grupos/${grupo.id}`)}
               onEdit={() => abrirEditarGrupo(grupo)}
@@ -215,154 +273,215 @@ export function Grupos() {
 
       {modalAberto && (
         <div className={styles.overlay}>
-          <div className={styles.modal}>
-            <h2 className={styles.modalTitle}>
-              {modoModal === 'edit' ? 'Editar grupo' : 'Novo grupo'}
-            </h2>
-
-            {erro && <p className={styles.erro}>{erro}</p>}
-
-            <input
-              className={styles.input}
-              type="text"
-              placeholder="Nome do grupo"
-              value={nomeGrupo}
-              onChange={(e) => setNomeGrupo(e.target.value)}
-            />
-
-            <textarea
-              className={styles.input}
-              placeholder="Descrição do grupo"
-              value={descricaoGrupo}
-              onChange={(e) => setDescricaoGrupo(e.target.value)}
-              rows={3}
-            />
-
-            <div className={styles.sectionHeader}>
-              <h4>Membros</h4>
-            </div>
-
-            <div className={styles.memberInputRow}>
-              <input
-                className={styles.input}
-                type="email"
-                placeholder="E-mail do membro"
-                value={emailMembro}
-                onChange={(e) => setEmailMembro(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
-                    e.preventDefault()
-                    adicionarMembro()
-                  }
-                }}
-              />
-              <Button onClick={adicionarMembro}>Adicionar</Button>
-            </div>
-
-            <div className={styles.membersList}>
-              {membros.map((email) => (
-                <div key={email} className={styles.memberRow}>
-                  <span>{email}</span>
-                  <button
-                    type="button"
-                    className={styles.removeBtn}
-                    onClick={() => removerMembro(email)}
-                  >
-                    Remover
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {modoModal === 'edit' && donoAtualEmail === usuario?.email && (
-              <div className={styles.ownerSelect}>
-                <h4>Transferir liderança</h4>
-
-                <select
-                  className={styles.input}
-                  value={novoDonoEmail}
-                  onChange={(e) => setNovoDonoEmail(e.target.value)}
-                >
-                  <option value={donoAtualEmail}>Manter dono atual</option>
-                  {membros
-                    .filter((email) => email !== donoAtualEmail)
-                    .map((email) => (
-                      <option key={email} value={email}>
-                        {email}
-                      </option>
-                    ))}
-                </select>
-              </div>
-            )}
-
-            <div className={styles.sectionHeader}>
-              <h4>Imagem do grupo</h4>
-            </div>
-
-            <div className={styles.imagensGrid}>
-              {imagens.map((img) => (
-                <button
-                  key={img.src}
-                  type="button"
-                  className={
-                    imgSelecionada === img.src
-                      ? styles.imgSelecionada
-                      : styles.imgOpcao
-                  }
-                  onClick={() => selecionarImagemPadrao(img.src)}
-                >
-                  <img src={img.src} alt={img.label} />
-                  <span>{img.label}</span>
-                </button>
-              ))}
-
+          <form
+            className={styles.modal}
+            onSubmit={(e) => {
+              e.preventDefault()
+              salvarGrupo()
+            }}
+          >
+            <div className={styles.cabecalho}>
+              <h2 className={styles.titulo}>
+                {modoModal === 'edit' ? 'Editar grupo' : 'Novo grupo'}
+              </h2>
               <button
                 type="button"
-                className={styles.uploadCard}
-                onClick={() => inputUploadRef.current?.click()}
+                className={styles.botaoFechar}
+                onClick={fecharModal}
+                aria-label="Fechar"
               >
-                {imgUpload ? (
-                  <img
-                    src={imgUpload}
-                    alt="Imagem enviada"
-                    className={styles.uploadPrevia}
-                  />
-                ) : (
-                  <span>+ Upload</span>
-                )}
+                <FiX />
               </button>
-
-              <input
-                ref={inputUploadRef}
-                type="file"
-                accept="image/*"
-                onChange={handleUpload}
-                className={styles.uploadInput}
-              />
             </div>
 
-            <div className={styles.modalActions}>
-              {modoModal === 'edit' && (
-                <button
-                  type="button"
-                  className={styles.danger}
-                  onClick={deletarGrupo}
-                >
-                  Excluir grupo
-                </button>
+            <div className={styles.form}>
+              {erro && <p className={styles.erro}>{erro}</p>}
+
+              <div className={styles.grupo}>
+                <label className={styles.rotulo} htmlFor="nome-grupo">
+                  Nome do grupo
+                </label>
+                <input
+                  id="nome-grupo"
+                  className={styles.input}
+                  type="text"
+                  placeholder="Ex: Apartamento"
+                  value={nomeGrupo}
+                  onChange={(e) => setNomeGrupo(e.target.value)}
+                />
+              </div>
+
+              <div className={styles.grupo}>
+                <label className={styles.rotulo} htmlFor="email-membro">
+                  Membros
+                </label>
+                <div className={styles.memberInputRow}>
+                  <input
+                    id="email-membro"
+                    className={styles.input}
+                    type="email"
+                    placeholder="E-mail do membro"
+                    value={emailMembro}
+                    onChange={(e) => setEmailMembro(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        adicionarMembro()
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    className={styles.botaoTexto}
+                    onClick={adicionarMembro}
+                  >
+                    <FiPlus />
+                    Adicionar
+                  </button>
+                </div>
+
+                {membros.length > 0 && (
+                  <div className={styles.membersList}>
+                    {membros.map((email) => (
+                      <div key={email} className={styles.memberRow}>
+                        <span
+                          className={`${styles.membroAvatar} ${
+                            fotosMembros[email] ? styles.membroAvatarComFoto : ''
+                          }`}
+                        >
+                          {fotosMembros[email] && (
+                            <img
+                              src={fotosMembros[email]}
+                              alt={nomesMembros[email] || nomeDoEmail(email)}
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none'
+                              }}
+                            />
+                          )}
+                          {iniciaisDoNome(nomesMembros[email] || nomeDoEmail(email))}
+                        </span>
+                        <div className={styles.membroInfo}>
+                          <strong>{nomesMembros[email] || nomeDoEmail(email)}</strong>
+                          <span>{email}</span>
+                        </div>
+                        <button
+                          type="button"
+                          className={styles.removeBtn}
+                          onClick={() => removerMembro(email)}
+                          aria-label={`Remover ${email}`}
+                        >
+                          <FiTrash2 />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {modoModal === 'edit' && donoAtualEmail === usuario?.email && (
+                <div className={styles.grupo}>
+                  <label className={styles.rotulo} htmlFor="novo-dono">
+                    Transferir liderança
+                  </label>
+                  <select
+                    id="novo-dono"
+                    className={styles.input}
+                    value={novoDonoEmail}
+                    onChange={(e) => setNovoDonoEmail(e.target.value)}
+                  >
+                    <option value={donoAtualEmail}>Manter dono atual</option>
+                    {membros
+                      .filter((email) => email !== donoAtualEmail)
+                      .map((email) => (
+                        <option key={email} value={email}>
+                          {email}
+                        </option>
+                      ))}
+                  </select>
+                </div>
               )}
 
-              <div className={styles.rightActions}>
-                <Button variant="secondary" onClick={fecharModal}>
-                  Cancelar
-                </Button>
+              <div className={styles.grupo}>
+                <span className={styles.rotulo}>Imagem do grupo</span>
+                <div className={styles.imagensGrid}>
+                  {imagens.map((img) => (
+                    <button
+                      key={img.src}
+                      type="button"
+                      className={
+                        imgSelecionada === img.src
+                          ? styles.imgSelecionada
+                          : styles.imgOpcao
+                      }
+                      onClick={() => selecionarImagemPadrao(img.src)}
+                      aria-label={`Selecionar imagem ${img.label}`}
+                    >
+                      <img src={img.src} alt={img.label} />
+                    </button>
+                  ))}
 
-                <Button onClick={salvarGrupo}>
-                  {modoModal === 'edit' ? 'Salvar alterações' : 'Criar grupo'}
-                </Button>
+                  <button
+                    type="button"
+                    className={`${styles.uploadCard} ${
+                      imgUpload ? styles.uploadCardAtivo : ''
+                    }`}
+                    onClick={() => inputUploadRef.current?.click()}
+                  >
+                    {imgUpload ? (
+                      <img
+                        src={imgUpload}
+                        alt="Imagem enviada"
+                        className={styles.uploadPrevia}
+                      />
+                    ) : (
+                      <span className={styles.uploadPlaceholder}>
+                        <FiUpload />
+                        Upload
+                      </span>
+                    )}
+                  </button>
+
+                  <input
+                    ref={inputUploadRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleUpload}
+                    className={styles.uploadInput}
+                  />
+                </div>
+              </div>
+
+              <div className={styles.rodape}>
+                {modoModal === 'edit' && (
+                  <button
+                    type="button"
+                    className={styles.botaoExcluir}
+                    onClick={deletarGrupo}
+                  >
+                    Excluir grupo
+                  </button>
+                )}
+
+                <div className={styles.acoesFormulario}>
+                  <button
+                    type="button"
+                    className={styles.botaoCancelar}
+                    onClick={fecharModal}
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="submit"
+                    className={styles.botaoConfirmar}
+                    disabled={!nomeGrupo.trim()}
+                  >
+                    {modoModal === 'edit' ? 'Salvar alterações' : 'Criar grupo'}
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
+          </form>
         </div>
       )}
     </div>
