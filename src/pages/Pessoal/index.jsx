@@ -89,11 +89,21 @@ function obterStatusDia(itens) {
   return 'receber'
 }
 
-function obterClasseStatusDia(status) {
-  if (status === 'pagar') return styles.mapaCalorStatusPagar
-  if (status === 'receber') return styles.mapaCalorStatusReceber
-  if (status === 'misto') return styles.mapaCalorStatusMisto
+function calcularNivelIntensidade(valor, maiorValor, status) {
+  if (!valor || !maiorValor || status === 'vazio' || status === 'concluido') return 0
+
+  const proporcao = valor / maiorValor
+  if (proporcao >= 0.76) return 4
+  if (proporcao >= 0.51) return 3
+  if (proporcao >= 0.26) return 2
+  return 1
+}
+
+function obterClasseStatusDia(status, nivel) {
   if (status === 'concluido') return styles.mapaCalorStatusConcluido
+  if (status === 'pagar') return styles[`mapaCalorStatusPagar${nivel}`]
+  if (status === 'receber') return styles[`mapaCalorStatusReceber${nivel}`]
+  if (status === 'misto') return styles[`mapaCalorStatusMisto${nivel}`]
   return styles.mapaCalorStatusVazio
 }
 
@@ -140,6 +150,7 @@ function montarCalendarioVencimentos(vencimentos) {
     const itens = vencimentosPorDia.get(chaveDia) || []
     const valor = itens.reduce((total, item) => total + Number(item.valor || 0), 0)
     const status = obterStatusDia(itens)
+    const nivel = calcularNivelIntensidade(valor, maiorValor, status)
 
     celulas.push({
       tipo: 'dia',
@@ -148,6 +159,7 @@ function montarCalendarioVencimentos(vencimentos) {
       valor,
       itens,
       status,
+      nivel,
     })
   }
 
@@ -428,7 +440,7 @@ export function Pessoal() {
               return (
                 <span
                   key={celula.id}
-                  className={`${styles.mapaCalorDia} ${obterClasseStatusDia(celula.status)}`}
+                  className={`${styles.mapaCalorDia} ${obterClasseStatusDia(celula.status, celula.nivel)}`}
                   tabIndex={0}
                   aria-label={`${String(celula.dia).padStart(2, '0')}: ${formatarMoeda(celula.valor)} em vencimentos`}
                 >
@@ -456,9 +468,9 @@ export function Pessoal() {
           </div>
 
           <div className={styles.mapaCalorLegenda}>
-            <span><i className={styles.mapaCalorStatusPagar} /> A pagar</span>
-            <span><i className={styles.mapaCalorStatusReceber} /> A receber</span>
-            <span><i className={styles.mapaCalorStatusMisto} /> Ambos</span>
+            <span><i className={styles.mapaCalorStatusPagar4} /> A pagar</span>
+            <span><i className={styles.mapaCalorStatusReceber4} /> A receber</span>
+            <span><i className={styles.mapaCalorStatusMisto4} /> Ambos</span>
             <span><i className={styles.mapaCalorStatusConcluido} /> Concluído</span>
           </div>
         </article>

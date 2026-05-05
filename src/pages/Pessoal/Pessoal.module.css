@@ -445,19 +445,67 @@
   color: var(--text-muted);
 }
 
-.mapaCalorStatusPagar {
+.mapaCalorStatusPagar1 {
+  background: color-mix(in srgb, var(--negative) 24%, var(--surface));
+  border-color: color-mix(in srgb, var(--negative) 18%, var(--border));
+}
+
+.mapaCalorStatusPagar2 {
+  background: color-mix(in srgb, var(--negative) 42%, var(--surface));
+  border-color: color-mix(in srgb, var(--negative) 30%, var(--border));
+}
+
+.mapaCalorStatusPagar3 {
+  background: color-mix(in srgb, var(--negative) 68%, var(--surface));
+  border-color: color-mix(in srgb, var(--negative) 50%, var(--border));
+  color: #fff;
+}
+
+.mapaCalorStatusPagar4 {
   background: var(--negative);
   border-color: var(--negative);
   color: #fff;
 }
 
-.mapaCalorStatusReceber {
+.mapaCalorStatusReceber1 {
+  background: color-mix(in srgb, #2563eb 22%, var(--surface));
+  border-color: color-mix(in srgb, #2563eb 18%, var(--border));
+}
+
+.mapaCalorStatusReceber2 {
+  background: color-mix(in srgb, #2563eb 40%, var(--surface));
+  border-color: color-mix(in srgb, #2563eb 30%, var(--border));
+}
+
+.mapaCalorStatusReceber3 {
+  background: color-mix(in srgb, #2563eb 66%, var(--surface));
+  border-color: color-mix(in srgb, #2563eb 48%, var(--border));
+  color: #fff;
+}
+
+.mapaCalorStatusReceber4 {
   background: #2563eb;
   border-color: #2563eb;
   color: #fff;
 }
 
-.mapaCalorStatusMisto {
+.mapaCalorStatusMisto1 {
+  background: color-mix(in srgb, #7c3aed 22%, var(--surface));
+  border-color: color-mix(in srgb, #7c3aed 18%, var(--border));
+}
+
+.mapaCalorStatusMisto2 {
+  background: color-mix(in srgb, #7c3aed 42%, var(--surface));
+  border-color: color-mix(in srgb, #7c3aed 30%, var(--border));
+}
+
+.mapaCalorStatusMisto3 {
+  background: color-mix(in srgb, #7c3aed 68%, var(--surface));
+  border-color: color-mix(in srgb, #7c3aed 50%, var(--border));
+  color: #fff;
+}
+
+.mapaCalorStatusMisto4 {
   background: #7c3aed;
   border-color: #7c3aed;
   color: #fff;
