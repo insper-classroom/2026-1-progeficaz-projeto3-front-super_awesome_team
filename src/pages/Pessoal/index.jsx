@@ -238,18 +238,18 @@ export function Pessoal() {
 
       <section className={styles.resumoGrid}>
         <article className={styles.cardResumo}>
-          <span>Despesas confirmadas</span>
-          <strong>{formatarMoeda(resumo.totalDespesas)}</strong>
+          <span>Você deve</span>
+          <strong className={styles.valorNegativo}>{formatarMoeda(resumo.totalDespesas)}</strong>
           <small>{resumo.totalRegistrosDespesa} registros em {resumo.totalGrupos} grupos</small>
         </article>
         <article className={styles.cardResumo}>
           <span>Você pagou</span>
-          <strong>{formatarMoeda(resumo.totalPago)}</strong>
+          <strong className={styles.valorPositivo}>{formatarMoeda(resumo.totalPago)}</strong>
           <small>Como devedor em confirmação dupla</small>
         </article>
         <article className={styles.cardResumo}>
           <span>Você recebeu</span>
-          <strong>{formatarMoeda(resumo.totalRecebido)}</strong>
+          <strong className={styles.valorRecebido}>{formatarMoeda(resumo.totalRecebido)}</strong>
           <small>Como credor em confirmação dupla</small>
         </article>
         <article className={styles.cardResumo}>

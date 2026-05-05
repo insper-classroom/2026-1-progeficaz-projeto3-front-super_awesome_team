@@ -109,6 +109,10 @@
   color: var(--negative) !important;
 }
 
+.valorRecebido {
+  color: #2563eb !important;
+}
+
 .gridPrincipal,
 .analiseGrid {
   display: grid;
