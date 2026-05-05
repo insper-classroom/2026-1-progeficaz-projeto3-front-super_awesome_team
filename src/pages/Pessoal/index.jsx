@@ -13,6 +13,7 @@ import {
 } from 'recharts'
 import { FiRefreshCw } from 'react-icons/fi'
 import { usePessoal } from '../../hooks/usePessoal'
+import { useUser } from '../../hooks/useUser'
 import styles from './Pessoal.module.css'
 
 const coresCategorias = ['#047857', '#2563eb', '#d97706', '#7c3aed', '#dc2626', '#0891b2']
@@ -36,6 +37,16 @@ function formatarMes(valor) {
   const data = new Date(`${valor}-01T12:00:00Z`)
   if (Number.isNaN(data.getTime())) return valor
   return data.toLocaleDateString('pt-BR', { month: 'short', year: '2-digit' })
+}
+
+function obterNomeUsuario(usuario) {
+  const nome = usuario?.name?.trim()
+  if (nome) return nome
+
+  const email = usuario?.email?.trim()
+  if (!email) return 'Pessoal'
+
+  return email.split('@')[0]
 }
 
 function obterData(valor) {
@@ -250,8 +261,10 @@ function TooltipCategoria({ active, payload }) {
 
 export function Pessoal() {
   const { data, loading, error, recarregar } = usePessoal()
+  const { usuario } = useUser()
 
   const resumo = data.resumo
+  const titulo = `Olá, ${obterNomeUsuario(usuario)}`
   const categorias = useMemo(
     () => data.graficos.categorias.map((item, index) => ({
       ...item,
@@ -278,7 +291,7 @@ export function Pessoal() {
     <div className={styles.pagina}>
       <header className={styles.header}>
         <div>
-          <h1>Pessoal</h1>
+          <h1>{titulo}</h1>
           <span>Feedback visual consolidado das suas movimentações nos grupos</span>
         </div>
         <button type="button" className={styles.botaoSecundario} onClick={recarregar}>
