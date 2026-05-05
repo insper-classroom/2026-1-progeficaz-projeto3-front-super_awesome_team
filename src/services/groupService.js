@@ -13,6 +13,9 @@ function normalizarMembro(membro, index) {
     typeof membro === 'string'
       ? nomeDoEmail(email)
       : membro.name || membro.nome || nomeDoEmail(email)
+  const foto = typeof membro === 'string'
+    ? null
+    : decodeImageFromBase64(membro.image || membro.foto)
 
   return {
     id: email,
@@ -20,19 +23,32 @@ function normalizarMembro(membro, index) {
     nome,
     iniciais: nome.slice(0, 2).toUpperCase(),
     cor: coresMembros[index % coresMembros.length],
-    foto: typeof membro === 'string' ? null : membro.image || membro.foto || null,
+    foto,
   }
+}
+
+function obterDataCriacao(grupo) {
+  if (grupo.created_at || grupo.createdAt || grupo.created) {
+    return grupo.created_at || grupo.createdAt || grupo.created
+  }
+
+  if (/^[a-f\d]{24}$/i.test(grupo._id || '')) {
+    return new Date(parseInt(grupo._id.slice(0, 8), 16) * 1000).toISOString()
+  }
+
+  return null
 }
 
 export function normalizarGrupo(grupo) {
   const membros = grupo.member_details || grupo.members || []
   const imagem = decodeImageFromBase64(grupo.image || grupo.imagem) || '/casa.jpg'
+  const criadoEm = obterDataCriacao(grupo)
 
   return {
     id: grupo._id,
     nome: grupo.name,
-    desc: grupo.description || `${membros.length} membros`,
-    descricao: grupo.description,
+    desc: criadoEm,
+    criadoEm,
     created_by: grupo.created_by,
     membros: membros.map(normalizarMembro),
     imagem,
@@ -49,7 +65,7 @@ export async function criarGrupo({ nome, membros, descricao, imagem }) {
   const response = await api.post('/group', {
     name: nome,
     members: membros,
-    description: descricao,
+    description: descricao || '',
     image: imagem || null,
   })
   return response.data
@@ -59,7 +75,7 @@ export async function atualizarGrupo(groupId, { nome, membros, descricao, imagem
   const response = await api.put(`/group/${groupId}`, {
     name: nome,
     members: membros,
-    description: descricao,
+    description: descricao || '',
     image: imagem,
     created_by,
   })
