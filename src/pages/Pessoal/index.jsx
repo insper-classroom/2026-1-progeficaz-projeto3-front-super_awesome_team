@@ -12,6 +12,7 @@ import {
   YAxis,
 } from 'recharts'
 import { FiRefreshCw } from 'react-icons/fi'
+import EstadoVazio from '../../components/EstadoVazio'
 import { usePessoal } from '../../hooks/usePessoal'
 import { useUser } from '../../hooks/useUser'
 import styles from './Pessoal.module.css'
@@ -481,7 +482,11 @@ export function Pessoal() {
               </div>
             </div>
           ) : (
-            <div className={styles.vazio}>Sem despesas confirmadas por categoria.</div>
+            <EstadoVazio
+              classe={styles.vazio}
+              titulo="Sem despesas confirmadas"
+              descricao="Quando uma despesa for concluída, a categoria aparecerá neste gráfico."
+            />
           )}
         </article>
 
@@ -545,7 +550,11 @@ export function Pessoal() {
               </LineChart>
             </ResponsiveContainer>
           ) : (
-            <div className={styles.vazio}>Sem movimentações no período.</div>
+            <EstadoVazio
+              classe={styles.vazio}
+              titulo="Sem movimentações no período"
+              descricao="Altere o filtro ou registre novas movimentações nos grupos."
+            />
           )}
         </article>
       </section>
@@ -570,7 +579,11 @@ export function Pessoal() {
               ))}
             </div>
           ) : (
-            <div className={styles.vazio}>Nenhuma despesa de grupo concluída.</div>
+            <EstadoVazio
+              classe={styles.vazio}
+              titulo="Nenhuma despesa de grupo concluída"
+              descricao="As despesas confirmadas dos seus grupos aparecerão aqui."
+            />
           )}
         </article>
 
@@ -593,7 +606,11 @@ export function Pessoal() {
               ))}
             </div>
           ) : (
-            <div className={styles.vazio}>Nenhum aporte em metas de grupo.</div>
+            <EstadoVazio
+              classe={styles.vazio}
+              titulo="Nenhum aporte em metas de grupo"
+              descricao="Os aportes registrados nas metas aparecerão nesta lista."
+            />
           )}
         </article>
       </section>
@@ -699,7 +716,11 @@ export function Pessoal() {
               })}
             </div>
           ) : (
-            <div className={styles.vazio}>Sem aportes registrados.</div>
+            <EstadoVazio
+              classe={styles.vazio}
+              titulo="Sem aportes registrados"
+              descricao="Quando houver aportes, esta área mostra quais metas receberam mais valor."
+            />
           )}
         </article>
       </section>
