@@ -5,6 +5,8 @@
 
 /* Variáveis de design — tema claro (padrão) */
 :root {
+  --font-title:     'Inter', sans-serif;
+  --font-body:      'Roboto', sans-serif;
   --primary:        #047857;
   --primary-muted:  #d1fae5;
   --bg:             #ffffff;
@@ -41,10 +43,23 @@ body, #root {
 }
 
 body {
-  font-family: 'Roboto', sans-serif;
+  font-family: var(--font-body);
   margin: 0;
   padding: 0;
   background: var(--bg);
   color: var(--text);
   transition: background 0.25s, color 0.25s;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+strong,
+b,
+label,
+button {
+  font-family: var(--font-title);
 }
