@@ -44,6 +44,10 @@
   align-items: start;
 }
 
+.estadoVazio {
+  margin-top: 8px;
+}
+
 .overlay {
   position: fixed;
   inset: 0;

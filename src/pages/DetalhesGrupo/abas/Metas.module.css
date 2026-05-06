@@ -55,6 +55,14 @@
   font-size: 14px;
 }
 
+.estadoVazioMarca {
+  margin-top: 12px;
+}
+
+.estadoVazioCompacto {
+  min-height: 220px;
+}
+
 .secaoMetas {
   margin-bottom: 24px;
 }
@@ -110,6 +118,13 @@
   justify-content: center;
   gap: 12px;
   text-align: center;
+  cursor: pointer;
+  transition: border-color 0.16s ease, background 0.16s ease;
+}
+
+.cardNovaMeta:hover {
+  border-color: color-mix(in srgb, var(--primary) 36%, var(--border));
+  background: color-mix(in srgb, var(--primary) 4%, var(--surface));
 }
 
 .iconeNovaMeta {
