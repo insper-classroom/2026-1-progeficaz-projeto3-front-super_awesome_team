@@ -16,16 +16,53 @@
   overflow-x: hidden;
 }
 
-/* left e width em vw preservam proporções do Figma em qualquer viewport */
-.bgLogo {
-  position: absolute;
-  left: -27.5vw;
-  top: 52px;
-  width: 97vw;
+
+.heroSection {
+  position: relative;
+  z-index: 10;
+  min-height: 92vh;
+  padding: 128px 24px 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  gap: 0;
+  overflow: visible;
+}
+
+.heroTitle {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: clamp(26px, 3.6vw, 52px);
+  color: #fff;
+  max-width: 600px;
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.heroLogo {
+  width: min(980px, 92vw);
   height: auto;
+  margin: 0;
   pointer-events: none;
   user-select: none;
-  opacity: 0.95;
+  display: block;
+  
+  transform: translate(-260px, -122px); /* move para esquerda */
+}
+
+.heroSubtitle {
+  font-family: "Inter", sans-serif;
+  font-weight: 200;
+  font-size: clamp(13px, 1.4vw, 20px);
+  color: #fff;
+  max-width: 680px;
+  margin-top: -180px;
+}
+
+.heroActions {
+  margin-top: 10px;
 }
 
 .navWrapper {
@@ -99,41 +136,6 @@
   background: #72e840;
 }
 
-.heroSection {
-  position: relative;
-  z-index: 10;
-  min-height: calc(100vh - 24px);
-  padding: clamp(148px, 18vw, 210px) 24px 96px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  gap: 18px;
-}
-
-.heroTitle {
-  font-family: "Inter", sans-serif;
-  font-weight: 700;
-  font-size: clamp(26px, 3.6vw, 52px);
-  color: #fff;
-  max-width: 680px;
-  margin: 0;
-  line-height: 1.2;
-}
-
-.heroSubtitle {
-  font-family: "Inter", sans-serif;
-  font-weight: 200;
-  font-size: clamp(13px, 1.4vw, 20px);
-  color: #fff;
-  max-width: 680px;
-  margin: 0 auto;
-}
-
-.heroActions {
-  margin-top: 10px;
-}
 
 .btnComece {
   background: #000;
