@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { FiAlertTriangle, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import { useMetas } from '../../../hooks/useMetas'
+import EstadoVazio from '../../../components/EstadoVazio'
 import GraficoAportes from '../../../components/GraficoAportes'
 import IconeMeta from '../../../components/IconeMeta'
 import ModalMeta from '../../../components/ModalMeta'
@@ -277,10 +278,13 @@ export function Metas({ grupoId, metaInicialId = null }) {
           <div className={styles.vazio}>Não foi possível carregar as metas: {mensagemErroCarregamento}</div>
         )}
         {erroOperacao && <div className={styles.vazio}>{erroOperacao}</div>}
-        <div className={styles.vazio}>Nenhuma meta cadastrada.</div>
-        <button type="button" className={styles.botaoPrimario} onClick={abrirNovaMeta}>
-          Criar meta
-        </button>
+        <EstadoVazio
+          classe={styles.estadoVazioMarca}
+          titulo="Nenhuma meta cadastrada"
+          descricao="Defina um objetivo do grupo e acompanhe os aportes em conjunto."
+          rotuloAcao="Criar meta"
+          aoAcionar={abrirNovaMeta}
+        />
 
         {modalAberto === 'novaMeta' && (
           <ModalMeta
@@ -660,7 +664,11 @@ export function Metas({ grupoId, metaInicialId = null }) {
           </div>
 
           {movimentacoes.length === 0 ? (
-            <div className={styles.vazio}>Nenhuma movimentação registrada.</div>
+            <EstadoVazio
+              classe={styles.estadoVazioCompacto}
+              titulo="Nenhuma movimentação registrada"
+              descricao="Os aportes e ajustes das metas aparecerão aqui."
+            />
           ) : (
             <div className={styles.listaMovimentacoes}>
               {movimentacoes.map((mov) => {

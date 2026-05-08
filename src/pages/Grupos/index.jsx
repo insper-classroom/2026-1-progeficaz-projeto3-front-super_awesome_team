@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { FiPlus, FiTrash2, FiUpload, FiX } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import Button from '../../components/Button'
+import EstadoVazio from '../../components/EstadoVazio'
 import GrupoCard from '../../components/GrupoCard'
 import { useUser } from '../../hooks/useUser'
 import {
@@ -256,19 +257,31 @@ export function Grupos() {
         {carregando && <p>Carregando grupos...</p>}
         {erro && !modalAberto && <p>{erro}</p>}
 
-        <div className={styles.grid}>
-          {grupos.map((grupo) => (
-            <GrupoCard
-              key={grupo.id}
-              id={grupo.id}
-              title={grupo.nome}
-              subtitle={formatarDataCriacao(grupo.criadoEm || grupo.desc)}
-              image={grupo.imagem}
-              onClick={() => navigate(`/grupos/${grupo.id}`)}
-              onEdit={() => abrirEditarGrupo(grupo)}
+        {grupos.length > 0 ? (
+          <div className={styles.grid}>
+            {grupos.map((grupo) => (
+              <GrupoCard
+                key={grupo.id}
+                id={grupo.id}
+                title={grupo.nome}
+                subtitle={formatarDataCriacao(grupo.criadoEm || grupo.desc)}
+                image={grupo.imagem}
+                onClick={() => navigate(`/grupos/${grupo.id}`)}
+                onEdit={() => abrirEditarGrupo(grupo)}
+              />
+            ))}
+          </div>
+        ) : (
+          !carregando && !erro && (
+            <EstadoVazio
+              classe={styles.estadoVazio}
+              titulo="Nenhum grupo criado ainda"
+              descricao="Crie seu primeiro grupo para organizar despesas, metas e aportes com outras pessoas."
+              rotuloAcao="Criar grupo"
+              aoAcionar={abrirCriarGrupo}
             />
-          ))}
-        </div>
+          )
+        )}
       </div>
 
       {modalAberto && (

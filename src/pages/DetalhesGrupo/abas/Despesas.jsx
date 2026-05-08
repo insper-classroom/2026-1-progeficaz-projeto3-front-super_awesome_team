@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import DespesaForm from "../../../components/DespesaForm";
 import DespesaCard from "../../../components/DespesaCard";
+import EstadoVazio from "../../../components/EstadoVazio";
 import Button from "../../../components/Button";
 import { useUser } from "../../../hooks/useUser";
 import {
@@ -768,10 +769,13 @@ export function Despesas({ grupoId, grupo }) {
             ))}
           </div>
         ) : (
-          <div className={styles.estadoVazio}>
-            <strong>{estadoVazio.titulo}</strong>
-            <span>{estadoVazio.detalhe}</span>
-          </div>
+          <EstadoVazio
+            classe={styles.estadoVazio}
+            titulo={estadoVazio.titulo}
+            descricao={estadoVazio.detalhe}
+            rotuloAcao="Nova despesa"
+            aoAcionar={abrirNovaDespesa}
+          />
         )}
 
         {podeCarregarMais && (
@@ -912,7 +916,11 @@ export function Despesas({ grupoId, grupo }) {
               </button>
             ))
           ) : (
-            <p className={styles.historicoVazio}>Nenhuma despesa registrada.</p>
+            <EstadoVazio
+              classe={styles.historicoVazio}
+              titulo="Nenhuma despesa registrada"
+              descricao="As atividades mais recentes do grupo aparecerão aqui."
+            />
           )}
           </div>
         </section>

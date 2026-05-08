@@ -1,0 +1,84 @@
+.estadoVazio {
+  min-height: 180px;
+  border: 1px dashed color-mix(in srgb, var(--primary) 24%, var(--border));
+  border-radius: 12px;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--primary) 4%, transparent), transparent 72%),
+    var(--surface);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 24px;
+  text-align: center;
+}
+
+.marcaLogo {
+  width: 42px;
+  height: 42px;
+  border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--border));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary) 9%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.marcaLogo img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.logoEscuro {
+  display: none;
+}
+
+:global([data-theme="dark"]) .logoClaro {
+  display: none;
+}
+
+:global([data-theme="dark"]) .logoEscuro {
+  display: block;
+}
+
+.texto {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.texto strong {
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.2;
+}
+
+.texto span {
+  max-width: 320px;
+  color: var(--text-muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.botaoAcao {
+  min-height: 38px;
+  border: 1px solid var(--primary);
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--bg);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 0 16px;
+  transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+}
+
+.botaoAcao:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 20%, transparent);
+  filter: brightness(0.98);
+}
