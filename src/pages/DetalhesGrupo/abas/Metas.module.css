@@ -91,7 +91,6 @@
 
 .carrosselMetas {
   position: relative;
-  padding: 0 20px;
   min-width: 0;
 }
 
@@ -409,17 +408,22 @@
   justify-content: center;
 }
 
+.setaCarrossel:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .setaCarrossel:disabled {
   opacity: 0.25;
   cursor: default;
 }
 
 .setaAnterior {
-  left: -4px;
+  left: -15px;
 }
 
 .setaProxima {
-  right: -4px;
+  right: -20px;
 }
 
 /* ── Destaque da meta selecionada + painel de próximo aporte ── */
