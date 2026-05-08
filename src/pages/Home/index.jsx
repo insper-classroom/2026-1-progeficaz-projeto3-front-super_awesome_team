@@ -60,7 +60,6 @@ export function Home() {
 
   return (
     <div className={styles.page} ref={pageRef}>
-      <img src="/logo-green.png" alt="" className={styles.bgLogo} />
 
       <div className={styles.navWrapper}>
         <nav className={styles.navbar}>
@@ -75,13 +74,17 @@ export function Home() {
         </nav>
       </div>
 
-      <div className={`${styles.heroSection} ${styles.reveal}`} data-reveal>
+      <div className={styles.heroSection}>
         <h1 className={styles.heroTitle}>
           Chega de confusão, vem ser camaleão e
         </h1>
+
+        <img src="/logo-green.png" alt="" className={styles.heroLogo} />
+
         <p className={styles.heroSubtitle}>
           Somos o seu aplicativo de gerenciamento financeiro compartilhado
         </p>
+
         <div className={styles.heroActions}>
           <button className={styles.btnComece} onClick={() => navigate('/cadastro')}>
             Comece agora
