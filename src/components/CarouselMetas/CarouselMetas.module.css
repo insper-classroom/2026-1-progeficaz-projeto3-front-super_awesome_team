@@ -29,7 +29,6 @@
 /* CARROSSEL */
 .carrosselWrap {
   position: relative;
-  padding: 0 20px;
 }
 
 .carrossel {
@@ -189,10 +188,15 @@
   transition: opacity 0.2s;
 }
 
+.seta:hover:not(:disabled) {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
 .seta:disabled {
   opacity: 0.25;
   cursor: default;
 }
 
-.setaAnterior { left: -4px; }
-.setaProxima  { right: -4px; }
+.setaAnterior { left: -20px; }
+.setaProxima  { right: -20px; }
