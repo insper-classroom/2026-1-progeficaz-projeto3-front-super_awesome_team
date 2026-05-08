@@ -16,7 +16,6 @@
   overflow-x: hidden;
 }
 
-
 .heroSection {
   position: relative;
   z-index: 10;
@@ -29,6 +28,7 @@
   text-align: center;
   gap: 0;
   overflow: visible;
+  transform: translateY(-30px);
 }
 
 .heroTitle {
@@ -48,7 +48,7 @@
   pointer-events: none;
   user-select: none;
   display: block;
-  
+
   transform: translate(-260px, -122px); /* move para esquerda */
 }
 
@@ -136,7 +136,6 @@
   background: #72e840;
 }
 
-
 .btnComece {
   background: #000;
   border: 2px solid #fff;
@@ -175,7 +174,11 @@
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 30px;
   background:
-    radial-gradient(circle at top right, rgba(114, 232, 64, 0.12), transparent 42%),
+    radial-gradient(
+      circle at top right,
+      rgba(114, 232, 64, 0.12),
+      transparent 42%
+    ),
     rgba(255, 255, 255, 0.02);
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
@@ -252,7 +255,9 @@
   flex-direction: column;
   align-items: center;
   gap: 10px;
-  transition: border-color 0.2s, transform 0.2s;
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
 }
 
 .stepCard:hover {
